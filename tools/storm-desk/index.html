@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Storm Desk — Tools — What Works?</title>
+  <meta name="description" content="Explore 75 years of U.S. storm records (1.9 million events) by place, type, year and toll, right in your browser.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script>window.WW_BASE = "/whatworks"; window.WW_TILES = {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "tiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"};</script>
+  <link rel="icon" href="/whatworks/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/whatworks/static/style.css">
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-top">
+      <span class="dateline" id="dateline">Thursday, October 8, 2026</span>
+      <script>document.getElementById("dateline").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });</script>
+      <div class="channel-links">
+        <a href="https://www.youtube.com/@BlanketBaron" rel="noopener">YouTube</a>
+        <a href="https://www.twitch.tv/blanketbaron" rel="noopener">Twitch</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <a class="wordmark" href="/whatworks/">What Works<span>?</span></a>
+      <p class="tagline">Everyday solutions. Out-of-the-ordinary situations. The news behind both.</p>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <div class="wrap">
+        
+          <a href="/whatworks/section/politics/"
+             >Politics</a>
+        
+          <a href="/whatworks/section/economics/"
+             >Economics</a>
+        
+          <a href="/whatworks/section/tech/"
+             >Technology</a>
+        
+          <a href="/whatworks/section/science/"
+             >Science</a>
+        
+          <a href="/whatworks/storms/"
+             >Storm Desk</a>
+        
+          <a href="/whatworks/section/channel/"
+             >From the Channel</a>
+        
+        <a href="/whatworks/tools/" aria-current="page">Tools</a>
+        <a href="/whatworks/about/" >About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+<article class="story">
+  
+  <header>
+    <a class="kicker" href="/whatworks/tools/">Tools</a>
+    <h1>Storm Desk</h1>
+    <p class="dek">Explore 75 years of U.S. storm records (1.9 million events) by place, type, year and toll, right in your browser.</p>
+    <p class="meta"><span class="tool-status status-live">Live</span> · For: Anyone curious how today&#39;s storms compare with the storms of the past</p>
+  </header>
+  <p class="tool-actions big">
+    <a class="tool-open" href="/whatworks/storms/">Open Storm Desk →</a>
+    <a href="https://github.com/Castor-o7/whatworks" rel="noopener">Source code</a>
+  </p>
+  <div class="prose"><p>The Storm Desk puts NOAA&rsquo;s Storm Events Database, every recorded U.S. storm event from 1950 through 2024,
+into an explorer anyone can use.<sup id="fnref:noaa"><a class="footnote-ref" href="#fn:noaa">1</a></sup> There&rsquo;s nothing to install and no account to make, and every chart
+is computed in your own browser.</p>
+<h2>How to use it</h2>
+<ul>
+<li><strong>Filter</strong> by event type, state, years and measure (events, deaths, injuries or damage). Every chart,
+  the map and the event list update together.</li>
+<li><strong>Map:</strong> <em>Locations</em> shows where events happened, grouped into a grid that sharpens as you zoom, down to
+  single events you can click. <em>By state</em> shades every state, including events that have no coordinates.</li>
+<li><strong>Near me</strong> centers the map on you. <strong>Limit everything to the map area</strong> then narrows the whole page
+  to what&rsquo;s on the map. Your exact location never leaves your browser.</li>
+<li><strong>Share a view</strong> by copying the address bar. Filters and map area are saved in the link.</li>
+<li><strong>Click any event</strong> for NOAA&rsquo;s own account of what happened, the toll and where it began.</li>
+</ul>
+<h2>Reading the data honestly</h2>
+<p>Storm records changed far more than storms did, and that matters most when comparing today with the past.</p>
+<figure class="storm-chart" data-title="Recorded events per year" data-sub="All event types · NOAA Storm Events"></figure>
+
+<ul>
+<li><strong>Record-keeping changed.</strong> The database holds only tornadoes for 1950–1954, and only tornadoes,
+  thunderstorm wind and hail from 1955 through 1992. The modern list arrives in 1996: 34 different event
+  types that year, and about 50 a year lately.<sup id="fnref:types"><a class="footnote-ref" href="#fn:types">2</a></sup> The jump in the chart above is mostly paperwork, not
+  weather. Compare like with like: the same event type, in years when it was recorded the same way.</li>
+<li><strong>Damage is in nominal dollars.</strong> A 1960 dollar isn&rsquo;t a 2024 dollar, and the figures aren&rsquo;t adjusted
+  for inflation.</li>
+<li><strong>Deaths count only when they&rsquo;re attributed to a weather event,</strong> and attribution practices vary across
+  places and over time.</li>
+<li><strong>Not everything has a location.</strong> About 61% of events have coordinates. Zone-reported hazards like heat,
+  winter storms and drought don&rsquo;t, so the <em>By state</em> view is the complete one.</li>
+</ul>
+<h2>How it&rsquo;s built</h2>
+<p>The database is pre-summarized into compressed files that your browser downloads and queries as you
+explore, so the Storm Desk runs as a plain static website with no server. The code is open source.</p>
+<section class="sources" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>
+<li id="fn:noaa">
+<p>NOAA National Centers for Environmental Information, Storm Events Database. <a href="https://www.ncdc.noaa.gov/stormevents/">https://www.ncdc.noaa.gov/stormevents/</a>&#160;<a class="footnote-backref" href="#fnref:noaa" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:types">
+<p>Counted from the database itself: the number of distinct event types recorded in each year, 1950–2024.&#160;<a class="footnote-backref" href="#fnref:types" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol></section></div>
+</article>
+
+<section class="related">
+  <h2 class="box-title">Stories built with Storm Desk</h2>
+  <div class="grid">
+<article class="card ">
+  
+  <a class="kicker" href="/whatworks/storms/">Storm Desk</a>
+  <h3><a href="/whatworks/post/heat-is-the-deadliest-storm/">The deadliest weather in America doesn&#39;t come with a siren</a></h3>
+  <p class="dek">Tornadoes get the headlines. Across nearly three decades of NOAA records, heat has killed almost three times as many people.</p>
+  <p class="meta">October 8, 2026</p>
+</article>
+</div>
+</section>
+
+</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span class="wordmark small">What Works<span>?</span></span>
+      <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
+      <p><a href="https://www.youtube.com/@BlanketBaron">YouTube</a> · <a href="https://www.twitch.tv/blanketbaron">Twitch</a> · <a href="/whatworks/tools/">Tools</a> · <a href="/whatworks/about/">About</a></p>
+    </div>
+  </footer>
+  <script src="/whatworks/static/data.js"></script>
+  <script src="/whatworks/static/charts.js"></script>
+  <script src="/whatworks/static/site.js"></script>
+  
+</body>
+</html>
