@@ -1,0 +1,50 @@
+# What Works? News Center — site settings. Edit freely, then rebuild: python scripts/build_site.py
+name = "What Works?"
+tagline = "Everyday solutions. Out-of-the-ordinary situations. The news behind both."
+author = "Josh"
+# Path the site is served under (GitHub Pages project site). Every link, asset and fetch uses it.
+base_url = "/whatworks"
+
+[channels]
+# Put your real handles here. They power the header links and the "Watch" section.
+youtube = "https://www.youtube.com/@YOUR_HANDLE"
+twitch = "https://www.twitch.tv/YOUR_HANDLE"
+# Twitch embeds only play on domains listed here (Twitch requires it).
+twitch_parents = ["castor-o7.github.io", "localhost", "127.0.0.1"]
+
+[map]
+# Basemap tiles. OpenStreetMap's free tiles are fine for a personal site; for heavier traffic
+# switch to a provider such as MapTiler or Stadia (add your key to the URL).
+tiles = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+attribution = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
+
+# The sections of the paper, in nav order. slug -> label + one-line description.
+[[sections]]
+slug = "politics"
+label = "Politics"
+blurb = "Policy, power, and what it means at the kitchen table."
+
+[[sections]]
+slug = "economics"
+label = "Economics"
+blurb = "Prices, jobs, markets — and what actually works."
+
+[[sections]]
+slug = "tech"
+label = "Technology"
+blurb = "Software, hardware, AI, and security from a CS point of view."
+
+[[sections]]
+slug = "science"
+label = "Science"
+blurb = "Research worth knowing about, explained plainly."
+
+[[sections]]
+slug = "storms"
+label = "Storm Desk"
+blurb = "75 years of NOAA storm records, turned into stories."
+
+[[sections]]
+slug = "channel"
+label = "From the Channel"
+blurb = "Videos and clips from What Works? on YouTube and Twitch."

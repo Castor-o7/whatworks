@@ -1,0 +1,33 @@
+{% macro card(p, size='') %}
+<article class="card {{ size }}">
+  {% if p.video and size == 'lead' %}
+    <div class="video"><iframe src="{{ p.video | embed }}" title="{{ p.title }}" allowfullscreen loading="lazy"></iframe></div>
+  {% endif %}
+  <a class="kicker" href="{{ base }}{{ '/storms/' if p.section == 'storms' else '/section/' ~ p.section ~ '/' }}">{{ section_map[p.section].label if p.section in section_map else p.section }}</a>
+  <h3><a href="{{ base }}/post/{{ p.slug }}/">{{ p.title }}</a></h3>
+  {% if p.summary %}<p class="dek">{{ p.summary }}</p>{% endif %}
+  <p class="meta">{{ p.date | nicedate }}{% if p.video %} · <span class="badge">▶ Video</span>{% endif %}</p>
+</article>
+{% endmacro %}
+
+{% macro money(v) -%}
+{%- if v >= 1e9 -%}${{ '%.1f' % (v / 1e9) }}B
+{%- elif v >= 1e6 -%}${{ '%.1f' % (v / 1e6) }}M
+{%- elif v >= 1e3 -%}${{ '%.0f' % (v / 1e3) }}K
+{%- else -%}${{ '%.0f' % v }}{%- endif -%}
+{%- endmacro %}
+
+{% macro event_row(e) %}
+<li class="event-row">
+  <a href="{{ base }}/storms/event/?id={{ e.event_id }}">
+    <span class="ev-type">{{ e.event_type }}</span>
+    <span class="ev-where">{{ e.cz_name }}, {{ e.state }}</span>
+    <span class="ev-year">{{ e.begin_date[:4] }}</span>
+  </a>
+  <span class="ev-toll">
+    {% if e.deaths %}{{ e.deaths }} killed{% endif %}{% if e.deaths and e.injuries %} · {% endif %}{% if e.injuries %}{{ e.injuries }} injured{% endif %}
+    {% if e.damage and (e.deaths or e.injuries) %} · {% endif %}{% if e.damage %}{{ money(e.damage) }} damage{% endif %}
+  </span>
+  {% if e.excerpt %}<p class="ev-excerpt">{{ e.excerpt }}{% if e.excerpt | length >= 280 %}…{% endif %}</p>{% endif %}
+</li>
+{% endmacro %}

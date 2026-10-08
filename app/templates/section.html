@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card %}
+{% set active = section.slug %}
+{% block title %}{{ section.label }} — {{ site.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ section.label }}</h1>
+  <p class="dek">{{ section.blurb }}</p>
+</header>
+<div class="grid wide">
+  {% for p in posts %}{{ card(p) }}{% else %}
+  <p class="empty">Nothing here yet. The first {{ section.label | lower }} story is waiting to be written.</p>
+  {% endfor %}
+</div>
+{% endblock %}

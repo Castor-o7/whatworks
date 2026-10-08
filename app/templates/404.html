@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ site.name }}{% endblock %}
+{% block content %}
+<article class="story not-found">
+  <header>
+    <span class="kicker">Error 404</span>
+    <h1>We couldn't find that page.</h1>
+    <p class="dek">It may have moved, or the link has a typo. Here's what does work:</p>
+  </header>
+  <ul class="section-list">
+    <li><a href="{{ base }}/">Front page</a><span>The latest stories and videos.</span></li>
+    {% for s in sections %}
+    <li><a href="{{ base }}{{ '/storms/' if s.slug == 'storms' else '/section/' ~ s.slug ~ '/' }}">{{ s.label }}</a><span>{{ s.blurb }}</span></li>
+    {% endfor %}
+  </ul>
+</article>
+{% endblock %}

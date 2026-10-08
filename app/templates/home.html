@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card %}
+{% block content %}
+<div class="front">
+  <section class="front-main">
+    {% if lead %}{{ card(lead, 'lead') }}{% else %}<p>No posts yet — add one to <code>content/posts/</code>.</p>{% endif %}
+    <div class="grid">
+      {% for p in recent %}{{ card(p) }}{% endfor %}
+    </div>
+  </section>
+
+  <aside class="rail">
+    {#- Filled in the browser by home.js for the reader's local date. #}
+    <section class="box">
+      <h2 class="box-title">On this day in storm history</h2>
+      <p class="box-sub" id="on-this-day-sub">Across 75 years of NOAA records</p>
+      <ul class="event-list" id="on-this-day"></ul>
+      <a class="more" href="{{ base }}/storms/">Open the Storm Desk →</a>
+    </section>
+
+    <section class="box">
+      <h2 class="box-title">Watch</h2>
+      {% for v in videos %}
+        <a class="watch-item" href="{{ base }}/post/{{ v.slug }}/"><span class="badge">▶</span> {{ v.title }}</a>
+      {% else %}
+        <p class="box-sub">Videos and clips from the channel show up here.</p>
+      {% endfor %}
+      <p class="watch-links"><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a></p>
+    </section>
+
+    <section class="box">
+      <h2 class="box-title">Sections</h2>
+      <ul class="section-list">
+        {% for s in sections %}
+          <li><a href="{{ base }}{{ '/storms/' if s.slug == 'storms' else '/section/' ~ s.slug ~ '/' }}">{{ s.label }}</a><span>{{ s.blurb }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ base }}/static/home.js"></script>{% endblock %}

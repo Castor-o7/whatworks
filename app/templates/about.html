@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set active = 'about' %}
+{% block title %}About — {{ site.name }}{% endblock %}
+{% block content %}
+<article class="story">
+  <header><h1>About What Works?</h1></header>
+  <div class="prose">
+    <p><strong>What Works?</strong> is about everyday solutions and fresh takes on out-of-the-ordinary situations. This news center is where the channel's videos and clips from YouTube and Twitch meet written reporting on politics, economics, technology and science.</p>
+    <p>It's written by {{ site.author }}, who has a B.S. in Computer Science with University Honors. That background shows up in the approach: go to the primary data, show the work, and say plainly what the numbers can and can't tell you.</p>
+    <h2>The Storm Desk</h2>
+    <p>The Storm Desk is built from NOAA's Storm Events Database: about 1.9 million events from 1950 to 2024, with narratives, damage estimates and fatality records. The records are pre-summarized into data files when the site is published, and every chart, map and event list is computed right in your browser from those files. There's no server in the middle, and your location (if you use "Near me") never leaves your device.</p>
+    <p><em>Two caveats apply to everything we publish from it.</em> First, NOAA recorded only tornadoes (from 1950), plus thunderstorm wind and hail (from 1955), until 1993. The full set of 48 event types starts in 1996. Second, damage figures are reported estimates in nominal dollars and are not adjusted for inflation.</p>
+  </div>
+</article>
+{% endblock %}

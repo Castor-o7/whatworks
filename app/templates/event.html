@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% set active = 'storms' %}
+{% block title %}Storm event — {{ site.name }}{% endblock %}
+{% block description %}One event from NOAA's Storm Events Database, 1950–2024.{% endblock %}
+{% block content %}
+{#- A shell: event.js reads ?id=N, renders the report (and its mini map) here, and sets the title. #}
+<article class="story" id="event-root">
+  <header>
+    <a class="kicker" href="{{ base }}/storms/">Storm Desk</a>
+    <p class="meta">Loading the event report…</p>
+  </header>
+  <noscript><p class="empty">Event reports are built in your browser, so this page needs JavaScript.</p></noscript>
+</article>
+{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ base }}/static/vendor/leaflet.min.css">{% endblock %}
+{% block scripts %}
+<script src="{{ base }}/static/vendor/leaflet.min.js"></script>
+<script src="{{ base }}/static/vendor/topojson-client.min.js"></script>
+<script src="{{ base }}/static/map.js"></script>
+<script src="{{ base }}/static/event.js"></script>
+{% endblock %}

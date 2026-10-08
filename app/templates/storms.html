@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card, money %}
+{% set active = 'storms' %}
+{% block title %}Storm Desk — {{ site.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Storm Desk</h1>
+  <p class="dek">{{ section_map.storms.blurb }} Filter, map, and dig into any event.</p>
+</header>
+
+{% if not storm_ok %}
+  <p class="empty">The storm data files haven't been built yet. Run <code>scripts/build_storm_db.py</code>, then <code>scripts/build_data.py</code>, then rebuild the site.</p>
+{% else %}
+<div class="stat-row">
+  <div class="stat"><span class="stat-num">{{ '{:,}'.format(meta.totals.events) }}</span><span class="stat-label">recorded events</span></div>
+  <div class="stat"><span class="stat-num">{{ '{:,}'.format(meta.totals.deaths) }}</span><span class="stat-label">deaths</span></div>
+  <div class="stat"><span class="stat-num">{{ '{:,}'.format(meta.totals.injuries) }}</span><span class="stat-label">injuries</span></div>
+  <div class="stat"><span class="stat-num">{{ money(meta.totals.damage) }}</span><span class="stat-label">reported damage (nominal)</span></div>
+</div>
+
+{% if posts %}
+<section class="desk-stories">
+  <h2 class="box-title">Storm Desk stories</h2>
+  <div class="grid">{% for p in posts[:3] %}{{ card(p) }}{% endfor %}</div>
+</section>
+{% endif %}
+
+<section class="explorer" id="explorer">
+  <h2 class="box-title">Explore the database</h2>
+  <form class="filters" id="filters">
+    <label>Event type
+      <select name="event_type"><option value="">All types</option>
+        {% for t in meta.types %}<option>{{ t }}</option>{% endfor %}</select></label>
+    <label>State
+      <select name="state"><option value="">All states</option>
+        {% for s in meta.menu_states %}<option>{{ s }}</option>{% endfor %}</select></label>
+    <label>From<input type="number" name="year_from" min="{{ meta.first_year }}" max="{{ meta.last_year }}" placeholder="{{ meta.first_year }}"></label>
+    <label>To<input type="number" name="year_to" min="{{ meta.first_year }}" max="{{ meta.last_year }}" placeholder="{{ meta.last_year }}"></label>
+    <label>Measure
+      <select name="metric">
+        <option value="events">Events</option><option value="deaths">Deaths</option>
+        <option value="injuries">Injuries</option><option value="damage">Damage ($)</option></select></label>
+  </form>
+  <p class="caveat">Before 1993, NOAA recorded only tornado, thunderstorm wind and hail. Jumps in the early 1990s reflect record-keeping, not the weather. Dollar figures are not inflation-adjusted.</p>
+
+  <div class="chart-grid">
+    <figure class="chart-panel span-2 map-panel" id="map-panel">
+      <div class="chart-head">
+        <p class="chart-title">Where it happened</p>
+        <div class="seg" role="group" aria-label="Map view">
+          <button type="button" data-view="points" aria-pressed="true">Locations</button>
+          <button type="button" data-view="states" aria-pressed="false">By state</button>
+        </div>
+      </div>
+      <p class="chart-sub"></p>
+      <div class="map-tools">
+        <button type="button" class="near-me" id="near-me">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 0v3M8 13v3M0 8h3M13 8h3" stroke="currentColor" stroke-width="1.6"/></svg>
+          Near me</button>
+        <label class="area-toggle"><input type="checkbox" id="area-only"> Limit everything to the map area</label>
+        <span class="map-status" id="area-status" role="status"></span>
+      </div>
+      <div class="map" role="region" aria-label="Storm map"></div>
+      <div class="map-legend"></div>
+      <p class="map-note"></p>
+    </figure>
+    <figure class="chart-panel span-2" id="chart-years"></figure>
+    <figure class="chart-panel" id="chart-types"></figure>
+    <figure class="chart-panel" id="chart-states"></figure>
+  </div>
+
+  <section class="results">
+    <div class="results-head">
+      <h3>Events</h3>
+      <label>Sort by
+        <select id="sort"><option value="deaths">Deadliest</option><option value="damage">Costliest</option>
+          <option value="injuries">Most injuries</option><option value="date">Most recent</option></select></label>
+    </div>
+    <p class="list-scope" id="list-scope" role="status"></p>
+    <ul class="event-list" id="results"></ul>
+    <button type="button" class="more-btn" id="more">Load more</button>
+  </section>
+</section>
+{% endif %}
+{% endblock %}
+{% block head %}{% if storm_ok %}<link rel="stylesheet" href="{{ base }}/static/vendor/leaflet.min.css">{% endif %}{% endblock %}
+{% block scripts %}{% if storm_ok %}
+<script src="{{ base }}/static/vendor/leaflet.min.js"></script>
+<script src="{{ base }}/static/vendor/topojson-client.min.js"></script>
+<script src="{{ base }}/static/map.js"></script>
+<script src="{{ base }}/static/storms.js"></script>
+{% endif %}{% endblock %}

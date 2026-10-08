@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ site.tagline }}{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  {% block head %}{% endblock %}
+  {#- Every link, asset and fetch is prefixed with the base path the site is served under. #}
+  <script>window.WW_BASE = {{ base | tojson }}; window.WW_TILES = {{ site.map | tojson }};</script>
+  <link rel="icon" href="{{ base }}/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ base }}/static/style.css">
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-top">
+      {#- The build date is a fallback; the reader's own date replaces it. #}
+      <span class="dateline" id="dateline">{{ today_label }}</span>
+      <script>document.getElementById("dateline").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });</script>
+      <div class="channel-links">
+        <a href="{{ site.channels.youtube }}" rel="noopener">YouTube</a>
+        <a href="{{ site.channels.twitch }}" rel="noopener">Twitch</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <a class="wordmark" href="{{ base }}/">What Works<span>?</span></a>
+      <p class="tagline">{{ site.tagline }}</p>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <div class="wrap">
+        {% for s in sections %}
+          <a href="{{ base }}{{ '/storms/' if s.slug == 'storms' else '/section/' ~ s.slug ~ '/' }}"
+             {% if active == s.slug %}aria-current="page"{% endif %}>{{ s.label }}</a>
+        {% endfor %}
+        <a href="{{ base }}/about/" {% if active == 'about' %}aria-current="page"{% endif %}>About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span class="wordmark small">What Works<span>?</span></span>
+      <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
+      <p><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a> · <a href="{{ base }}/about/">About</a></p>
+    </div>
+  </footer>
+  <script src="{{ base }}/static/data.js"></script>
+  <script src="{{ base }}/static/charts.js"></script>
+  <script src="{{ base }}/static/site.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

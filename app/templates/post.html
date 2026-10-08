@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card %}
+{% set active = post.section %}
+{% block title %}{{ post.title }} — {{ site.name }}{% endblock %}
+{% block description %}{{ post.summary or site.tagline }}{% endblock %}
+{% block content %}
+<article class="story">
+  <header>
+    <a class="kicker" href="{{ base }}{{ '/storms/' if post.section == 'storms' else '/section/' ~ post.section ~ '/' }}">{{ section_map[post.section].label if post.section in section_map else post.section }}</a>
+    <h1>{{ post.title }}</h1>
+    {% if post.summary %}<p class="dek">{{ post.summary }}</p>{% endif %}
+    <p class="meta">By {{ site.author }} · {{ post.date | nicedate }}</p>
+  </header>
+  {% if post.video %}
+    {% set src = post.video | embed %}
+    {% if src %}<div class="video"><iframe src="{{ src }}" title="{{ post.title }}" allowfullscreen></iframe></div>
+    {% else %}<p><a href="{{ post.video }}">Watch the video →</a></p>{% endif %}
+  {% endif %}
+  <div class="prose">{{ post.html(base) | safe }}</div>
+  {% if post.tags %}<p class="tags">{% for t in post.tags %}<span>#{{ t }}</span>{% endfor %}</p>{% endif %}
+</article>
+{% if related %}
+<section class="related">
+  <h2 class="box-title">More in {{ section_map[post.section].label if post.section in section_map else post.section }}</h2>
+  <div class="grid">{% for p in related %}{{ card(p) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}
