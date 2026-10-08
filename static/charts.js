@@ -177,20 +177,23 @@
   /* [[storm-chart ...]] shortcodes in posts become <figure class="storm-chart" data-...>. */
   async function renderShortcode(fig) {
     const d = fig.dataset;
-    const metric = d.metric || "events";
+    // An unknown metric or chart falls back to the default (the build warns the writer about it).
+    const metric = FORMATS[d.metric] ? d.metric : "events";
+    const chart = ["years", "types", "states", "months"].includes(d.chart) ? d.chart : "years";
     const filters = { state: d.state, event_type: d.eventType, year_from: d.yearFrom, year_to: d.yearTo };
-    const scope = [d.eventType || "All storm events", d.state].filter(Boolean).join(" · ");
+    const types = (d.eventType || "").split(",").map(t => t.trim()).filter(Boolean).join(" + ");
+    const scope = [types || "All storm events", d.state].filter(Boolean).join(" · ");
     fig.innerHTML = `<p class="chart-loading">Loading chart…</p>`;
     try {
-      if (!d.chart || d.chart === "years") {
+      if (chart === "years") {
         const rows = await window.WWData.byYear(filters);
         keep(fig, () => line(fig, { title: d.title || `${LABELS[metric]} per year`, sub: d.sub || scope + " · NOAA Storm Events",
           data: rows.map(r => ({ x: r.year, y: r[metric] || 0 })), metric }));
       } else {
-        const by = { types: "event_type", states: "state", months: "month" }[d.chart];
+        const by = { types: "event_type", states: "state", months: "month" }[chart];
         const rows = await window.WWData.breakdown(by, metric, Number(d.limit) || 10, filters);
         const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        keep(fig, () => bars(fig, { title: d.title || `${LABELS[metric]} by ${d.chart.slice(0, -1)}`,
+        keep(fig, () => bars(fig, { title: d.title || `${LABELS[metric]} by ${chart.slice(0, -1)}`,
           sub: d.sub || scope + " · NOAA Storm Events", metric, colName: by,
           data: rows.map(r => ({ label: by === "month" ? MONTHS[r.label] : String(r.label), value: r.value })) }));
       }

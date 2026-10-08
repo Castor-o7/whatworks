@@ -209,6 +209,20 @@ main.wrap { padding-top: 28px; padding-bottom: 48px; }
 .leaflet-control-attribution a { color: var(--ink-2); }
 @media (max-width: 520px) { .map { height: 380px; } .map-panel .chart-head { flex-wrap: wrap; } }
 
+/* Citations and drafts */
+.prose sup { line-height: 0; }
+.prose .footnote-ref { text-decoration: none; font-weight: 700; font-size: .8em; padding: 0 .1em; }
+.sources { margin-top: 2.4em; padding-top: 1em; border-top: 1px solid var(--rule); font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.sources h2 { font: 700 13px/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); margin: 0 0 .6em; }
+.sources ol { padding-left: 1.4em; margin: 0; }
+.sources li { margin: .4em 0; overflow-wrap: anywhere; }
+.sources li:target { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 4px; }
+.sources p { margin: 0; }
+.sources .footnote-backref { text-decoration: none; margin-left: .25em; }
+.draft-banner { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px dashed var(--accent);
+  border-radius: 8px; padding: 10px 14px; font-size: 15px; margin: 0 0 20px; }
+.badge.draft { border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; }
+
 .footer { border-top: 3px double var(--ink); padding: 24px 0 40px; color: var(--ink-3); font-size: 14px; }
 .footer p { margin: 6px 0; }
 
