@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Storm Desk — What Works?</title>
+  <meta name="description" content="Everyday solutions. Out-of-the-ordinary situations. The news behind both.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/whatworks/static/vendor/leaflet.min.css">
+  <script>window.WW_BASE = "/whatworks"; window.WW_TILES = {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "tiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"};</script>
+  <link rel="icon" href="/whatworks/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/whatworks/static/style.css">
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-top">
+      <span class="dateline" id="dateline">Thursday, October 8, 2026</span>
+      <script>document.getElementById("dateline").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });</script>
+      <div class="channel-links">
+        <a href="https://www.youtube.com/@YOUR_HANDLE" rel="noopener">YouTube</a>
+        <a href="https://www.twitch.tv/YOUR_HANDLE" rel="noopener">Twitch</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <a class="wordmark" href="/whatworks/">What Works<span>?</span></a>
+      <p class="tagline">Everyday solutions. Out-of-the-ordinary situations. The news behind both.</p>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <div class="wrap">
+        
+          <a href="/whatworks/section/politics/"
+             >Politics</a>
+        
+          <a href="/whatworks/section/economics/"
+             >Economics</a>
+        
+          <a href="/whatworks/section/tech/"
+             >Technology</a>
+        
+          <a href="/whatworks/section/science/"
+             >Science</a>
+        
+          <a href="/whatworks/storms/"
+             aria-current="page">Storm Desk</a>
+        
+          <a href="/whatworks/section/channel/"
+             >From the Channel</a>
+        
+        <a href="/whatworks/about/" >About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+<header class="page-head">
+  <h1>Storm Desk</h1>
+  <p class="dek">75 years of NOAA storm records, turned into stories. Filter, map, and dig into any event.</p>
+</header>
+
+
+<div class="stat-row">
+  <div class="stat"><span class="stat-num">1,935,155</span><span class="stat-label">recorded events</span></div>
+  <div class="stat"><span class="stat-num">27,211</span><span class="stat-label">deaths</span></div>
+  <div class="stat"><span class="stat-num">176,978</span><span class="stat-label">injuries</span></div>
+  <div class="stat"><span class="stat-num">$667.5B</span><span class="stat-label">reported damage (nominal)</span></div>
+</div>
+
+
+<section class="desk-stories">
+  <h2 class="box-title">Storm Desk stories</h2>
+  <div class="grid">
+<article class="card ">
+  
+  <a class="kicker" href="/whatworks/storms/">Storm Desk</a>
+  <h3><a href="/whatworks/post/heat-is-the-deadliest-storm/">The deadliest weather in America doesn&#39;t come with a siren</a></h3>
+  <p class="dek">Tornadoes get the headlines. Across nearly three decades of NOAA records, heat has killed almost three times as many people.</p>
+  <p class="meta">October 8, 2026</p>
+</article>
+</div>
+</section>
+
+
+<section class="explorer" id="explorer">
+  <h2 class="box-title">Explore the database</h2>
+  <form class="filters" id="filters">
+    <label>Event type
+      <select name="event_type"><option value="">All types</option>
+        <option>Thunderstorm Wind</option><option>Hail</option><option>Flash Flood</option><option>High Wind</option><option>Winter Storm</option><option>Tornado</option><option>Winter Weather</option><option>Drought</option><option>Heavy Snow</option><option>Flood</option><option>Marine Thunderstorm Wind</option><option>Heat</option><option>Heavy Rain</option><option>Strong Wind</option><option>Excessive Heat</option><option>Lightning</option><option>Cold/Wind Chill</option><option>Dense Fog</option><option>Extreme Cold/Wind Chill</option><option>Blizzard</option><option>Frost/Freeze</option><option>Ice Storm</option><option>High Surf</option><option>Funnel Cloud</option><option>Wildfire</option><option>Tropical Storm</option><option>Waterspout</option><option>Coastal Flood</option><option>Lake-Effect Snow</option><option>Debris Flow</option><option>Rip Current</option><option>Hurricane (Typhoon)</option><option>Dust Storm</option><option>Storm Surge/Tide</option><option>Marine High Wind</option><option>Sleet</option><option>Marine Hail</option><option>Avalanche</option><option>Astronomical Low Tide</option><option>Marine Tropical Storm</option><option>Tropical Depression</option><option>Freezing Fog</option><option>Lakeshore Flood</option><option>Hurricane</option><option>Dust Devil</option><option>Marine Strong Wind</option><option>Dense Smoke</option><option>Marine Hurricane/Typhoon</option><option>Volcanic Ashfall</option><option>Seiche</option><option>Volcanic Ash</option><option>Sneakerwave</option><option>Tsunami</option><option>Marine Tropical Depression</option><option>Marine Dense Fog</option><option>Northern Lights</option><option>THUNDERSTORM WIND/ TREES</option><option>Marine Lightning</option><option>THUNDERSTORM WINDS FUNNEL CLOU</option><option>THUNDERSTORM WINDS LIGHTNING</option><option>THUNDERSTORM WINDS/ FLOOD</option><option>HAIL FLOODING</option><option>HAIL/ICY ROADS</option><option>THUNDERSTORM WIND/ TREE</option><option>THUNDERSTORM WINDS HEAVY RAIN</option><option>THUNDERSTORM WINDS/FLASH FLOOD</option><option>THUNDERSTORM WINDS/FLOODING</option><option>THUNDERSTORM WINDS/HEAVY RAIN</option><option>TORNADO/WATERSPOUT</option><option>TORNADOES, TSTM WIND, HAIL</option></select></label>
+    <label>State
+      <select name="state"><option value="">All states</option>
+        <option>Alabama</option><option>Alaska</option><option>American Samoa</option><option>Arizona</option><option>Arkansas</option><option>Atlantic North</option><option>Atlantic South</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>District Of Columbia</option><option>E Pacific</option><option>Florida</option><option>Georgia</option><option>Guam</option><option>Gulf Of Mexico</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Lake Erie</option><option>Lake Huron</option><option>Lake Michigan</option><option>Lake Ontario</option><option>Lake St Clair</option><option>Lake Superior</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Puerto Rico</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virgin Islands</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select></label>
+    <label>From<input type="number" name="year_from" min="1950" max="2024" placeholder="1950"></label>
+    <label>To<input type="number" name="year_to" min="1950" max="2024" placeholder="2024"></label>
+    <label>Measure
+      <select name="metric">
+        <option value="events">Events</option><option value="deaths">Deaths</option>
+        <option value="injuries">Injuries</option><option value="damage">Damage ($)</option></select></label>
+  </form>
+  <p class="caveat">Before 1993, NOAA recorded only tornado, thunderstorm wind and hail. Jumps in the early 1990s reflect record-keeping, not the weather. Dollar figures are not inflation-adjusted.</p>
+
+  <div class="chart-grid">
+    <figure class="chart-panel span-2 map-panel" id="map-panel">
+      <div class="chart-head">
+        <p class="chart-title">Where it happened</p>
+        <div class="seg" role="group" aria-label="Map view">
+          <button type="button" data-view="points" aria-pressed="true">Locations</button>
+          <button type="button" data-view="states" aria-pressed="false">By state</button>
+        </div>
+      </div>
+      <p class="chart-sub"></p>
+      <div class="map-tools">
+        <button type="button" class="near-me" id="near-me">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 0v3M8 13v3M0 8h3M13 8h3" stroke="currentColor" stroke-width="1.6"/></svg>
+          Near me</button>
+        <label class="area-toggle"><input type="checkbox" id="area-only"> Limit everything to the map area</label>
+        <span class="map-status" id="area-status" role="status"></span>
+      </div>
+      <div class="map" role="region" aria-label="Storm map"></div>
+      <div class="map-legend"></div>
+      <p class="map-note"></p>
+    </figure>
+    <figure class="chart-panel span-2" id="chart-years"></figure>
+    <figure class="chart-panel" id="chart-types"></figure>
+    <figure class="chart-panel" id="chart-states"></figure>
+  </div>
+
+  <section class="results">
+    <div class="results-head">
+      <h3>Events</h3>
+      <label>Sort by
+        <select id="sort"><option value="deaths">Deadliest</option><option value="damage">Costliest</option>
+          <option value="injuries">Most injuries</option><option value="date">Most recent</option></select></label>
+    </div>
+    <p class="list-scope" id="list-scope" role="status"></p>
+    <ul class="event-list" id="results"></ul>
+    <button type="button" class="more-btn" id="more">Load more</button>
+  </section>
+</section>
+
+</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span class="wordmark small">What Works<span>?</span></span>
+      <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
+      <p><a href="https://www.youtube.com/@YOUR_HANDLE">YouTube</a> · <a href="https://www.twitch.tv/YOUR_HANDLE">Twitch</a> · <a href="/whatworks/about/">About</a></p>
+    </div>
+  </footer>
+  <script src="/whatworks/static/data.js"></script>
+  <script src="/whatworks/static/charts.js"></script>
+  <script src="/whatworks/static/site.js"></script>
+  
+<script src="/whatworks/static/vendor/leaflet.min.js"></script>
+<script src="/whatworks/static/vendor/topojson-client.min.js"></script>
+<script src="/whatworks/static/map.js"></script>
+<script src="/whatworks/static/storms.js"></script>
+
+</body>
+</html>
