@@ -7,8 +7,8 @@ base_url = "/whatworks"
 
 [channels]
 # Put your real handles here. They power the header links and the "Watch" section.
-youtube = "https://www.youtube.com/@YOUR_HANDLE"
-twitch = "https://www.twitch.tv/YOUR_HANDLE"
+youtube = "https://www.youtube.com/@BlanketBaron"
+twitch = "https://www.twitch.tv/blanketbaron"
 # Twitch embeds only play on domains listed here (Twitch requires it).
 twitch_parents = ["castor-o7.github.io", "localhost", "127.0.0.1"]
 
