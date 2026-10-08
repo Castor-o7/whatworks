@@ -5,6 +5,7 @@
 {% block description %}{{ post.summary or site.tagline }}{% endblock %}
 {% block content %}
 <article class="story">
+  {% if post.draft %}<p class="draft-banner"><strong>Draft preview.</strong> This post isn't published. Delete <code>draft: true</code> from its front matter, set <code>date:</code> to the day you publish, then run <code>scripts/publish.py</code>.</p>{% endif %}
   <header>
     <a class="kicker" href="{{ base }}{{ '/storms/' if post.section == 'storms' else '/section/' ~ post.section ~ '/' }}">{{ section_map[post.section].label if post.section in section_map else post.section }}</a>
     <h1>{{ post.title }}</h1>

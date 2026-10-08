@@ -6,7 +6,7 @@
   <a class="kicker" href="{{ base }}{{ '/storms/' if p.section == 'storms' else '/section/' ~ p.section ~ '/' }}">{{ section_map[p.section].label if p.section in section_map else p.section }}</a>
   <h3><a href="{{ base }}/post/{{ p.slug }}/">{{ p.title }}</a></h3>
   {% if p.summary %}<p class="dek">{{ p.summary }}</p>{% endif %}
-  <p class="meta">{{ p.date | nicedate }}{% if p.video %} · <span class="badge">▶ Video</span>{% endif %}</p>
+  <p class="meta">{% if p.draft %}<span class="badge draft">Draft</span> · {% endif %}{{ p.date | nicedate }}{% if p.video %} · <span class="badge">▶ Video</span>{% endif %}</p>
 </article>
 {% endmacro %}
 

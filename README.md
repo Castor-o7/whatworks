@@ -34,15 +34,20 @@ git repo (made on the first run), so the built site never gets committed to `mai
 refuses to run until `_site/data/meta.json.gz` exists. In the GitHub repo settings, set
 **Pages → Source** to "Deploy from a branch", branch `gh-pages`, folder `/ (root)`.
 
-## Publish a post
+## Write a post
 
-Copy `content/POST_TEMPLATE.md` into `content/posts/`, rename it, edit, and delete `draft: true`.
-The filename becomes the URL (`/post/<filename>/`). Then run `build_site.py` (and `deploy.sh`).
+```sh
+scripts/new_post.py "Your headline" --section science   # start a private draft
+scripts/preview.py                                       # preview, drafts included
+scripts/publish.py                                       # delete "draft: true" first; builds, deploys, backs up
+```
 
-- `section:` is one of politics, economics, tech, science, storms, channel
-- `video:` takes any YouTube or Twitch video/clip URL and embeds it at the top of the post
-- `[[storm-chart ...]]` drops a chart from the storm data into the story (options are in the template)
-- Write links from the site root (`[Storm Desk](/storms)`); the build adds the `/whatworks` base path
+Drafts never leave this computer (the repo is public); `publish.py` commits only published posts,
+and a git hook in `scripts/git-hooks/` (switched on by those scripts) refuses any commit that includes a
+draft. `publish.py` also stops on template leftovers or an unreadable post (`--force` overrides the
+leftover check).
+Citations are footnotes (`[^1]`) that become a Sources list. Everything a writer needs, including
+videos, links and storm charts, is in **[docs/WRITING.md](docs/WRITING.md)**.
 
 ## Layout
 

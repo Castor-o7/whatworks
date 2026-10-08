@@ -4,3 +4,8 @@ stormdata/
 _site/
 __pycache__/
 .DS_Store
+# Editor swap and backup files (they can hold a draft's text; the repo is public)
+*.swp
+.*.sw?
+*~
+*.bak

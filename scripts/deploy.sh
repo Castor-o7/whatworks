@@ -22,6 +22,11 @@ if [[ ! -f "$SITE/index.html" || ! -f "$SITE/.nojekyll" ]]; then
   echo "error: $SITE has no pages yet. Run scripts/build_site.py." >&2
   exit 1
 fi
+if [[ -f "$SITE/.drafts" ]]; then
+  echo "error: _site/ was built with --drafts (a local preview that includes unpublished drafts)." >&2
+  echo "Rebuild without it (.venv/bin/python scripts/build_site.py), or just run scripts/publish.py." >&2
+  exit 1
+fi
 # build_data.py writes into data.tmp/ (and parks the old dataset in data.old/) until it finishes.
 # Either one left over means a run is going or was interrupted; publishing it would roughly double
 # the site past GitHub Pages' 1 GB limit.
@@ -46,7 +51,7 @@ fi
 [[ "$(git symbolic-ref --short HEAD)" == "$BRANCH" ]] || git checkout --quiet -B "$BRANCH"
 
 # Never publish build scratch or Finder litter, even if it shows up later; untrack any that slipped in.
-printf '%s\n' 'data.tmp/' 'data.old/' '.DS_Store' > .git/info/exclude
+printf '%s\n' 'data.tmp/' 'data.old/' '.DS_Store' '.drafts' > .git/info/exclude
 if [[ -n "$(git ls-files --cached --ignored --exclude-standard)" ]]; then
   git ls-files -z --cached --ignored --exclude-standard | xargs -0 git rm -r --cached --quiet --
 fi

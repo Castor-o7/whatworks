@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+"""Git pre-commit hook: refuse to commit a draft post. The repo is public, so a committed draft would
+be published to GitHub even though the site doesn't show it.
+
+Checks every staged file under content/ (except the template) and rejects any whose staged text is a
+draft, or might be one (see app/content.py). scripts/new_post.py, preview.py and publish.py turn it
+on with `git config core.hooksPath scripts/git-hooks`. Skip it once with `git commit --no-verify`.
+"""
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+VENV = ROOT / ".venv"
+if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.resolve():
+    os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
+sys.path.insert(0, str(ROOT))
+from app import content  # noqa: E402
+
+
+def git(*args):
+    return subprocess.run(["git", "-C", str(ROOT), *args], check=True, capture_output=True).stdout
+
+
+staged = git("diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR", "--", "content").decode().split("\0")
+drafts = [name for name in staged if name and name != "content/POST_TEMPLATE.md"
+          and content.is_draft(git("show", f":{name}").decode("utf-8", "replace"), name)]
+if drafts:
+    print("Not committed: these are drafts, and this repo is public.\n  " + "\n  ".join(drafts)
+          + "\nUnstage them with: git restore --staged <file>"
+          + "\nTo publish a post, delete its 'draft: true' line and run scripts/publish.py.", file=sys.stderr)
+    sys.exit(1)

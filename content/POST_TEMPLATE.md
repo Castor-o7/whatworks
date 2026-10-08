@@ -3,27 +3,28 @@ title: Your headline here
 date: 2026-10-08
 section: tech
 summary: One sentence that appears under the headline and on cards.
-video: https://www.youtube.com/watch?v=VIDEO_ID
-tags: tag-one, tag-two
+video:
+tags:
 draft: true
 ---
-Copy this file into content/posts/ and rename it (the filename becomes the URL: /post/your-file-name/).
-Then rebuild the site: .venv/bin/python scripts/build_site.py
+<!--
+  The What Works? shape: What happened -> Why it matters -> What works -> Sources.
+  Replace each prompt with your own words, and delete any part that doesn't fit this piece.
+  Comments like this one are never published. Full guide: docs/WRITING.md
 
-- section: politics | economics | tech | science | storms | channel
-- video: optional. Works with YouTube videos/shorts/live, youtu.be links, Twitch VODs
-  (twitch.tv/videos/123), and Twitch clips (clips.twitch.tv/... or twitch.tv/name/clip/...).
-- draft: true hides the post. Delete that line to publish.
+  Cite as you go: put [^1] right after a claim, then list the source at the bottom:
+      [^1]: NOAA, "Billion-Dollar Weather and Climate Disasters," 2025. https://www.ncei.noaa.gov/access/billions/
+  Footnotes become a numbered "Sources" list at the end of the post.
+-->
 
-Write the body in Markdown. Link to other pages from the site root, e.g. [Storm Desk](/storms) or
-[a story](/post/other-file-name); the build adds the /whatworks base path for you.
+## What happened
 
-To drop in a live chart from the storm database (drawn in the reader's browser):
+<!-- The development in plain words: who, what, when, where. One short paragraph is plenty. -->
 
-[[storm-chart event_type="Tornado" state="Oklahoma"]]
-[[storm-chart chart="types" metric="damage" state="Texas" year_from="2000"]]
+## Why it matters
 
-Options: chart = years (default) | types | states | months
-         metric = events | deaths | injuries | damage
-         event_type, state, year_from, year_to, title, sub, limit
-(Narrative search isn't available on the static site, so there is no q option.)
+<!-- Why should a busy person care? Tie it to everyday life, or to the bigger horizon it points at. -->
+
+## What works
+
+<!-- Your take: what actually helps, what the evidence says, what you'd do. This part is what makes it What Works?. -->

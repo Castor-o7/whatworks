@@ -1,14 +1,17 @@
 """Render the pages of the static site into _site/ (see docs/STATIC_SITE.md).
 
-    .venv/bin/python scripts/build_site.py
+    .venv/bin/python scripts/build_site.py            # what gets published
+    .venv/bin/python scripts/build_site.py --drafts   # also render drafts, for local preview only
 
 Fast (about a second): renders templates + posts and copies app/static. It never touches
 _site/data/, which scripts/build_data.py writes once from data/storms.db. Run it after
 build_data.py so the Storm Desk stat tiles and dropdowns come from _site/data/meta.json.gz.
 """
+import argparse
 import gzip
 import json
 import shutil
+import subprocess
 import sys
 import tomllib
 from datetime import date
@@ -25,7 +28,8 @@ SITE = tomllib.loads((ROOT / "site.toml").read_text())
 BASE = ("/" + SITE.get("base_url", "").strip("/")).rstrip("/")  # "/whatworks", or "" at a domain root
 SECTIONS = {s["slug"]: s for s in SITE["sections"]}
 # Everything this script writes at the top of _site/. Nothing else there is ever deleted.
-OWNED = ("index.html", "404.html", ".nojekyll", "section", "post", "storms", "about", "static")
+DRAFTS_MARKER = ".drafts"  # present only in a --drafts preview build; deploy.sh refuses to publish it
+OWNED = ("index.html", "404.html", ".nojekyll", DRAFTS_MARKER, "section", "post", "storms", "about", "static")
 
 
 def environment():
@@ -47,10 +51,23 @@ def load_meta():
     return json.loads(gzip.decompress(path.read_bytes()))
 
 
-def build():
+def problems(posts, errors, meta):
+    """Every warning about the posts, as 'content/posts/x.md: message' lines."""
+    out = [f"{e} (skipped)" for e in errors]
+    for p in posts:
+        out += [f"content/posts/{p.slug}.md: {w}" for w in content.check(p, list(SECTIONS), meta)]
+    return out
+
+
+def build(drafts=False, report=True):
+    """Render the site; report=False leaves printing post warnings to the caller (publish.py)."""
     env = environment()
-    posts = content.all_posts()
+    found, errors = content.load_posts()
+    posts = sorted((p for p in found if drafts or not p.draft), key=lambda p: p.date, reverse=True)
     meta = load_meta()
+    if report:
+        for line in problems(posts, errors, meta):
+            print(f"warning: {line}", file=sys.stderr)
     pages = {}  # output path under _site -> (template, context)
 
     # Page URLs end in "/", so each is a directory with an index.html (Pages serves those as-is).
@@ -88,8 +105,38 @@ def build():
     shutil.copytree(ROOT / "app" / "static", OUT / "static",
                     ignore=shutil.ignore_patterns(".DS_Store", "__pycache__"))
     (OUT / ".nojekyll").write_text("")  # serve files as-is; no Jekyll processing
-    print(f"built {len(pages)} pages + static into {OUT.relative_to(ROOT)}/ (base {BASE or '/'})")
+    shown = [p for p in posts if p.draft]
+    if shown:
+        # deploy.sh refuses to publish while this marker exists, so drafts never go live by accident.
+        (OUT / DRAFTS_MARKER).write_text("".join(f"{p.slug}\n" for p in shown))
+    print(f"built {len(pages)} pages + static into {OUT.relative_to(ROOT)}/ (base {BASE or '/'})"
+          + (f" — including {len(shown)} draft(s); preview only, rebuild without --drafts to publish"
+             if shown else ""))
+    return posts
+
+
+def install_draft_guard():
+    """Point git at scripts/git-hooks, whose pre-commit hook refuses to commit a draft whatever does the
+    committing (git, GitHub Desktop, an editor). The repo is public, so this backs up publish.py."""
+    def git(*args):
+        return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True)
+    try:
+        if git("rev-parse", "--show-toplevel").stdout.strip() != str(ROOT.resolve()):
+            return  # not a git checkout of this project
+        current = git("config", "--get", "core.hooksPath").stdout.strip()
+        if current == "scripts/git-hooks":
+            return
+        if current:
+            print(f"note: git's core.hooksPath is already {current!r}, so the draft guard "
+                  "(scripts/git-hooks/pre-commit) isn't installed.", file=sys.stderr)
+            return
+        if git("config", "core.hooksPath", "scripts/git-hooks").returncode == 0:
+            print("Installed the draft guard: git will now refuse to commit a draft.")
+    except OSError:
+        pass  # no git on this machine
 
 
 if __name__ == "__main__":
-    build()
+    ap = argparse.ArgumentParser(description="Render the site's pages into _site/.")
+    ap.add_argument("--drafts", action="store_true", help="also render drafts (local preview; can't be deployed)")
+    build(drafts=ap.parse_args().drafts)

@@ -7,29 +7,133 @@ section: storms
 summary: One-sentence dek shown on cards.
 video: https://www.youtube.com/watch?v=...   (optional; YouTube or Twitch video/clip URL)
 tags: tornadoes, oklahoma
+draft: true        (optional; a draft is only rendered by a local --drafts preview)
 ---
+The block opens and closes with lines that are exactly '---'. Values may be quoted and may end in
+'  # a comment'. Drafts fail closed: any draft value other than a clear false (false/no/off/0), or a
+file whose front matter can't be read, is never published.
+
 Markdown body. Drop a live chart from the storm database with:
 [[storm-chart event_type="Tornado" state="Oklahoma"]]
 
 Root-relative links in the body (/storms, /post/other-slug) are written as if the site lived at
 the domain root; html() rewrites them onto the base path the site is actually served under.
+
+Citations are Markdown footnotes (Claim.[^1] ... [^1]: Source, URL); html() renders them as a
+"Sources" list. HTML comments (<!-- writing prompts -->) are stripped so they never get published.
+See docs/WRITING.md.
 """
+import difflib
 import html
 import re
 from dataclasses import dataclass, field
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 import markdown
 
 POSTS = Path(__file__).resolve().parent.parent / "content" / "posts"
+TEMPLATE = POSTS.parent / "POST_TEMPLATE.md"
 SHORTCODE = re.compile(r"\[\[storm-chart([^\]]*)\]\]")
-ATTR = re.compile(r'(\w+)="([^"]*)"')
+# name="value"; also 'value' and the curly “value” that smart-quote editors (TextEdit) type.
+ATTR = re.compile(r"""(\w+)\s*=\s*(?:"([^"]*)"|“([^”]*)”|'([^']*)')""")
+# What a [[storm-chart]] accepts (app/static/charts.js draws it).
+CHART_OPTIONS = {"chart", "metric", "event_type", "state", "year_from", "year_to", "title", "sub", "limit"}
+CHARTS = ("years", "types", "states", "months")
+METRICS = ("events", "deaths", "injuries", "damage")
 # href="/..." or src="/..." (but not protocol-relative "//host/...").
 ROOT_LINK = re.compile(r'\b(href|src)="/(?!/)([^"]*)"')
 OLD_EVENT = re.compile(r"^storms/event/(\d+)/?$")
+COMMENT = re.compile(r"<!--.*?-->\n?", re.S)
+# Footnote definitions ([^1]: ...) and their indented continuation lines get their bare URLs wrapped
+# in <...> so Markdown links them. A URL may hold balanced parentheses (Wikipedia's Mercury_(planet));
+# one already inside <...>, a [text](url) link or an attribute="..." is left alone.
+FOOTNOTE_DEF = re.compile(r"^\[\^[^\]]+\]:", re.M)
+BARE_URL = re.compile(r"""(?<!<)(?<!\]\()(?<!=")(?<!=')\bhttps?://(?:[^\s<>()\[\]"']|\([^\s<>()]*\))+""")
+FOOTNOTE_REF = re.compile(r"\[\^([^\]]+)\](?!:)")
+# Python-Markdown's footnote block; it always comes last in the output.
+FOOTNOTES = re.compile(r'<div class="footnote">\s*<hr ?/?>\s*(<ol>.*</ol>)\s*</div>\s*$', re.S)
+# Front matter: values may be "quoted", and end in an optional "  # comment".
+TRUE, FALSE = ("true", "yes", "on", "1"), ("false", "no", "off", "0")
+KEYS = ("title", "date", "section", "summary", "video", "tags", "draft")
+VALUE_COMMENT = re.compile(r"(?:^|\s+)#(?:\s.*)?$")
+# Used only when a file can't be parsed: any draft line that isn't clearly false means a draft.
+DRAFT_KEY = re.compile(r"^\W*draft\w*\W*:(.*)$", re.I | re.M)
 
+
+class PostError(ValueError):
+    """A post file that can't be read. draft=True means it is (or may be) a draft: it's skipped with
+    a warning. Otherwise it's a post meant to be live, and scripts/publish.py stops until it's fixed."""
+
+    def __init__(self, where, message, draft):
+        super().__init__(f"{where}: {message}")
+        self.draft = draft
+
+
+def _fence(text):
+    """-> (lines, end): text's lines (byte-order mark and leading blank lines dropped) and the index of
+    the front matter's closing line. The block opens and closes with lines that are exactly '---', so
+    a '---' inside a title or summary (an em dash, thanks to smarty) can't end it early."""
+    lines = text.lstrip("﻿").lstrip().splitlines(keepends=True)
+    if not lines or lines[0].rstrip() != "---":
+        raise ValueError("it must start with the front-matter block: a line that is just ---")
+    for end in range(1, len(lines)):
+        if lines[end].rstrip() == "---":
+            return lines, end
+    raise ValueError("the front matter at the top has no closing --- line")
+
+
+def value(raw):
+    """'"Heat: why"' -> 'Heat: why'; 'true   # note' -> 'true'; '#1 reason' stays as-is."""
+    raw = raw.strip()
+    if raw[:1] in ("'", '"'):
+        end = raw.find(raw[0], 1)
+        rest = raw[end + 1:].strip() if end > 0 else "x"
+        if not rest or rest.startswith("#"):
+            return raw[1:end]
+    return VALUE_COMMENT.sub("", raw)
+
+
+def front_matter(text):
+    """-> (meta, body, notes). Raises ValueError when the block can't be read."""
+    lines, end = _fence(text)
+    meta, drafts, notes = {}, [], []
+    for n, line in enumerate(lines[1:end], 2):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            raise ValueError(f"line {n} of the front matter isn't 'key: value': {line!r}")
+        k, v = line.split(":", 1)
+        k = k.strip().strip("\"'").lower()
+        if "draft" in k:  # 'draft', 'Draft', 'drafts', ... all count
+            drafts.append(value(v))
+        elif k in KEYS:
+            meta[k] = value(v)
+        else:
+            notes.append(f"unknown front-matter key '{k}' (ignored); the keys are: {', '.join(KEYS)}")
+    draft = False
+    for v in drafts:  # fail closed: anything but a clear "false" keeps it a draft
+        if v.lower() in TRUE:
+            draft = True
+        elif v.lower() not in FALSE:
+            draft = True
+            notes.append(f"draft: {v!r} isn't true or false, so it stays a draft (delete the line to publish)"
+                         if v else "'draft:' has no value, so it stays a draft (delete the line to publish)")
+    meta["draft"] = draft
+    return meta, "".join(lines[end + 1:]), notes
+
+
+def set_fields(text, fields):
+    """Rewrite front-matter keys in place (other lines, and the body, are kept as-is)."""
+    lines, end = _fence(text)
+    for i in range(1, end):
+        key = lines[i].split(":", 1)[0].strip().lower()
+        if ":" in lines[i] and key in fields:
+            lines[i] = f"{key}: {fields[key]}".rstrip() + "\n"
+    return "".join(lines)
 
 def rebase(path: str, base: str) -> str:
     """'storms?x=1' -> '<base>/storms/?x=1'. Page URLs get the trailing slash Pages serves them at,
@@ -40,6 +144,27 @@ def rebase(path: str, base: str) -> str:
     elif path and not path.endswith("/") and "." not in path.rsplit("/", 1)[-1]:
         path += "/"
     return f"{base}/{path}{tail}"
+
+
+def chart_options(text):
+    """'state="Oklahoma" chart=“types”' -> {'state': 'Oklahoma', 'chart': 'types'}"""
+    return {m[0]: "".join(m[1:]) for m in ATTR.findall(text)}
+
+
+def link_footnote_urls(body):
+    """Wrap bare URLs in footnote definitions (and their indented continuation lines) in <...>."""
+    def wrap(m):
+        url = m.group(0).rstrip(".,;:!?")  # a sentence's closing punctuation isn't part of the URL
+        return f"<{url}>{m.group(0)[len(url):]}"
+
+    out, inside = [], False
+    for line in body.split("\n"):
+        if FOOTNOTE_DEF.match(line):
+            inside = True
+        elif line.strip() and not line[:1].isspace():
+            inside = False
+        out.append(BARE_URL.sub(wrap, line) if inside else line)
+    return "\n".join(out)
 
 
 @dataclass
@@ -53,11 +178,12 @@ class Post:
     tags: list = field(default_factory=list)
     body_md: str = ""
     draft: bool = False
+    notes: list = field(default_factory=list, repr=False)  # front-matter warnings from parse()
 
     def html(self, base: str = ""):
         def chart(m):
             attrs = " ".join(
-                f'data-{k.replace("_", "-")}="{html.escape(v)}"' for k, v in ATTR.findall(m.group(1))
+                f'data-{k.replace("_", "-")}="{html.escape(v)}"' for k, v in chart_options(m.group(1)).items()
             )
             return f'<figure class="storm-chart" {attrs}></figure>'
 
@@ -67,37 +193,161 @@ class Post:
                 return m.group(0)  # already on the base path
             return f'{m.group(1)}="{rebase(path, base)}"'
 
-        body = SHORTCODE.sub(chart, self.body_md)
-        return ROOT_LINK.sub(link, markdown.markdown(body, extensions=["extra", "smarty"]))
+        body = link_footnote_urls(COMMENT.sub("", self.body_md))
+        body = SHORTCODE.sub(chart, body)
+        # Number footnotes in the order they're cited, wherever their definitions are written.
+        out = markdown.markdown(body, extensions=["extra", "smarty"],
+                                extension_configs={"extra": {"footnotes": {"USE_DEFINITION_ORDER": False}}})
+        out = FOOTNOTES.sub(lambda m: '<section class="sources" aria-labelledby="sources">'
+                                      f'<h2 id="sources">Sources</h2>{m.group(1)}</section>', out)
+        return ROOT_LINK.sub(link, out)
 
 
-def parse(path: Path) -> Post:
-    text = path.read_text(encoding="utf-8")
-    meta, body = {}, text
-    if text.startswith("---"):
-        _, head, body = text.split("---", 2)
-        for line in head.strip().splitlines():
-            if ":" in line:
-                k, v = line.split(":", 1)
-                meta[k.strip().lower()] = v.strip()
+def _where(path):
+    try:
+        return str(path.relative_to(POSTS.parent.parent))
+    except ValueError:
+        return str(path)
+
+
+def parse_text(text, slug, where):
+    """A post from its text. Raises PostError (naming `where`) when it can't be read."""
+    try:
+        meta, body, notes = front_matter(text)
+    except ValueError as e:  # fail closed: a draft line that isn't clearly "false" keeps it a draft
+        draft = any(value(v).lower() not in FALSE for v in DRAFT_KEY.findall(text))
+        raise PostError(where, str(e), draft) from None
+    if not meta.get("date"):
+        notes.append("no date: line, so it sorts as 1970-01-01")
+    try:
+        when = date.fromisoformat(meta.get("date") or "1970-01-01")
+    except ValueError:
+        raise PostError(where, f"date must look like 2026-10-08 (it says {meta['date']!r})",
+                        meta["draft"]) from None
     return Post(
-        slug=path.stem,
-        title=meta.get("title", path.stem.replace("-", " ").title()),
-        date=date.fromisoformat(meta.get("date", "1970-01-01")),
-        section=meta.get("section", "channel"),
+        slug=slug,
+        title=meta.get("title") or slug.replace("-", " ").title(),
+        date=when,
+        section=meta.get("section") or "channel",
         summary=meta.get("summary", ""),
         video=meta.get("video", ""),
         tags=[t.strip() for t in meta.get("tags", "").split(",") if t.strip()],
         body_md=body.strip(),
-        draft=meta.get("draft", "").lower() == "true",
+        draft=meta["draft"],
+        notes=notes,
     )
 
 
-def all_posts():
-    """Every published post, newest first (drafts are skipped)."""
-    posts = [parse(p) for p in POSTS.glob("*.md")]
-    return sorted((p for p in posts if not p.draft), key=lambda p: p.date, reverse=True)
+def parse(path: Path) -> Post:
+    raw = path.read_bytes()
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        text = raw.decode("utf-8", "replace")
+        raise PostError(_where(path), "isn't plain UTF-8 text; save it as UTF-8",
+                        bool(DRAFT_KEY.search(text))) from None
+    return parse_text(text, path.stem, _where(path))
 
+
+def is_draft(text, where="post"):
+    """True for a draft, and for a broken file that may be one (see PostError)."""
+    try:
+        return parse_text(text, "post", where).draft
+    except PostError as e:
+        return e.draft
+
+
+def load_posts():
+    """-> (posts, errors): every post file, drafts included, and a PostError for each that can't be read."""
+    posts, errors = [], []
+    for p in sorted(POSTS.glob("*.md")):
+        if p.name.startswith("."):  # editor scratch files, never posts
+            continue
+        try:
+            posts.append(parse(p))
+        except PostError as e:
+            errors.append(e)
+    return posts, errors
+
+
+def all_posts(drafts=False):
+    """Every published post, newest first. drafts=True also includes drafts (local preview only).
+    Files that can't be read are left out; load_posts() reports them."""
+    posts, _ = load_posts()
+    return sorted((p for p in posts if drafts or not p.draft), key=lambda p: p.date, reverse=True)
+
+
+@lru_cache(maxsize=1)
+def _template():
+    try:
+        return parse(TEMPLATE)
+    except (OSError, PostError):
+        return None
+
+
+def _suggest(v, choices):
+    close = [c for c in choices if c.lower() == v.lower()] or difflib.get_close_matches(v, choices, 1, 0.6)
+    return f" (did you mean {close[0]!r}?)" if close else ""
+
+
+def check_chart(code, opts, meta=None):
+    """Warnings for one [[storm-chart ...]]; meta (_site/data/meta.json.gz) adds state/type checks."""
+    code = " ".join(code.split())
+    attrs = chart_options(opts)
+    warn = []
+    if ATTR.sub("", opts).strip():
+        warn.append(f'{code}: couldn\'t read all of its options; write each as name="value"')
+    for k in sorted(attrs.keys() - CHART_OPTIONS):
+        warn.append(f"{code}: unknown option '{k}'{_suggest(k, sorted(CHART_OPTIONS))}")
+    if attrs.get("chart", "years") not in CHARTS:
+        warn.append(f"{code}: chart must be one of {', '.join(CHARTS)}{_suggest(attrs['chart'], CHARTS)}")
+    if attrs.get("metric", "events") not in METRICS:
+        warn.append(f"{code}: metric must be one of {', '.join(METRICS)}{_suggest(attrs['metric'], METRICS)}")
+    for k in ("year_from", "year_to", "limit"):
+        if k in attrs and not attrs[k].strip().isdigit():
+            warn.append(f"{code}: {k} must be a number")
+    if meta:
+        states = [s for s in meta.get("states", []) if s]
+        if attrs.get("state") and attrs["state"] not in states:
+            warn.append(f"{code}: no state named {attrs['state']!r} in the storm data{_suggest(attrs['state'], states)}."
+                        " Use full names, spelled as in the Storm Desk's State menu (e.g. Oklahoma)")
+        for t in (t.strip() for t in attrs.get("event_type", "").split(",")):
+            if t and t not in meta.get("types", []):
+                warn.append(f"{code}: no event type {t!r} in the storm data{_suggest(t, meta['types'])}."
+                            " Use NOAA's labels, spelled as in the Storm Desk's Event type menu")
+    return warn
+
+
+def check(post, sections=None, meta=None):
+    """Mistakes worth a warning, as messages. sections: the valid section slugs; meta: storm-data
+    metadata for checking charts. Posts that aren't drafts are also checked for template leftovers."""
+    warn = list(post.notes)
+    if sections is not None and post.section not in sections:
+        warn.append(f"section '{post.section}' isn't one of: {', '.join(sections)} (its section link would 404)")
+    body = COMMENT.sub("", post.body_md)
+    if "<!--" in body:
+        warn.append("a <!-- comment is never closed with -->, so everything after it is hidden")
+    for m in SHORTCODE.finditer(body):
+        warn += check_chart(m.group(0), m.group(1), meta)
+    defined = set(re.findall(r"^\[\^([^\]]+)\]:", body, re.M))
+    for ref in sorted(set(FOOTNOTE_REF.findall(body)) - defined):
+        warn.append(f"[^{ref}] is cited but has no source line ('[^{ref}]: ...'), so it shows as plain text")
+    if post.draft:
+        return warn
+    tpl = _template()
+    if tpl and post.title == tpl.title:
+        warn.append("the title is still the template's")
+    if not post.summary or (tpl and post.summary == tpl.summary):
+        warn.append("the summary is " + ("empty" if not post.summary else "still the template's placeholder"))
+    lines = body.splitlines()
+    heads = [i for i, line in enumerate(lines) if re.match(r"#{1,2}\s", line)] + [len(lines)]
+    for i, nxt in zip(heads, heads[1:]):
+        if lines[i].startswith("## ") and not any(
+                line.strip() and not FOOTNOTE_DEF.match(line) for line in lines[i + 1:nxt]):
+            warn.append(f"the section '{lines[i].strip()}' is empty (write it, or delete the heading)")
+    if not body.strip():
+        warn.append("the post has no text")
+    return warn
 
 def embed_url(url: str, twitch_parents) -> str | None:
     """Turn a YouTube/Twitch watch or clip URL into an iframe src."""
