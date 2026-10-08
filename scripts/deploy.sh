@@ -8,9 +8,10 @@
 # scripts/build_site.py first; scripts/build_data.py must have been run at least once.
 set -euo pipefail
 
-REMOTE="https://github.com/castor-o7/whatworks.git"
 BRANCH="gh-pages"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Publish to the same GitHub repo (and transport, SSH or HTTPS) the source checkout uses.
+REMOTE="$(git -C "$ROOT" remote get-url origin 2>/dev/null || echo "https://github.com/castor-o7/whatworks.git")"
 SITE="$ROOT/_site"
 
 if [[ ! -f "$SITE/data/meta.json.gz" ]]; then
