@@ -55,7 +55,9 @@ videos, links and storm charts, is in **[docs/WRITING.md](docs/WRITING.md)**.
 |---|---|
 | `site.toml` | Site name, tagline, `base_url`, channel links, map tiles, sections |
 | `content/posts/` | Markdown posts |
+| `content/tools/` | One Markdown file per tool on `/tools/` (Josh's software, starting with the Storm Desk) |
 | `app/content.py` | Post loading, Markdown, base-path link rewriting, video-embed URLs |
+| `app/tools.py` | Tool loading and checks (reuses content.py's front-matter reader) |
 | `app/templates/` | Page templates (Jinja) |
 | `app/static/` | CSS, the browser data layer (`data.js`), charts, explorer, map and event-page JS |
 | `app/static/vendor/` | Leaflet, topojson-client, US state shapes (served locally) |
@@ -93,7 +95,7 @@ it always states the coverage. Basemap tiles are set in `site.toml` under `[map]
 
 ## Storm data caveats (worth repeating in stories)
 
-- Only tornado (1950–), thunderstorm wind and hail (1955–) were recorded until 1993; all 48 types start in 1996.
+- Only tornado (1950–), thunderstorm wind and hail (1955–) were recorded until 1993; the full modern list of event types starts in 1996 (34 types that year, ~50/year lately).
 - Damage is reported estimates in nominal dollars, not inflation-adjusted.
 - Deaths are counted only when attributed to a weather event; attribution practices vary.
 - Only ~61% of events have coordinates (see The map).

@@ -4,6 +4,7 @@ date: 2026-10-08
 section: storms
 summary: Tornadoes get the headlines. Across nearly three decades of NOAA records, heat has killed almost three times as many people.
 tags: heat, data, noaa
+tool: storm-desk
 ---
 Ask someone to name the deadliest kind of severe weather and most people will say tornadoes. That makes sense: tornadoes are sudden, violent, and easy to film. But the records tell a different story.
 

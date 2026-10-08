@@ -73,6 +73,8 @@ asks the reader to zoom in. Narrative full-text search is not available on the s
 | `/storms/` | `storms.html` | same element ids as before (`filters`, `sort`, `results`, `more`, `map-panel`, `near-me`, `area-only`, `area-status`, `chart-years`, `chart-types`, `chart-states`), minus the search input. Stat tiles rendered at build time from `meta.totals`. An element `#list-scope` above the event list where `storms.js` explains the scope (e.g. notable-only). |
 | `/storms/event/?id=N` | `event.html` | shell `<article class="story" id="event-root">`; `event.js` renders everything client-side (same markup/classes as the old server template, including the mini map) and sets `document.title` |
 | `/post/<slug>/` | `post.html` | `[[storm-chart ...]]` shortcodes become `<figure class="storm-chart" data-...>` rendered by `charts.js` via `WWData` |
+| `/tools/` | `tools.html` | one card per tool in `content/tools/*.md` (see `app/tools.py`), ordered by `order` then title |
+| `/tools/<slug>/` | `tool.html` | the tool's Markdown body + the posts whose front matter says `tool: <slug>` |
 | `/about/` | `about.html` | |
 | `/404.html` | `404.html` | GitHub Pages serves this for unknown paths |
 

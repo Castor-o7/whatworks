@@ -31,3 +31,17 @@
   {% if e.excerpt %}<p class="ev-excerpt">{{ e.excerpt }}{% if e.excerpt | length >= 280 %}…{% endif %}</p>{% endif %}
 </li>
 {% endmacro %}
+
+{% macro tool_card(t) %}
+<article class="tool-card">
+  <p class="tool-status status-{{ t.status }}">{{ t.status_label }}{% if t.draft %} · Draft{% endif %}</p>
+  <h3><a href="{{ base }}/tools/{{ t.slug }}/">{{ t.title }}</a></h3>
+  {% if t.summary %}<p class="dek">{{ t.summary }}</p>{% endif %}
+  {% if t.audience %}<p class="tool-audience"><span>For:</span> {{ t.audience }}</p>{% endif %}
+  <p class="tool-actions">
+    {% if t.href(base) %}<a class="tool-open" href="{{ t.href(base) }}">Open {{ t.title }} →</a>{% endif %}
+    <a href="{{ base }}/tools/{{ t.slug }}/">How it works</a>
+    {% if t.source %}<a href="{{ t.source }}" rel="noopener">Source code</a>{% endif %}
+  </p>
+</article>
+{% endmacro %}

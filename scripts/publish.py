@@ -32,7 +32,7 @@ if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.res
     os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
-from app import content  # noqa: E402
+from app import content, tools as toolkit  # noqa: E402
 import build_site  # noqa: E402
 
 
@@ -61,9 +61,20 @@ def content_changes():
 
 
 def is_post_path(path):
-    """content/posts/<name>.md: the only files (besides the template) that are ever backed up."""
+    """content/posts/<name>.md or content/tools/<name>.md: the only files (besides the template) that
+    are ever backed up."""
     p = Path(path)
-    return p.parent == Path("content/posts") and p.suffix == ".md" and not p.name.startswith(".")
+    return (p.parent in (Path("content/posts"), Path("content/tools")) and p.suffix == ".md"
+            and not p.name.startswith("."))
+
+
+def is_tool_path(path):
+    return Path(path).parent == Path("content/tools")
+
+
+def parse_any(path):
+    """A post or a tool, by where the file lives."""
+    return (toolkit.parse if is_tool_path(path) else content.parse)(ROOT / path)
 
 
 def sort_changes(changes):
@@ -79,23 +90,33 @@ def sort_changes(changes):
         elif not p.exists():
             if head_text(path) is not None:  # a deleted post (one never committed has nothing to back up)
                 to_save.append(path)
-        elif content.is_draft(p.read_text(encoding="utf-8", errors="replace"), path):
+        elif is_draft_file(content.loose_text(p.read_bytes()), path):
             drafts.append(path)
         else:
             to_save.append(path)
     return to_save, drafts, skipped
 
 
+def is_draft_file(text, path):
+    """Drafts fail closed for tools exactly as for posts (same front-matter reader)."""
+    if not is_tool_path(path):
+        return content.is_draft(text, path)
+    try:
+        return toolkit.parse_text(text, Path(path).stem, path).draft
+    except content.PostError as e:
+        return e.draft
+
+
 def head_text(path):
     """The file as of the last commit, or None if it isn't there."""
     shown = subprocess.run(["git", "-C", str(ROOT), "show", f"HEAD:{path}"], capture_output=True)
-    return shown.stdout.decode("utf-8", "replace") if shown.returncode == 0 else None
+    return content.loose_text(shown.stdout) if shown.returncode == 0 else None
 
 
 def is_new(path):
     """Not in the last commit yet (or only as a draft): i.e. going live for the first time."""
     old = head_text(path)
-    return old is None or content.is_draft(old, path)
+    return old is None or is_draft_file(old, path)
 
 
 def offer_today(path, post, dry_run):
@@ -128,6 +149,7 @@ def main():
 
     # 0. Every post meant to be live must be readable; a broken draft is just left out.
     posts, errors = content.load_posts()
+    errors += toolkit.load_tools()[1]
     broken = [e for e in errors if not e.draft]
     for e in errors:
         print(f"{'error' if not e.draft else 'warning'}: {e}" + ("" if not e.draft else " (draft skipped)"),
@@ -140,17 +162,20 @@ def main():
     changes = content_changes()
     to_save, held, skipped = sort_changes(changes)
     renamed = {path for status, path in changes if status[0] == "R"}
-    new = [(path, content.parse(ROOT / path)) for path in to_save
+    new = [(path, parse_any(path)) for path in to_save
            if path != TEMPLATE and path not in renamed and (ROOT / path).exists() and is_new(path)]
     if new:
         print("Going live for the first time:")
-        for path, post in new:
-            print(f"  {post.title}  ({path}, dated {post.date})")
-            offer_today(path, post, args.dry_run)
+        for path, item in new:
+            if is_tool_path(path):
+                print(f"  {item.title}  ({path}, tool)")
+            else:
+                print(f"  {item.title}  ({path}, dated {item.date})")
+                offer_today(path, item, args.dry_run)
 
     # 1. Check, then build exactly what readers will see.
     meta = build_site.load_meta()
-    warnings = build_site.problems(content.all_posts(), [], meta)
+    warnings = build_site.problems(content.all_posts(), [], meta, build_site.visible_tools()[0])
     # Only posts changed since the last publish can stop it; older ones are just mentioned.
     blocking = [w for w in warnings if w.split(": ", 1)[0] in to_save]
     older = [w for w in warnings if w not in blocking]
@@ -166,7 +191,7 @@ def main():
     posts = build_site.build(drafts=False, report=False)
     drafts = [p for p in content.all_posts(drafts=True) if p.draft]
 
-    titles = [content.parse(ROOT / path).title for path in to_save
+    titles = [parse_any(path).title for path in to_save
               if path != TEMPLATE and (ROOT / path).exists()]
     message = args.message or ("Publish: " + "; ".join(titles) if titles else "Publish site")
 
@@ -177,7 +202,8 @@ def main():
     if held:
         print("Not backing up (drafts): " + ", ".join(held))
     if skipped:
-        print("Not backing up (not a post file; posts are content/posts/<name>.md): " + ", ".join(skipped))
+        print("Not backing up (not a post or tool file: content/posts/<name>.md, content/tools/<name>.md): "
+              + ", ".join(skipped))
     if args.dry_run:
         print("\nDry run: nothing deployed or committed.")
         return 0

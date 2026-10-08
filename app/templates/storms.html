@@ -5,7 +5,7 @@
 {% block content %}
 <header class="page-head">
   <h1>Storm Desk</h1>
-  <p class="dek">{{ section_map.storms.blurb }} Filter, map, and dig into any event.</p>
+  <p class="dek">{{ section_map.storms.blurb }} Filter, map, and dig into any event.{% if 'storm-desk' in tool_map %} <a href="{{ base }}/tools/storm-desk/">How it works →</a>{% endif %}</p>
 </header>
 
 {% if not storm_ok %}

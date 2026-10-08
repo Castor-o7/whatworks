@@ -3,7 +3,8 @@
 be published to GitHub even though the site doesn't show it.
 
 Checks every staged file under content/ (except the template) and rejects any whose staged text is a
-draft, or might be one (see app/content.py). scripts/new_post.py, preview.py and publish.py turn it
+draft, or might be one (see app/content.py), or is a .md file that
+isn't valid UTF-8 (so it can't be checked). scripts/new_post.py, preview.py and publish.py turn it
 on with `git config core.hooksPath scripts/git-hooks`. Skip it once with `git commit --no-verify`.
 """
 import os
@@ -24,10 +25,29 @@ def git(*args):
 
 
 staged = git("diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR", "--", "content").decode().split("\0")
-drafts = [name for name in staged if name and name != "content/POST_TEMPLATE.md"
-          and content.is_draft(git("show", f":{name}").decode("utf-8", "replace"), name)]
+drafts, not_utf8 = [], []
+for name in staged:
+    if not name or name == "content/POST_TEMPLATE.md":
+        continue
+    raw = git("show", f":{name}")
+    try:
+        text = raw.decode("utf-8")
+        if "\0" in text:  # UTF-16 without a byte-order mark
+            raise UnicodeDecodeError("utf-8", raw, 0, 1, "NUL byte")
+    except UnicodeDecodeError:  # fail closed: a post or tool we can't read might be a draft
+        if name.endswith(".md"):
+            not_utf8.append(name)
+            continue
+        text = content.loose_text(raw)
+    if content.is_draft(text, name):
+        drafts.append(name)
+if not_utf8:
+    print("Not committed: these aren't plain UTF-8 text, so they can't be checked for drafts.\n  "
+          + "\n  ".join(not_utf8) + "\nSave them as UTF-8 (in TextEdit: Format > Make Plain Text, then save"
+          + " with encoding Unicode (UTF-8)) and stage them again.", file=sys.stderr)
 if drafts:
     print("Not committed: these are drafts, and this repo is public.\n  " + "\n  ".join(drafts)
           + "\nUnstage them with: git restore --staged <file>"
           + "\nTo publish a post, delete its 'draft: true' line and run scripts/publish.py.", file=sys.stderr)
+if drafts or not_utf8:
     sys.exit(1)

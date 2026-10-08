@@ -39,6 +39,8 @@ to you before it's published.) Some details:
 - If you commit with git, GitHub Desktop or your editor yourself, the **draft guard** (a git hook in
   `scripts/git-hooks/`, switched on the first time you run any of the three commands) refuses any
   commit that includes a draft. Unstage the draft (`git restore --staged <file>`) and commit again.
+  It also refuses a `.md` file that isn't saved as UTF-8 (TextEdit and some Windows editors can save
+  UTF-16), since it can't tell whether that's a draft: re-save it as UTF-8 and stage it again.
 - Anything other than a plain "no" keeps a post a draft: `draft: true`, `yes`, `True`, an empty
   `draft:`, a typo. To publish, delete the line (or write `draft: false`). If a file's front matter
   can't be read at all, it's never published; the build names the file and says why.
@@ -104,6 +106,7 @@ section: science
 summary: One sentence under the headline and on cards.
 video:
 tags: heat, grid
+tool: storm-desk
 draft: true
 ---
 ```
@@ -111,7 +114,33 @@ draft: true
 - The block starts and ends with lines that are exactly `---`, so a `---` inside a title or summary
   is safe. (It shows as typed there; type `—` itself for an em dash. In the body, `---` becomes one.)
 - `date` sorts the site, newest first. Write it as `2026-10-08`, and update it on the day you publish.
-- `section` is one of the sections listed above. `video` and `tags` are optional; leave them empty.
+- `section` is one of the sections listed above. `video`, `tags` and `tool` are optional; leave them empty.
+- `tool` links the story to one of your tools (the file name in `content/tools/`, e.g. `storm-desk`). The
+  post then shows "Built with Storm Desk · try it yourself", and the tool's page lists the story.
 - `draft: true` keeps the post private. Delete the line to publish.
 - Quotes around a value are optional (`title: "Heat: why it kills"` works). A `#` with a space before
   and after it starts a comment, so to use one in a title, put the title in quotes.
+
+## Tools: your software on the site
+
+`/tools/` presents the software you build so readers can use it. Each tool is one Markdown file in
+`content/tools/` (the file name becomes its address: `content/tools/storm-desk.md` → `/tools/storm-desk/`).
+It gets a card on `/tools/`, its own page, a spot in the home page sidebar, and a list of the stories
+that name it with `tool:`.
+
+```yaml
+---
+title: Storm Desk
+summary: One sentence for its card on /tools/.
+status: live            # live, beta, or coming-soon
+url: /storms            # where it runs: a page on this site, or a full https:// address
+source: https://github.com/Castor-o7/whatworks   # optional: its source code
+audience: Anyone curious how today's storms compare with the past
+order: 1                # optional: lower numbers come first
+---
+```
+
+The body is ordinary Markdown, with citations and storm charts like a post. A good shape: **How to use
+it**, **Reading it honestly** (its limits), **How it's built**. Software that lives somewhere else
+(another repo, an app store) works too: point `url` at it. `draft: true` works the same as for posts,
+`preview.py` shows tool drafts, and `publish.py` checks and backs up tool files alongside posts.

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tool_card %}
+{% set active = 'tools' %}
+{% block title %}Tools — {{ site.name }}{% endblock %}
+{% block description %}Software from What Works? that anyone can use.{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Tools</h1>
+  <p class="dek">Software from What Works? that anyone can use: the data behind the stories, in your hands.</p>
+</header>
+<div class="tool-grid">
+  {% for t in tools %}{{ tool_card(t) }}{% else %}
+  <p class="empty">The first tool is on its way.</p>
+  {% endfor %}
+</div>
+{% endblock %}

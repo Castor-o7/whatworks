@@ -21,7 +21,7 @@ from jinja2 import Environment, FileSystemLoader
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from app import content  # noqa: E402
+from app import content, tools as toolkit  # noqa: E402
 
 OUT = ROOT / "_site"
 SITE = tomllib.loads((ROOT / "site.toml").read_text())
@@ -29,7 +29,8 @@ BASE = ("/" + SITE.get("base_url", "").strip("/")).rstrip("/")  # "/whatworks", 
 SECTIONS = {s["slug"]: s for s in SITE["sections"]}
 # Everything this script writes at the top of _site/. Nothing else there is ever deleted.
 DRAFTS_MARKER = ".drafts"  # present only in a --drafts preview build; deploy.sh refuses to publish it
-OWNED = ("index.html", "404.html", ".nojekyll", DRAFTS_MARKER, "section", "post", "storms", "about", "static")
+OWNED = ("index.html", "404.html", ".nojekyll", DRAFTS_MARKER, "section", "post", "storms", "tools", "about",
+         "static")
 
 
 def environment():
@@ -51,12 +52,21 @@ def load_meta():
     return json.loads(gzip.decompress(path.read_bytes()))
 
 
-def problems(posts, errors, meta):
-    """Every warning about the posts, as 'content/posts/x.md: message' lines."""
+def problems(posts, errors, meta, tools=()):
+    """Every warning about the posts and tools, as 'content/<kind>/x.md: message' lines."""
     out = [f"{e} (skipped)" for e in errors]
+    slugs = {t.slug for t in tools}
     for p in posts:
-        out += [f"content/posts/{p.slug}.md: {w}" for w in content.check(p, list(SECTIONS), meta)]
+        out += [f"content/posts/{p.slug}.md: {w}" for w in content.check(p, list(SECTIONS), meta, slugs)]
+    for t in tools:
+        out += [f"content/tools/{t.slug}.md: {w}" for w in toolkit.check(t, meta)]
     return out
+
+
+def visible_tools(drafts=False):
+    """-> (tools, errors): tools to render, in display order; drafts only for a preview build."""
+    found, errors = toolkit.load_tools()
+    return toolkit.ordered(t for t in found if drafts or not t.draft), errors
 
 
 def build(drafts=False, report=True):
@@ -64,15 +74,17 @@ def build(drafts=False, report=True):
     env = environment()
     found, errors = content.load_posts()
     posts = sorted((p for p in found if drafts or not p.draft), key=lambda p: p.date, reverse=True)
+    tools, tool_errors = visible_tools(drafts)
     meta = load_meta()
     if report:
-        for line in problems(posts, errors, meta):
+        for line in problems(posts, errors + tool_errors, meta, tools):
             print(f"warning: {line}", file=sys.stderr)
+    env.globals["tool_map"] = {t.slug: t for t in tools}  # for "Built with" links on posts
     pages = {}  # output path under _site -> (template, context)
 
     # Page URLs end in "/", so each is a directory with an index.html (Pages serves those as-is).
     pages["index.html"] = ("home.html", dict(lead=posts[0] if posts else None, recent=posts[1:7],
-                                             videos=[p for p in posts if p.video][:3]))
+                                             videos=[p for p in posts if p.video][:3], tools=tools))
     for slug, s in SECTIONS.items():
         if slug != "storms":  # that section is the Storm Desk at /storms/
             pages[f"section/{slug}/index.html"] = ("section.html", dict(
@@ -83,6 +95,10 @@ def build(drafts=False, report=True):
     pages["storms/index.html"] = ("storms.html", dict(
         posts=[p for p in posts if p.section == "storms"], storm_ok=meta is not None, meta=meta))
     pages["storms/event/index.html"] = ("event.html", {})
+    pages["tools/index.html"] = ("tools.html", dict(tools=tools))
+    for t in tools:
+        pages[f"tools/{t.slug}/index.html"] = ("tool.html", dict(
+            tool=t, stories=[p for p in posts if p.tool == t.slug]))
     pages["about/index.html"] = ("about.html", {})
     pages["404.html"] = ("404.html", {})
 
@@ -105,7 +121,7 @@ def build(drafts=False, report=True):
     shutil.copytree(ROOT / "app" / "static", OUT / "static",
                     ignore=shutil.ignore_patterns(".DS_Store", "__pycache__"))
     (OUT / ".nojekyll").write_text("")  # serve files as-is; no Jekyll processing
-    shown = [p for p in posts if p.draft]
+    shown = [p for p in posts if p.draft] + [t for t in tools if t.draft]
     if shown:
         # deploy.sh refuses to publish while this marker exists, so drafts never go live by accident.
         (OUT / DRAFTS_MARKER).write_text("".join(f"{p.slug}\n" for p in shown))

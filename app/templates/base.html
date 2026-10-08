@@ -37,6 +37,7 @@
           <a href="{{ base }}{{ '/storms/' if s.slug == 'storms' else '/section/' ~ s.slug ~ '/' }}"
              {% if active == s.slug %}aria-current="page"{% endif %}>{{ s.label }}</a>
         {% endfor %}
+        <a href="{{ base }}/tools/" {% if active == 'tools' %}aria-current="page"{% endif %}>Tools</a>
         <a href="{{ base }}/about/" {% if active == 'about' %}aria-current="page"{% endif %}>About</a>
       </div>
     </nav>
@@ -48,7 +49,7 @@
     <div class="wrap">
       <span class="wordmark small">What Works<span>?</span></span>
       <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
-      <p><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a> · <a href="{{ base }}/about/">About</a></p>
+      <p><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a> · <a href="{{ base }}/tools/">Tools</a> · <a href="{{ base }}/about/">About</a></p>
     </div>
   </footer>
   <script src="{{ base }}/static/data.js"></script>

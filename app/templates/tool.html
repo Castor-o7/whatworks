@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card %}
+{% set active = 'tools' %}
+{% block title %}{{ tool.title }} — Tools — {{ site.name }}{% endblock %}
+{% block description %}{{ tool.summary or site.tagline }}{% endblock %}
+{% block content %}
+<article class="story">
+  {% if tool.draft %}<p class="draft-banner"><strong>Draft preview.</strong> This tool page isn't published. Delete <code>draft: true</code> from its front matter, then run <code>scripts/publish.py</code>.</p>{% endif %}
+  <header>
+    <a class="kicker" href="{{ base }}/tools/">Tools</a>
+    <h1>{{ tool.title }}</h1>
+    {% if tool.summary %}<p class="dek">{{ tool.summary }}</p>{% endif %}
+    <p class="meta"><span class="tool-status status-{{ tool.status }}">{{ tool.status_label }}</span>{% if tool.audience %} · For: {{ tool.audience }}{% endif %}</p>
+  </header>
+  <p class="tool-actions big">
+    {% if tool.href(base) %}<a class="tool-open" href="{{ tool.href(base) }}">Open {{ tool.title }} →</a>{% endif %}
+    {% if tool.source %}<a href="{{ tool.source }}" rel="noopener">Source code</a>{% endif %}
+  </p>
+  <div class="prose">{{ tool.html(base) | safe }}</div>
+</article>
+{% if stories %}
+<section class="related">
+  <h2 class="box-title">Stories built with {{ tool.title }}</h2>
+  <div class="grid">{% for p in stories %}{{ card(p) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

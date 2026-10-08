@@ -57,7 +57,7 @@ FOOTNOTE_REF = re.compile(r"\[\^([^\]]+)\](?!:)")
 FOOTNOTES = re.compile(r'<div class="footnote">\s*<hr ?/?>\s*(<ol>.*</ol>)\s*</div>\s*$', re.S)
 # Front matter: values may be "quoted", and end in an optional "  # comment".
 TRUE, FALSE = ("true", "yes", "on", "1"), ("false", "no", "off", "0")
-KEYS = ("title", "date", "section", "summary", "video", "tags", "draft")
+KEYS = ("title", "date", "section", "summary", "video", "tags", "tool", "draft")
 VALUE_COMMENT = re.compile(r"(?:^|\s+)#(?:\s.*)?$")
 # Used only when a file can't be parsed: any draft line that isn't clearly false means a draft.
 DRAFT_KEY = re.compile(r"^\W*draft\w*\W*:(.*)$", re.I | re.M)
@@ -96,8 +96,9 @@ def value(raw):
     return VALUE_COMMENT.sub("", raw)
 
 
-def front_matter(text):
-    """-> (meta, body, notes). Raises ValueError when the block can't be read."""
+def front_matter(text, keys=KEYS):
+    """-> (meta, body, notes). keys: the known keys (posts by default; app/tools.py passes its own).
+    Raises ValueError when the block can't be read."""
     lines, end = _fence(text)
     meta, drafts, notes = {}, [], []
     for n, line in enumerate(lines[1:end], 2):
@@ -110,10 +111,10 @@ def front_matter(text):
         k = k.strip().strip("\"'").lower()
         if "draft" in k:  # 'draft', 'Draft', 'drafts', ... all count
             drafts.append(value(v))
-        elif k in KEYS:
+        elif k in keys:
             meta[k] = value(v)
         else:
-            notes.append(f"unknown front-matter key '{k}' (ignored); the keys are: {', '.join(KEYS)}")
+            notes.append(f"unknown front-matter key '{k}' (ignored); the keys are: {', '.join(keys)}")
     draft = False
     for v in drafts:  # fail closed: anything but a clear "false" keeps it a draft
         if v.lower() in TRUE:
@@ -178,29 +179,36 @@ class Post:
     tags: list = field(default_factory=list)
     body_md: str = ""
     draft: bool = False
+    tool: str = ""  # slug of a tool in content/tools/ this story was built with (see app/tools.py)
     notes: list = field(default_factory=list, repr=False)  # front-matter warnings from parse()
 
     def html(self, base: str = ""):
-        def chart(m):
-            attrs = " ".join(
-                f'data-{k.replace("_", "-")}="{html.escape(v)}"' for k, v in chart_options(m.group(1)).items()
-            )
-            return f'<figure class="storm-chart" {attrs}></figure>'
+        return render(self.body_md, base)
 
-        def link(m):
-            path = m.group(2)
-            if base and (f"/{path}" + "/").startswith(base + "/"):
-                return m.group(0)  # already on the base path
-            return f'{m.group(1)}="{rebase(path, base)}"'
 
-        body = link_footnote_urls(COMMENT.sub("", self.body_md))
-        body = SHORTCODE.sub(chart, body)
-        # Number footnotes in the order they're cited, wherever their definitions are written.
-        out = markdown.markdown(body, extensions=["extra", "smarty"],
-                                extension_configs={"extra": {"footnotes": {"USE_DEFINITION_ORDER": False}}})
-        out = FOOTNOTES.sub(lambda m: '<section class="sources" aria-labelledby="sources">'
-                                      f'<h2 id="sources">Sources</h2>{m.group(1)}</section>', out)
-        return ROOT_LINK.sub(link, out)
+def render(body_md, base=""):
+    """Markdown body -> HTML: storm charts, citations as a Sources list, links rebased onto `base`.
+    Shared by posts and tool pages."""
+    def chart(m):
+        attrs = " ".join(
+            f'data-{k.replace("_", "-")}="{html.escape(v)}"' for k, v in chart_options(m.group(1)).items()
+        )
+        return f'<figure class="storm-chart" {attrs}></figure>'
+
+    def link(m):
+        path = m.group(2)
+        if base and (f"/{path}" + "/").startswith(base + "/"):
+            return m.group(0)  # already on the base path
+        return f'{m.group(1)}="{rebase(path, base)}"'
+
+    body = link_footnote_urls(COMMENT.sub("", body_md))
+    body = SHORTCODE.sub(chart, body)
+    # Number footnotes in the order they're cited, wherever their definitions are written.
+    out = markdown.markdown(body, extensions=["extra", "smarty"],
+                            extension_configs={"extra": {"footnotes": {"USE_DEFINITION_ORDER": False}}})
+    out = FOOTNOTES.sub(lambda m: '<section class="sources" aria-labelledby="sources">'
+                                  f'<h2 id="sources">Sources</h2>{m.group(1)}</section>', out)
+    return ROOT_LINK.sub(link, out)
 
 
 def _where(path):
@@ -232,20 +240,35 @@ def parse_text(text, slug, where):
         summary=meta.get("summary", ""),
         video=meta.get("video", ""),
         tags=[t.strip() for t in meta.get("tags", "").split(",") if t.strip()],
+        tool=meta.get("tool", ""),
         body_md=body.strip(),
         draft=meta["draft"],
         notes=notes,
     )
 
 
+def loose_text(raw: bytes) -> str:
+    """Best-effort text of a file that may not be UTF-8 (UTF-16/32 from TextEdit or Windows editors),
+    used only to look for a draft line so such a file still fails closed."""
+    for bom, enc in ((b"\xff\xfe\x00\x00", "utf-32"), (b"\x00\x00\xfe\xff", "utf-32"),
+                     (b"\xff\xfe", "utf-16"), (b"\xfe\xff", "utf-16")):
+        if raw.startswith(bom):
+            try:
+                return raw.decode(enc)
+            except UnicodeDecodeError:
+                break
+    return raw.decode("utf-8", "replace").replace("\0", "")
+
+
 def parse(path: Path) -> Post:
     raw = path.read_bytes()
     try:
         text = raw.decode("utf-8")
+        if "\0" in text:  # UTF-16 without a byte-order mark decodes as "UTF-8" full of NULs
+            raise UnicodeDecodeError("utf-8", raw, 0, 1, "NUL byte")
     except UnicodeDecodeError:
-        text = raw.decode("utf-8", "replace")
         raise PostError(_where(path), "isn't plain UTF-8 text; save it as UTF-8",
-                        bool(DRAFT_KEY.search(text))) from None
+                        bool(DRAFT_KEY.search(loose_text(raw)))) from None
     return parse_text(text, path.stem, _where(path))
 
 
@@ -318,13 +341,10 @@ def check_chart(code, opts, meta=None):
     return warn
 
 
-def check(post, sections=None, meta=None):
-    """Mistakes worth a warning, as messages. sections: the valid section slugs; meta: storm-data
-    metadata for checking charts. Posts that aren't drafts are also checked for template leftovers."""
-    warn = list(post.notes)
-    if sections is not None and post.section not in sections:
-        warn.append(f"section '{post.section}' isn't one of: {', '.join(sections)} (its section link would 404)")
-    body = COMMENT.sub("", post.body_md)
+def check_body(body_md, meta=None):
+    """Warnings about a Markdown body (posts and tool pages): unclosed comments, storm charts, citations."""
+    warn = []
+    body = COMMENT.sub("", body_md)
     if "<!--" in body:
         warn.append("a <!-- comment is never closed with -->, so everything after it is hidden")
     for m in SHORTCODE.finditer(body):
@@ -332,6 +352,21 @@ def check(post, sections=None, meta=None):
     defined = set(re.findall(r"^\[\^([^\]]+)\]:", body, re.M))
     for ref in sorted(set(FOOTNOTE_REF.findall(body)) - defined):
         warn.append(f"[^{ref}] is cited but has no source line ('[^{ref}]: ...'), so it shows as plain text")
+    return warn
+
+
+def check(post, sections=None, meta=None, tools=None):
+    """Mistakes worth a warning, as messages. sections: the valid section slugs; meta: storm-data
+    metadata for checking charts; tools: the slugs of published tools. Posts that aren't drafts are
+    also checked for template leftovers."""
+    warn = list(post.notes)
+    if sections is not None and post.section not in sections:
+        warn.append(f"section '{post.section}' isn't one of: {', '.join(sections)} (its section link would 404)")
+    if post.tool and tools is not None and post.tool not in tools:
+        warn.append(f"tool: '{post.tool}' isn't a published tool" + _suggest(post.tool, sorted(tools))
+                    + (f" (tools: {', '.join(sorted(tools))})" if tools else " (there are no tools yet)"))
+    warn += check_body(post.body_md, meta)
+    body = COMMENT.sub("", post.body_md)
     if post.draft:
         return warn
     tpl = _template()

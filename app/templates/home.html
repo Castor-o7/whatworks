@@ -28,6 +28,18 @@
       <p class="watch-links"><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a></p>
     </section>
 
+    {% if tools %}
+    <section class="box">
+      <h2 class="box-title">Tools</h2>
+      <ul class="section-list">
+        {% for t in tools %}
+          <li><a href="{{ base }}/tools/{{ t.slug }}/">{{ t.title }}</a><span>{{ t.summary }}</span></li>
+        {% endfor %}
+      </ul>
+      <a class="more" href="{{ base }}/tools/">All tools →</a>
+    </section>
+    {% endif %}
+
     <section class="box">
       <h2 class="box-title">Sections</h2>
       <ul class="section-list">
