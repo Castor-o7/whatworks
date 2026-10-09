@@ -9,3 +9,5 @@ __pycache__/
 .*.sw?
 *~
 *.bak
+# Share cards drawn by scripts/build_site.py, kept so unchanged ones aren't drawn again
+.cache/

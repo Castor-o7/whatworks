@@ -34,8 +34,10 @@ only on this computer until you publish. (Back up the `content/posts` folder you
 to you before it's published.) Some details:
 
 - `publish.py` backs up only `content/posts/<name>.md` files that aren't drafts (plus deleted posts and
-  the template). Anything else under `content/`, such as editor backups or a `content/drafts/` folder,
-  is listed as "not backing up" and stays on this computer.
+  the template), tool files, and images in `content/images/` that a published post or tool uses. An
+  image only a draft uses stays on this computer (and off the live site) until that post is published.
+  Anything else under `content/`, such as editor backups or a `content/drafts/` folder, is listed as
+  "not backing up" and stays on this computer.
 - If you commit with git, GitHub Desktop or your editor yourself, the **draft guard** (a git hook in
   `scripts/git-hooks/`, switched on the first time you run any of the three commands) refuses any
   commit that includes a draft. Unstage the draft (`git restore --staged <file>`) and commit again.
@@ -116,6 +118,43 @@ Every `[^label]` you cite needs a matching `[^label]: ...` line; the build warns
   The build warns about years outside the data (1950–2024), a range written backwards, an unknown `metric`
   or state, and options it doesn't know.
 
+## Sharing: link previews and the feed
+
+Paste a post's link into Discord, Bluesky, X, Facebook, iMessage, Slack or a YouTube description and it
+unfurls into a card: the headline, the summary (cut to 200 characters, so make the first sentence
+count), and a picture. The picture is, first match wins:
+
+1. **Your own image**, if you set `image:` in the front matter. Put the file in `content/images/` and
+   write just its name (`image: grid-map.png`), or give a full `https://` address. Use a PNG, JPEG, GIF
+   or WebP, ideally 1200x630 (wide, about 1.9 to 1), under 5 MB; keep the important part in the middle,
+   since some apps crop the edges.
+2. **The video's thumbnail**, if the post has a YouTube `video:`.
+3. **A title card** made for you: your headline in the site's type on the paper background, with the
+   section in orange above it and the What Works? wordmark at the bottom (plus the summary when the
+   headline is short enough to leave room). Long headlines shrink and wrap to fit; emoji are left off
+   the card (they stay in the headline everywhere else).
+
+Tools work the same way (`image:` in the tool's file, or a title card). Every other page uses the site
+card: the wordmark and the tagline. The build warns if an `image:` file is missing, isn't a picture
+type previews accept, or is too big or too small; the post then falls back to the next choice.
+
+You can also use images inside a post: put the file in `content/images/` and write
+`![What the picture shows](/images/grid-map.png)`. The build copies the images posts use to the site.
+
+**Check a preview before you share widely.** After publishing (give it a minute), paste the link into a
+Discord DM to yourself, or into a preview checker such as <https://www.opengraph.xyz/>. Apps cache a link's
+preview for a while, so a fix may take time to show where the link was already shared; Facebook's Sharing
+Debugger (<https://developers.facebook.com/tools/debug/>) can refresh it. Locally, `preview.py` shows the
+card itself at `/whatworks/static/og/<post-name>.png` (or `post-<post-name>.png` for a post named `site`
+or starting with `tool-` or `post-`, so it can't take a tool's card name).
+
+**The feed.** Readers can follow new posts in any feed reader at
+<https://castor-o7.github.io/whatworks/feed.xml> (linked as "Subscribe (RSS)" in every page's footer and on
+About). It holds the 20 newest published posts, in full. Charts are drawn in the browser, so in the feed
+each one becomes a link back to the post ("Interactive chart: ... view it on What Works?"); give your
+storm charts a `title` and that's what the link says. Drafts are never in the feed. Search engines get
+a sitemap at `/whatworks/sitemap.xml` with every published page.
+
 ## Front matter reference
 
 ```yaml
@@ -125,6 +164,7 @@ date: 2026-10-08
 section: science
 summary: One sentence under the headline and on cards.
 video:
+image: grid-map.png
 tags: heat, grid
 tool: storm-desk
 draft: true
@@ -134,7 +174,8 @@ draft: true
 - The block starts and ends with lines that are exactly `---`, so a `---` inside a title or summary
   is safe. (It shows as typed there; type `—` itself for an em dash. In the body, `---` becomes one.)
 - `date` sorts the site, newest first. Write it as `2026-10-08`, and update it on the day you publish.
-- `section` is one of the sections listed above. `video`, `tags` and `tool` are optional; leave them empty.
+- `section` is one of the sections listed above. `video`, `image`, `tags` and `tool` are optional; leave them empty.
+- `image` picks the picture shown when the post's link is shared (see Sharing below).
 - `tool` links the story to one of your tools (the file name in `content/tools/`, e.g. `storm-desk`). The
   post then shows "Built with Storm Desk · try it yourself", and the tool's page lists the story.
 - `draft: true` keeps the post private. Delete the line to publish.
@@ -157,6 +198,7 @@ url: /storms            # where it runs: a page on this site, or a full https://
 source: https://github.com/Castor-o7/whatworks   # optional: its source code
 audience: Anyone curious how today's storms compare with the past
 order: 1                # optional: lower numbers come first
+image: storm-map.png    # optional: its link-preview picture (see Sharing)
 ---
 ```
 

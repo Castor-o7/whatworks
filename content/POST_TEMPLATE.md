@@ -4,6 +4,7 @@ date: 2026-10-08
 section: tech
 summary: One sentence that appears under the headline and on cards.
 video:
+image:
 tags:
 draft: true
 ---

@@ -2,7 +2,6 @@
 {% from "_macros.html" import card %}
 {% set active = 'tools' %}
 {% block title %}{{ tool.title }} — Tools — {{ site.name }}{% endblock %}
-{% block description %}{{ tool.summary or site.tagline }}{% endblock %}
 {% block content %}
 <article class="story">
   {% if tool.draft %}<p class="draft-banner"><strong>Draft preview.</strong> This tool page isn't published. Delete <code>draft: true</code> from its front matter, then run <code>scripts/publish.py</code>.</p>{% endif %}

@@ -12,7 +12,9 @@ scripts/deploy.sh     publish _site to the gh-pages branch
 ```
 
 `base_url = "/whatworks"` lives in `site.toml`. Every link, asset and fetch is prefixed with it.
-Templates get it as `{{ base }}`; JavaScript reads `window.WW_BASE` (set in `base.html`).
+Templates get it as `{{ base }}`; JavaScript reads `window.WW_BASE` (set in `base.html`). Where a full URL
+is needed (link previews, the feed, the sitemap), it is `site_url + base_url + path`: templates get
+`{{ abs_base }}` (`https://castor-o7.github.io/whatworks`). Link previews, feed and sitemap: [SHARING.md](SHARING.md).
 
 ## Conventions
 
@@ -75,12 +77,21 @@ asks the reader to zoom in. Narrative full-text search is not available on the s
 | `/section/<slug>/` | `section.html` | not generated for `storms` (that section is `/storms/`) |
 | `/storms/` | `storms.html` | same element ids as before (`filters`, `sort`, `results`, `more`, `map-panel`, `near-me`, `area-only`, `area-status`, `chart-years`, `chart-types`, `chart-states`), minus the search input. Stat tiles rendered at build time from `meta.totals`. An element `#list-scope` above the event list where `storms.js` explains the scope (e.g. notable-only). |
 | `/storms/then-and-now/` | `thenandnow.html` | Then & Now (contract: [THEN_AND_NOW.md](THEN_AND_NOW.md)), drawn by `then-now.js`. `form#tn-controls` (inputs `then_from`, `then_to`, `now_from`, `now_to`; selects `preset`, `state`, `metric`, `dollars`; the dollars field is `label.tn-dollars`) and empty containers `#tn-status`, `#tn-summary`, `#tn-compare`, `#tn-tornado`, `#tn-tornado-chart`, `#tn-unmatched`, `#tn-caveats`. Section headings and a static Sources list (`#tn-src-noaa`, `#tn-src-cpi`, `#tn-src-ef`, `#tn-src-reports`, `#tn-src-faq`) are in the template. State menu = `meta.menu_states`; the "2024 dollars" label comes from `cpi.json`'s `base_year` at build time. |
-| `/storms/event/?id=N` | `event.html` | shell `<article class="story" id="event-root">`; `event.js` renders everything client-side (same markup/classes as the old server template, including the mini map) and sets `document.title` |
+| `/storms/event/?id=N` | `event.html` | shell `<article class="story" id="event-root">`; `event.js` renders everything client-side (same markup/classes as the old server template, including the mini map) and sets `document.title`. One shell serves every id, so its head has no canonical link and no `og:url` (a shared link keeps its `?id=`) and carries `robots: noindex` |
 | `/post/<slug>/` | `post.html` | `[[storm-chart ...]]` shortcodes become `<figure class="storm-chart" data-...>` rendered by `charts.js` via `WWData`; `[[then-now ...]]` becomes `<figure class="then-now" data-then="YYYY-YYYY" data-now="YYYY-YYYY" data-metric="..." [data-state="..."] [data-dollars="real|nominal"]>` (defaults filled in) rendered by `charts.js` (chart, summary and tornado sentences, a `p.tn-compact-notes` line on the breaks that apply, and the link) |
 | `/tools/` | `tools.html` | one card per tool in `content/tools/*.md` (see `app/tools.py`), ordered by `order` then title |
 | `/tools/<slug>/` | `tool.html` | the tool's Markdown body + the posts whose front matter says `tool: <slug>` |
 | `/about/` | `about.html` | |
-| `/404.html` | `404.html` | GitHub Pages serves this for unknown paths |
+| `/404.html` | `404.html` | GitHub Pages serves this for unknown paths. No canonical link (it answers for every missing path); `robots: noindex` |
+| `/feed.xml` | (built in `build_site.py`) | Atom 1.0: the 20 newest published posts, full HTML with absolute links; charts become links to the post. Never drafts, so it's identical with or without `--drafts` |
+| `/sitemap.xml` | (built in `build_site.py`) | every published page except the event shell and 404; referenced by `<link rel="sitemap">` in each head |
+| `/static/og/<slug>.png`, `/static/og/tool-<slug>.png`, `/static/og/site.png` | (drawn by `app/share.py`) | 1200x630 share cards; a post's `og:image` is its `image:`, its YouTube thumbnail, or its card. A post whose slug is `site` or starts with `tool-` or `post-` gets `post-<slug>.png`, so post, tool and site card names never overlap. `og:image:width`/`height` for an `image:` file are its size as displayed (EXIF rotation applied) |
+| `/images/<file>` | (copied from `content/images/`) | only the images a rendered post or tool uses (its `image:`, or `/images/...` in its text) |
+
+Every page's head has the link-preview tags from `base.html` (`canonical`, `og:*`, `twitter:card`, and
+`article:published_time` on posts), filled from a `share` dict `build_site.py` passes to each page.
+Descriptions are the summary, blurb or tagline as written (whitespace collapsed, cut to 200 characters),
+escaped by Jinja like any other text, so a summary that mentions `<video>` keeps it.
 
 Script order on every page: `data.js`, `charts.js`, `site.js`, then page scripts. Leaflet/topojson/map.js are
 loaded only on `/storms/` and the event page; `then-now.js` on `/storms/then-and-now/`. Links built in JS use `` `${WW_BASE}/storms/event/?id=${id}` ``.

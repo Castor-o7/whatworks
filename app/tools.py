@@ -8,6 +8,7 @@ url: /storms                 (where it runs: a page on this site, or a full http
 source: https://github.com/...   (optional; its source code)
 audience: Who it's for, in a phrase.
 order: 1                     (optional; lower comes first)
+image: storm-map.png         (optional; link-preview image in content/images/, or an https:// URL)
 ---
 Markdown body: how to use it, what's inside, caveats. Same syntax as posts (citations, storm charts).
 
@@ -21,7 +22,7 @@ from pathlib import Path
 from . import content
 
 TOOLS = content.POSTS.parent / "tools"
-KEYS = ("title", "summary", "status", "url", "source", "audience", "order", "draft")
+KEYS = ("title", "summary", "status", "url", "source", "audience", "order", "image", "draft")
 STATUSES = {"live": "Live", "beta": "Beta", "coming-soon": "Coming soon"}
 
 
@@ -35,6 +36,7 @@ class Tool:
     source: str = ""
     audience: str = ""
     order: int = 100
+    image: str = ""  # link-preview image (docs/SHARING.md)
     body_md: str = ""
     draft: bool = False
     notes: list = field(default_factory=list, repr=False)
@@ -74,6 +76,7 @@ def parse_text(text, slug, where):
         source=meta.get("source", ""),
         audience=meta.get("audience", ""),
         order=int(order) if whole else 100,
+        image=meta.get("image", ""),
         body_md=body.strip(),
         draft=meta["draft"],
         notes=notes,
@@ -122,5 +125,5 @@ def check(tool, meta=None):
         v = getattr(tool, key)
         if v and not (v.startswith(("https://", "http://")) or (key == "url" and v.startswith("/"))):
             warn.append(f"{key}: should be a full https:// address" + (" or a site path like /storms" if key == "url" else ""))
-    warn += content.check_body(tool.body_md, meta)
+    warn += content.check_body(tool.body_md, meta, tool.image)
     return warn

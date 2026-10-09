@@ -13,9 +13,10 @@ What it does, in order:
   1. Builds the site WITHOUT drafts (scripts/build_site.py).
   2. Deploys it (scripts/deploy.sh), live about a minute later.
   3. Commits your published posts (content/posts/*.md that aren't drafts, deleted posts, and the
-     template) to the main branch and pushes them, so your writing is backed up in the repo. Drafts
-     and other files (editor backups and such) are never committed: the repo is public, so a draft
-     stays only on this computer until you publish it.
+     template), tools, and the images in content/images/ that a published post or tool uses to the
+     main branch and pushes them, so your writing is backed up in the repo. Drafts, images only a
+     draft uses, and other files (editor backups and such) are never committed: the repo is public,
+     so a draft stays only on this computer until you publish it.
 Code changes outside content/ are left for you to commit yourself.
 """
 import argparse
@@ -32,7 +33,7 @@ if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.res
     os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
-from app import content, tools as toolkit  # noqa: E402
+from app import content, share, tools as toolkit  # noqa: E402
 import build_site  # noqa: E402
 
 
@@ -72,19 +73,46 @@ def is_tool_path(path):
     return Path(path).parent == Path("content/tools")
 
 
+IMAGES = Path("content/images")
+
+
+def is_image_path(path):
+    return IMAGES in Path(path).parents and not Path(path).name.startswith(".")
+
+
+def published_images():
+    """content/images/ paths (relative to it) that a published post or tool uses: the live site's
+    images. One only a draft uses stays private, like the draft."""
+    used = set()
+    for item in [*content.all_posts(), *build_site.visible_tools()[0]]:
+        used.update(share.referenced_images(item.image, content.COMMENT.sub("", item.body_md)))
+    return used
+
+
 def parse_any(path):
     """A post or a tool, by where the file lives."""
     return (toolkit.parse if is_tool_path(path) else content.parse)(ROOT / path)
 
 
-def sort_changes(changes):
-    """-> (to_save, drafts, skipped). Only an allowlist is backed up: posts that aren't drafts, deleted
-    posts, and the template. Drafts, editor backups (.swp, ~) and anything else stay off GitHub."""
-    to_save, drafts, skipped = [], [], []
+def sort_changes(changes, images=None):
+    """-> (to_save, drafts, skipped, unused). Only an allowlist is backed up: posts that aren't drafts,
+    deleted posts, the template, and images a published post or tool uses (`images`, from
+    published_images()). Drafts, images no published post uses, editor backups (.swp, ~) and anything
+    else stay off GitHub."""
+    images = published_images() if images is None else images
+    to_save, drafts, skipped, unused = [], [], [], []
     for status, path in changes:
         p = ROOT / path
         if path == TEMPLATE:
             to_save.append(path)
+        elif is_image_path(path):
+            if not p.exists():
+                if head_text(path) is not None:  # a deleted image that was backed up
+                    to_save.append(path)
+            elif Path(path).relative_to(IMAGES).as_posix() in images:
+                to_save.append(path)
+            else:
+                unused.append(path)
         elif not is_post_path(path):
             skipped.append(path)
         elif not p.exists():
@@ -94,7 +122,7 @@ def sort_changes(changes):
             drafts.append(path)
         else:
             to_save.append(path)
-    return to_save, drafts, skipped
+    return to_save, drafts, skipped, unused
 
 
 def is_draft_file(text, path):
@@ -160,10 +188,10 @@ def main():
         return 1
 
     changes = content_changes()
-    to_save, held, skipped = sort_changes(changes)
+    to_save, held, skipped, unused = sort_changes(changes)
     renamed = {path for status, path in changes if status[0] == "R"}
     new = [(path, parse_any(path)) for path in to_save
-           if path != TEMPLATE and path not in renamed and (ROOT / path).exists() and is_new(path)]
+           if is_post_path(path) and path not in renamed and (ROOT / path).exists() and is_new(path)]
     if new:
         print("Going live for the first time:")
         for path, item in new:
@@ -192,7 +220,7 @@ def main():
     drafts = [p for p in content.all_posts(drafts=True) if p.draft]
 
     titles = [parse_any(path).title for path in to_save
-              if path != TEMPLATE and (ROOT / path).exists()]
+              if is_post_path(path) and (ROOT / path).exists()]
     message = args.message or ("Publish: " + "; ".join(titles) if titles else "Publish site")
 
     print(f"\n{len(posts)} published post(s) will be live.")
@@ -201,8 +229,12 @@ def main():
     print("Will back up to GitHub: " + (", ".join(to_save) if to_save else "nothing new"))
     if held:
         print("Not backing up (drafts): " + ", ".join(held))
+    if unused:
+        print("Not backing up (images no published post or tool uses yet; they stay on this computer): "
+              + ", ".join(unused))
     if skipped:
-        print("Not backing up (not a post or tool file: content/posts/<name>.md, content/tools/<name>.md): "
+        print("Not backing up (not a post, tool or image file: content/posts/<name>.md, "
+              "content/tools/<name>.md, content/images/<file>): "
               + ", ".join(skipped))
     if args.dry_run:
         print("\nDry run: nothing deployed or committed.")

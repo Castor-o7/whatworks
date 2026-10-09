@@ -49,17 +49,29 @@ and a git hook in `scripts/git-hooks/` (switched on by those scripts) refuses an
 draft. `publish.py` also stops on template leftovers or an unreadable post (`--force` overrides the
 leftover check).
 Citations are footnotes (`[^1]`) that become a Sources list. Everything a writer needs, including
-videos, links and storm charts, is in **[docs/WRITING.md](docs/WRITING.md)**.
+videos, links, storm charts, images and how a shared link previews, is in **[docs/WRITING.md](docs/WRITING.md)**.
+
+## Sharing
+
+Every page carries link-preview tags (Open Graph + Twitter card, absolute URLs from `site_url` +
+`base_url` in `site.toml`), so a pasted link unfurls in Discord, Bluesky, X, Facebook, iMessage and Slack.
+Posts and tools get a share image: their `image:` (from `content/images/`), a YouTube thumbnail, or a
+1200x630 title card that `build_site.py` draws with Pillow from the fonts in `app/fonts/` (cached in
+`.cache/og/`, byte-identical on every build). The build also writes an Atom feed (`/feed.xml`, the 20
+newest published posts) and `/sitemap.xml`. The contract is [docs/SHARING.md](docs/SHARING.md).
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `site.toml` | Site name, tagline, `base_url`, channel links, map tiles, sections |
+| `site.toml` | Site name, tagline, `site_url` + `base_url`, channel links, map tiles, sections |
 | `content/posts/` | Markdown posts |
 | `content/tools/` | One Markdown file per tool on `/tools/` (Josh's software, starting with the Storm Desk) |
+| `content/images/` | Share images and in-post pictures; the ones published posts use are copied to `_site/images/` and backed up |
 | `app/content.py` | Post loading, Markdown, base-path link rewriting, video-embed URLs |
 | `app/tools.py` | Tool loading and checks (reuses content.py's front-matter reader) |
+| `app/share.py` | Link previews: title cards (Pillow), preview descriptions, image checks |
+| `app/fonts/` | Fraunces and Source Sans 3 for the title cards (SIL Open Font License; each folder has its `OFL.txt`) |
 | `app/templates/` | Page templates (Jinja) |
 | `app/static/` | CSS, the browser data layer (`data.js`), charts, explorer, map and event-page JS |
 | `app/static/vendor/` | Leaflet, topojson-client, US state shapes (served locally) |
@@ -67,7 +79,7 @@ videos, links and storm charts, is in **[docs/WRITING.md](docs/WRITING.md)**.
 | `data_sources/cpi-u-annual.csv` | CPI-U annual averages (BLS, via FRED series CPIAUCNS) with a provenance header; committed so data builds work offline |
 | `scripts/fetch_cpi.py` | Downloads CPIAUCNS from FRED and rewrites `data_sources/cpi-u-annual.csv` (complete years only) |
 | `scripts/build_data.py` | Precomputes `_site/data/` (summaries, map grids, tiles, event records) from SQLite |
-| `scripts/build_site.py` | Renders the pages and copies `app/static/` into `_site/` |
+| `scripts/build_site.py` | Renders the pages, share cards, `feed.xml` and `sitemap.xml`, and copies `app/static/` into `_site/` |
 | `scripts/serve.py`, `scripts/deploy.sh` | Local preview; publish to GitHub Pages |
 
 ## What the static site can't do

@@ -2,6 +2,9 @@
 name = "What Works?"
 tagline = "Everyday solutions. Out-of-the-ordinary situations. The news behind both."
 author = "Josh"
+# The site's origin (scheme + host, no path). Link previews, the feed and the sitemap need full URLs:
+# site_url + base_url + path, e.g. https://castor-o7.github.io/whatworks/post/<slug>/
+site_url = "https://castor-o7.github.io"
 # Path the site is served under (GitHub Pages project site). Every link, asset and fetch uses it.
 base_url = "/whatworks"
 

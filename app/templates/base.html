@@ -4,7 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site.name }}{% endblock %}</title>
-  <meta name="description" content="{% block description %}{{ site.tagline }}{% endblock %}">
+  <meta name="description" content="{{ share.description }}">
+  {#- Link previews (docs/SHARING.md): build_site.py passes `share` with absolute URLs for every page. #}
+  {% if share.canonical %}<link rel="canonical" href="{{ share.url }}">{% else %}<meta name="robots" content="noindex">{% endif %}
+  <meta property="og:site_name" content="{{ site.name }}">
+  <meta property="og:title" content="{{ share.title }}">
+  <meta property="og:description" content="{{ share.description }}">
+  {% if share.url %}<meta property="og:url" content="{{ share.url }}">
+  {% endif %}<meta property="og:type" content="{{ share.type }}">
+  <meta property="og:image" content="{{ share.image.url }}">
+  {% if share.image.width %}<meta property="og:image:width" content="{{ share.image.width }}">
+  <meta property="og:image:height" content="{{ share.image.height }}">
+  {% endif %}<meta property="og:image:alt" content="{{ share.image.alt }}">
+  <meta property="og:locale" content="en_US">
+  {% if share.published %}<meta property="article:published_time" content="{{ share.published }}">
+  <meta property="article:section" content="{{ share.section }}">
+  {% endif %}<meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" type="application/atom+xml" title="{{ site.name }}" href="{{ abs_base }}/feed.xml">
+  <link rel="sitemap" type="application/xml" href="{{ abs_base }}/sitemap.xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
@@ -49,7 +66,7 @@
     <div class="wrap">
       <span class="wordmark small">What Works<span>?</span></span>
       <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
-      <p><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a> · <a href="{{ base }}/tools/">Tools</a> · <a href="{{ base }}/about/">About</a></p>
+      <p><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a> · <a href="{{ base }}/tools/">Tools</a> · <a href="{{ base }}/about/">About</a> · <a href="{{ base }}/feed.xml" type="application/atom+xml">Subscribe (RSS)</a></p>
     </div>
   </footer>
   <script src="{{ base }}/static/data.js"></script>

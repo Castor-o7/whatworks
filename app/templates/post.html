@@ -2,7 +2,6 @@
 {% from "_macros.html" import card %}
 {% set active = post.section %}
 {% block title %}{{ post.title }} — {{ site.name }}{% endblock %}
-{% block description %}{{ post.summary or site.tagline }}{% endblock %}
 {% block content %}
 <article class="story">
   {% if post.draft %}<p class="draft-banner"><strong>Draft preview.</strong> This post isn't published. Delete <code>draft: true</code> from its front matter, set <code>date:</code> to the day you publish, then run <code>scripts/publish.py</code>.</p>{% endif %}

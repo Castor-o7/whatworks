@@ -6,6 +6,7 @@ date: 2026-10-08
 section: storms
 summary: One-sentence dek shown on cards.
 video: https://www.youtube.com/watch?v=...   (optional; YouTube or Twitch video/clip URL)
+image: grid-map.png  (optional; the link-preview image: a file in content/images/ or an https:// URL)
 tags: tornadoes, oklahoma
 draft: true        (optional; a draft is only rendered by a local --drafts preview)
 ---
@@ -64,7 +65,7 @@ FOOTNOTE_REF = re.compile(r"\[\^([^\]]+)\](?!:)")
 FOOTNOTES = re.compile(r'<div class="footnote">\s*<hr ?/?>\s*(<ol>.*</ol>)\s*</div>\s*$', re.S)
 # Front matter: values may be "quoted", and end in an optional "  # comment".
 TRUE, FALSE = ("true", "yes", "on", "1"), ("false", "no", "off", "0")
-KEYS = ("title", "date", "section", "summary", "video", "tags", "tool", "draft")
+KEYS = ("title", "date", "section", "summary", "video", "image", "tags", "tool", "draft")
 VALUE_COMMENT = re.compile(r"(?:^|\s+)#(?:\s.*)?$")
 # Used only when a file can't be parsed: any draft line that isn't clearly false means a draft.
 DRAFT_KEY = re.compile(r"^\W*draft\w*\W*:(.*)$", re.I | re.M)
@@ -205,6 +206,7 @@ class Post:
     body_md: str = ""
     draft: bool = False
     tool: str = ""  # slug of a tool in content/tools/ this story was built with (see app/tools.py)
+    image: str = ""  # link-preview image: a file in content/images/ or an https:// URL (docs/SHARING.md)
     notes: list = field(default_factory=list, repr=False)  # front-matter warnings from parse()
 
     def html(self, base: str = ""):
@@ -272,6 +274,7 @@ def parse_text(text, slug, where):
         video=meta.get("video", ""),
         tags=[t.strip() for t in meta.get("tags", "").split(",") if t.strip()],
         tool=meta.get("tool", ""),
+        image=meta.get("image", ""),
         body_md=body.strip(),
         draft=meta["draft"],
         notes=notes,
@@ -404,10 +407,13 @@ def check_then_now(code, opts, meta=None):
     return warn
 
 
-def check_body(body_md, meta=None):
-    """Warnings about a Markdown body (posts and tool pages): unclosed comments, storm charts, citations."""
+def check_body(body_md, meta=None, image=""):
+    """Warnings about a Markdown body (posts and tool pages): unclosed comments, storm charts, citations,
+    and the share image (the image: key, and /images/ files linked in the text)."""
+    from . import share  # Pillow; only needed for checking
     warn = []
     body = COMMENT.sub("", body_md)
+    warn += share.check_image(image, body)
     if "<!--" in body:
         warn.append("a <!-- comment is never closed with -->, so everything after it is hidden")
     for m in SHORTCODE.finditer(body):
@@ -430,7 +436,7 @@ def check(post, sections=None, meta=None, tools=None):
     if post.tool and tools is not None and post.tool not in tools:
         warn.append(f"tool: '{post.tool}' isn't a published tool" + _suggest(post.tool, sorted(tools))
                     + (f" (tools: {', '.join(sorted(tools))})" if tools else " (there are no tools yet)"))
-    warn += check_body(post.body_md, meta)
+    warn += check_body(post.body_md, meta, post.image)
     body = COMMENT.sub("", post.body_md)
     if post.draft:
         return warn
