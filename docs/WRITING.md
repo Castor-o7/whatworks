@@ -95,6 +95,26 @@ Every `[^label]` you cite needs a matching `[^label]: ...` line; the build warns
   `Excessive Heat`, `Thunderstorm Wind`), both spelled and capitalized as in the Storm Desk's **State**
   and **Event type** menus. The build warns about anything it doesn't recognize and suggests the
   closest match; check for `warning:` lines after `preview.py` or `publish.py`.
+- **Then & Now inside a post:** one line puts a compact version of the
+  Then & Now page (`/storms/then-and-now`) in your story: the era comparison chart, one sentence about weak vs
+  strong tornadoes, and an "Open in Then & Now" link to the full page with the same settings.
+
+  ```md
+  [[then-now then="1955-1974" now="2005-2024" state="Oklahoma" metric="deaths"]]
+  [[then-now then="1996-2005" now="2015-2024"]]
+  ```
+
+  Options: `then` and `now` are year ranges (`1955-1974`; an en dash or a single year like `2024` works too;
+  defaults `1955-1974` and `2005-2024`); `metric` = `events` (default) · `deaths` · `injuries` · `damage`
+  (damage is in 2024 dollars, adjusted for inflation; add `dollars="nominal"` to show the dollars as reported);
+  `state` (optional) is a full name, as for storm charts.
+  The eras can be different lengths: the numbers are yearly averages. Only event types NOAA recorded in every
+  year of both eras are compared, so an era before 1993 compares just tornadoes, thunderstorm wind and hail.
+  The figure adds a short "Notes:" line on the breaks that apply (damage categories before 1993, eras of
+  different lengths, F-scale ratings). With `dollars="nominal"` it shows no percent change, since the dollars
+  are from different years.
+  The build warns about years outside the data (1950–2024), a range written backwards, an unknown `metric`
+  or state, and options it doesn't know.
 
 ## Front matter reference
 

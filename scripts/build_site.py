@@ -52,6 +52,16 @@ def load_meta():
     return json.loads(gzip.decompress(path.read_bytes()))
 
 
+def cpi_base_year(meta):
+    """The year Then & Now states real dollars in: cpi.json's base_year (docs/THEN_AND_NOW.md), else the
+    last year of storm data. Only labels depend on it; then-now.js does the arithmetic from cpi.json."""
+    path = OUT / "data" / "cpi.json.gz"
+    try:
+        return json.loads(gzip.decompress(path.read_bytes()))["base_year"]
+    except (OSError, ValueError, KeyError):
+        return meta and meta.get("last_year")
+
+
 def problems(posts, errors, meta, tools=()):
     """Every warning about the posts and tools, as 'content/<kind>/x.md: message' lines."""
     out = [f"{e} (skipped)" for e in errors]
@@ -95,6 +105,8 @@ def build(drafts=False, report=True):
     pages["storms/index.html"] = ("storms.html", dict(
         posts=[p for p in posts if p.section == "storms"], storm_ok=meta is not None, meta=meta))
     pages["storms/event/index.html"] = ("event.html", {})
+    pages["storms/then-and-now/index.html"] = ("thenandnow.html", dict(
+        storm_ok=meta is not None, meta=meta, base_year=cpi_base_year(meta)))
     pages["tools/index.html"] = ("tools.html", dict(tools=tools))
     for t in tools:
         pages[f"tools/{t.slug}/index.html"] = ("tool.html", dict(

@@ -3,6 +3,8 @@
 
 Usage: .venv/bin/python scripts/build_data.py   (stdlib only, about a minute, peak ~2 GB of RAM)
 
+Also reads data_sources/cpi-u-annual.csv (committed; refreshed by scripts/fetch_cpi.py) for cpi.json.
+
 The whole events table is streamed once in event_id order and grouped in Python, so nothing scans
 the table per shard. Output goes to _site/data.tmp and only replaces _site/data once every file is
 written, so a failed run never leaves half a dataset. Nothing else in _site/ is touched.
@@ -19,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "storms.db"
+CPI_CSV = ROOT / "data_sources" / "cpi-u-annual.csv"
 SITE = ROOT / "_site"
 OUT = SITE / "data"
 TMP = SITE / "data.tmp"
@@ -89,9 +92,37 @@ def by_date_desc(rows, date_col=1):
     return rows
 
 
+def tornado_scale(fscale):
+    """'F3' and 'EF3' -> '3' (F and EF merged by number); EFU, null or anything else -> 'U'."""
+    if fscale and fscale[-1] in "012345" and fscale[:-1] in ("F", "EF"):
+        return fscale[-1]
+    return "U"
+
+
+def read_cpi():
+    """data_sources/cpi-u-annual.csv -> the cpi.json object (docs/THEN_AND_NOW.md). The base year is
+    the latest complete year in the CSV; damage is shown in that year's dollars."""
+    if not CPI_CSV.exists():
+        raise SystemExit(f"{CPI_CSV} not found; run scripts/fetch_cpi.py (it is normally committed)")
+    header, annual = {}, {}
+    for line in CPI_CSV.read_text(encoding="utf-8").splitlines():
+        if line.startswith("#"):
+            key, _, value = line[1:].partition(":")
+            header[key.strip()] = value.strip()
+        elif line and line != "year,cpi":
+            year, value = line.split(",")
+            annual[str(int(year))] = float(value)
+    if not annual or "retrieved" not in header:
+        raise SystemExit(f"{CPI_CSV} has no data or no '# retrieved:' line; re-run scripts/fetch_cpi.py")
+    return {"series": header.get("series", "CPIAUCNS").split()[0], "source": header.get("source", ""),
+            "url": header.get("url", ""), "retrieved": header["retrieved"],
+            "base_year": max(map(int, annual)), "annual": annual}
+
+
 def main():
     if not DB.exists():
         raise SystemExit(f"{DB} not found; build it with scripts/build_storm_db.py first")
+    cpi = read_cpi()
     con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
     if TMP.exists():
         shutil.rmtree(TMP)
@@ -132,6 +163,8 @@ def main():
     shards = [[] for _ in range(SHARDS)]       # serialized '"id":{record}' pieces
     episodes = {}                              # episode_id -> its narrative
     days = defaultdict(list)                   # "MM-DD" -> min-heap of the top ON_THIS_DAY
+    tornado = defaultdict(lambda: [0] * 4)     # (s, y, scale) -> events, deaths, injuries, damage
+    damage_values = defaultdict(set)           # year -> distinct nonzero damage_property values
     totals = [0, 0, 0, 0]
     located = 0
 
@@ -150,6 +183,11 @@ def main():
         c = cube[(s, t, year, month)]
         c[0] += 1; c[1] += deaths; c[2] += injuries; c[3] += damage
         by_state[s].append((eid, d, t, cz, deaths, injuries, damage))
+        if etype == "Tornado":
+            g = tornado[(s, year, tornado_scale(fscale))]
+            g[0] += 1; g[1] += deaths; g[2] += injuries; g[3] += damage
+        if dp:
+            damage_values[year].add(dp)
         if deaths > 0 or injuries > 0 or damage >= NOTABLE_MIN_DAMAGE:
             notable.append((eid, d, s, t, cz, deaths, injuries, damage))
 
@@ -251,6 +289,16 @@ def main():
             md = f"{m:02d}-{d:02d}"
             write(f"onthisday/{md}.json", [item for _, item in sorted(days.get(md, []), reverse=True)])
     log("onthisday/ written")
+
+    # ---- Then & Now (docs/THEN_AND_NOW.md) --------------------------------------------------------
+    write("tornado_scale.json", table(["s", "y", "scale", "events", "deaths", "injuries", "damage"],
+                                      [[*k, *v] for k, v in sorted(tornado.items())]))
+    log(f"tornado_scale.json ({len(tornado):,} rows)")
+    # Raw NOAA values (before rounding to dollars): before 1993 they are a handful of category midpoints.
+    write("damage_values.json", {str(y): len(damage_values.get(y, ())) for y in years})
+    del damage_values
+    write("cpi.json", cpi)
+    log(f"cpi.json ({len(cpi['annual'])} years, base {cpi['base_year']}) and damage_values.json")
 
     write("meta.json", {
         "types": types, "states": states, "menu_states": menu_states,

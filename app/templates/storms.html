@@ -11,6 +11,12 @@
 {% if not storm_ok %}
   <p class="empty">The storm data files haven't been built yet. Run <code>scripts/build_storm_db.py</code>, then <code>scripts/build_data.py</code>, then rebuild the site.</p>
 {% else %}
+<a class="tn-callout" href="{{ base }}/storms/then-and-now/">
+  <span class="tn-callout-kicker">New · Then & Now</span>
+  <span class="tn-callout-title">Are storms getting worse, or are we counting more?</span>
+  <span class="tn-callout-text">Compare two eras fairly, only where NOAA recorded the same things in both, with damage in today's dollars. →</span>
+</a>
+
 <div class="stat-row">
   <div class="stat"><span class="stat-num">{{ '{:,}'.format(meta.totals.events) }}</span><span class="stat-label">recorded events</span></div>
   <div class="stat"><span class="stat-num">{{ '{:,}'.format(meta.totals.deaths) }}</span><span class="stat-label">deaths</span></div>

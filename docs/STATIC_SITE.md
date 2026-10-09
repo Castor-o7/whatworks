@@ -39,6 +39,9 @@ Templates get it as `{{ base }}`; JavaScript reads `window.WW_BASE` (set in `bas
 | `notable.json` | Every notable event. cols `id,date,s,t,cz,deaths,injuries,damage`. |
 | `events/<id % 4096>.json` | `{"<id>": record}` where record = `{id, episode_id, date: "YYYY-MM-DD", year, state, cz_name, event_type, deaths, injuries, damage_property, damage_crops, magnitude, magnitude_type, tor_f_scale, lat, lon, narrative, fatalities: [{type: "D"|"I", age, sex, location}]}`. Fields that would be null are omitted (missing = null; test with `== null`), as is an empty `fatalities`. A record whose episode narrative differs from its episode's usual one (or that has no `episode_id`) carries its own `episode_narrative`. |
 | `episodes/<episode_id % 4096>.json` | `{"<episode_id>": "episode narrative"}`; only episodes that have one. |
+| `tornado_scale.json` | cols `s,y,scale,events,deaths,injuries,damage` for tornadoes; `scale` is `"0"`–`"5"` (F and EF merged by number) or `"U"` (EFU, null, anything else). Then & Now's tornado lens. |
+| `cpi.json` | `{"series": "CPIAUCNS", "source", "retrieved": "YYYY-MM-DD", "base_year", "annual": {"1950": 24.07, ...}}`: CPI-U annual averages from the committed `data_sources/cpi-u-annual.csv` (written by `scripts/fetch_cpi.py`). Real dollars = nominal × `annual[base_year] / annual[year]`. |
+| `damage_values.json` | `{"<year>": n}`: distinct nonzero `damage_property` values that year, so Then & Now can show from the data that pre-1993 damage is categorical. |
 | `onthisday/<MM-DD>.json` | 366 files (includes `02-29`). Top 6 events beginning on that calendar day in any year, ordered by `deaths*1e9 + injuries*1e7 + damage` desc: `[{id, date: "YYYY-MM-DD", state, cz, type, deaths, injuries, damage, excerpt}]`; excerpt = event narrative with `|` replaced by a space, first 280 chars. |
 
 Narratives keep NOAA's `|` paragraph separators; renderers split on it.
@@ -71,13 +74,14 @@ asks the reader to zoom in. Narrative full-text search is not available on the s
 | `/` | `home.html` | "On this day" box: `<p class="box-sub" id="on-this-day-sub">` + `<ul class="event-list" id="on-this-day">`, filled by `home.js` using the reader's local date |
 | `/section/<slug>/` | `section.html` | not generated for `storms` (that section is `/storms/`) |
 | `/storms/` | `storms.html` | same element ids as before (`filters`, `sort`, `results`, `more`, `map-panel`, `near-me`, `area-only`, `area-status`, `chart-years`, `chart-types`, `chart-states`), minus the search input. Stat tiles rendered at build time from `meta.totals`. An element `#list-scope` above the event list where `storms.js` explains the scope (e.g. notable-only). |
+| `/storms/then-and-now/` | `thenandnow.html` | Then & Now (contract: [THEN_AND_NOW.md](THEN_AND_NOW.md)), drawn by `then-now.js`. `form#tn-controls` (inputs `then_from`, `then_to`, `now_from`, `now_to`; selects `preset`, `state`, `metric`, `dollars`; the dollars field is `label.tn-dollars`) and empty containers `#tn-status`, `#tn-summary`, `#tn-compare`, `#tn-tornado`, `#tn-tornado-chart`, `#tn-unmatched`, `#tn-caveats`. Section headings and a static Sources list (`#tn-src-noaa`, `#tn-src-cpi`, `#tn-src-ef`, `#tn-src-reports`, `#tn-src-faq`) are in the template. State menu = `meta.menu_states`; the "2024 dollars" label comes from `cpi.json`'s `base_year` at build time. |
 | `/storms/event/?id=N` | `event.html` | shell `<article class="story" id="event-root">`; `event.js` renders everything client-side (same markup/classes as the old server template, including the mini map) and sets `document.title` |
-| `/post/<slug>/` | `post.html` | `[[storm-chart ...]]` shortcodes become `<figure class="storm-chart" data-...>` rendered by `charts.js` via `WWData` |
+| `/post/<slug>/` | `post.html` | `[[storm-chart ...]]` shortcodes become `<figure class="storm-chart" data-...>` rendered by `charts.js` via `WWData`; `[[then-now ...]]` becomes `<figure class="then-now" data-then="YYYY-YYYY" data-now="YYYY-YYYY" data-metric="..." [data-state="..."] [data-dollars="real|nominal"]>` (defaults filled in) rendered by `charts.js` (chart, summary and tornado sentences, a `p.tn-compact-notes` line on the breaks that apply, and the link) |
 | `/tools/` | `tools.html` | one card per tool in `content/tools/*.md` (see `app/tools.py`), ordered by `order` then title |
 | `/tools/<slug>/` | `tool.html` | the tool's Markdown body + the posts whose front matter says `tool: <slug>` |
 | `/about/` | `about.html` | |
 | `/404.html` | `404.html` | GitHub Pages serves this for unknown paths |
 
 Script order on every page: `data.js`, `charts.js`, `site.js`, then page scripts. Leaflet/topojson/map.js are
-loaded only on `/storms/` and the event page. Links built in JS use `` `${WW_BASE}/storms/event/?id=${id}` ``.
+loaded only on `/storms/` and the event page; `then-now.js` on `/storms/then-and-now/`. Links built in JS use `` `${WW_BASE}/storms/event/?id=${id}` ``.
 `_site/.nojekyll` must exist.

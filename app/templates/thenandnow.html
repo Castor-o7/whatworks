@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% set active = 'storms' %}
+{% block title %}Then & Now — Storm Desk — {{ site.name }}{% endblock %}
+{% block description %}Are storms getting worse, or are we counting more? Compare two eras of NOAA storm records fairly, and see what the records can't tell us.{% endblock %}
+{% block content %}
+<header class="page-head tn-head">
+  <a class="kicker" href="{{ base }}/storms/">Storm Desk</a>
+  <h1>Then & Now</h1>
+  <p class="dek">Are storms getting worse, or are we counting more? Both can be true, and the records alone can't always tell them apart. This page compares two eras only where NOAA counted the same way in both, and says plainly where it can't.{% if 'then-and-now' in tool_map %} <a href="{{ base }}/tools/then-and-now/">How it works →</a>{% endif %}</p>
+</header>
+
+{% if not storm_ok %}
+  <p class="empty">The storm data files haven't been built yet. Run <code>scripts/build_storm_db.py</code>, then <code>scripts/build_data.py</code>, then rebuild the site.</p>
+{% else %}
+<p class="tn-intro">Pick two spans of years. For every kind of event NOAA recorded in <em>every</em> year of both, you'll see the
+  yearly average then and now. Counts are <strong>recorded events</strong>, not storms: more reports can mean more storms,
+  or more radar and trained spotters noticing them.<sup class="tn-cite"><a href="#tn-src-reports">4</a></sup> Damage is adjusted for inflation to {{ base_year }} dollars unless you choose otherwise.</p>
+
+<form class="filters tn-controls" id="tn-controls">
+  <fieldset class="tn-era">
+    <legend>Then</legend>
+    <label>From<input type="number" name="then_from" min="{{ meta.first_year }}" max="{{ meta.last_year }}" value="1955" inputmode="numeric"></label>
+    <label>To<input type="number" name="then_to" min="{{ meta.first_year }}" max="{{ meta.last_year }}" value="1974" inputmode="numeric"></label>
+  </fieldset>
+  <fieldset class="tn-era">
+    <legend>Now</legend>
+    <label>From<input type="number" name="now_from" min="{{ meta.first_year }}" max="{{ meta.last_year }}" value="2005" inputmode="numeric"></label>
+    <label>To<input type="number" name="now_to" min="{{ meta.first_year }}" max="{{ meta.last_year }}" value="2024" inputmode="numeric"></label>
+  </fieldset>
+  <label>Preset
+    <select name="preset">
+      <option value="1955-1974,2005-2024" selected>1955–1974 vs 2005–2024</option>
+      <option value="1975-1994,2005-2024">1975–1994 vs 2005–2024</option>
+      <option value="1996-2005,2015-2024">1996–2005 vs 2015–2024</option>
+      <option value="">Custom years</option>
+    </select></label>
+  <label>State
+    <select name="state"><option value="">All states</option>
+      {% for s in meta.menu_states %}<option>{{ s }}</option>{% endfor %}</select></label>
+  <label>Measure
+    <select name="metric">
+      <option value="events">Recorded events</option><option value="deaths">Deaths</option>
+      <option value="injuries">Injuries</option><option value="damage">Damage ($)</option></select></label>
+  <label class="tn-dollars">Dollars
+    <select name="dollars">
+      <option value="real">{{ base_year }} dollars</option><option value="nominal">As reported</option></select></label>
+</form>
+
+<p class="tn-status" id="tn-status" role="status" aria-live="polite"></p>
+<div class="tn-summary" id="tn-summary"></div>
+
+<section class="tn-section" aria-labelledby="tn-h-compare">
+  <h2 class="box-title" id="tn-h-compare">The comparison</h2>
+  <div class="tn-compare" id="tn-compare"><p class="chart-loading">Loading the storm records…</p></div>
+</section>
+
+<section class="tn-section" aria-labelledby="tn-h-tornado">
+  <h2 class="box-title" id="tn-h-tornado">The tornado lens</h2>
+  <div class="tn-tornado" id="tn-tornado"></div>
+  <figure class="chart-panel tn-tornado-chart" id="tn-tornado-chart"></figure>
+</section>
+
+<section class="tn-section" aria-labelledby="tn-h-unmatched">
+  <h2 class="box-title" id="tn-h-unmatched">Can't be compared yet</h2>
+  <div class="tn-unmatched" id="tn-unmatched"></div>
+</section>
+
+<section class="tn-section" aria-labelledby="tn-h-caveats">
+  <h2 class="box-title" id="tn-h-caveats">What the record can't tell us</h2>
+  <div class="tn-caveats" id="tn-caveats"></div>
+</section>
+
+<section class="sources tn-sources" aria-labelledby="tn-sources">
+  <h2 id="tn-sources">Sources</h2>
+  <ol>
+    <li id="tn-src-noaa">NOAA National Centers for Environmental Information, Storm Events Database, {{ meta.first_year }}–{{ meta.last_year }}. <a href="https://www.ncdc.noaa.gov/stormevents/">https://www.ncdc.noaa.gov/stormevents/</a></li>
+    <li id="tn-src-cpi">U.S. Bureau of Labor Statistics, Consumer Price Index for All Urban Consumers: All Items in U.S. City Average, not seasonally adjusted [CPIAUCNS], retrieved from FRED, Federal Reserve Bank of St. Louis. Annual values are the average of the 12 months. <a href="https://fred.stlouisfed.org/series/CPIAUCNS">https://fred.stlouisfed.org/series/CPIAUCNS</a></li>
+    <li id="tn-src-ef">NOAA Storm Prediction Center, Enhanced F Scale for Tornado Damage: "implemented in the U.S. on 1 February 2007." <a href="https://www.spc.noaa.gov/faq/tornado/ef-scale.html">https://www.spc.noaa.gov/faq/tornado/ef-scale.html</a></li>
+    <li id="tn-src-reports">NOAA Storm Prediction Center, The Enhanced Fujita Scale: tornado reports "increased dramatically in the 1990s" as the National Weather Service installed Doppler radar and trained storm spotters. <a href="https://www.spc.noaa.gov/efscale/">https://www.spc.noaa.gov/efscale/</a></li>
+    <li id="tn-src-faq">NOAA Storm Prediction Center, The Online Tornado FAQ: the records count "county-segments of tornado tracks"; rating damage on the original F scale was "largely a judgment call--quite inconsistent and arbitrary"; for strong to violent (EF2–EF5) tornadoes, "very little overall change has occurred since the 1950s." <a href="https://www.spc.noaa.gov/faq/tornado/">https://www.spc.noaa.gov/faq/tornado/</a></li>
+  </ol>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if storm_ok %}
+<script src="{{ base }}/static/then-now.js"></script>
+{% endif %}{% endblock %}

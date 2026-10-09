@@ -15,6 +15,8 @@ file whose front matter can't be read, is never published.
 
 Markdown body. Drop a live chart from the storm database with:
 [[storm-chart event_type="Tornado" state="Oklahoma"]]
+or a compact Then & Now comparison of two eras (docs/THEN_AND_NOW.md) with:
+[[then-now then="1955-1974" now="2005-2024" state="Oklahoma" metric="deaths"]]
 
 Root-relative links in the body (/storms, /post/other-slug) are written as if the site lived at
 the domain root; html() rewrites them onto the base path the site is actually served under.
@@ -43,6 +45,11 @@ ATTR = re.compile(r"""(\w+)\s*=\s*(?:"([^"]*)"|“([^”]*)”|'([^']*)')""")
 CHART_OPTIONS = {"chart", "metric", "event_type", "state", "year_from", "year_to", "title", "sub", "limit"}
 CHARTS = ("years", "types", "states", "months")
 METRICS = ("events", "deaths", "injuries", "damage")
+# [[then-now ...]]: a compact Then & Now comparison (app/static/charts.js draws it in posts).
+THEN_NOW = re.compile(r"\[\[then-now([^\]]*)\]\]")
+THEN_NOW_OPTIONS = {"then", "now", "state", "metric", "dollars"}
+THEN_NOW_DEFAULTS = {"then": "1955-1974", "now": "2005-2024", "metric": "events"}  # the page's default view
+ERA = re.compile(r"\s*(\d{4})\s*(?:[-–—]|to)\s*(\d{4})\s*|\s*(\d{4})\s*")  # "1955-1974", "1955–1974", "2024"
 # href="/..." or src="/..." (but not protocol-relative "//host/...").
 ROOT_LINK = re.compile(r'\b(href|src)="/(?!/)([^"]*)"')
 OLD_EVENT = re.compile(r"^storms/event/(\d+)/?$")
@@ -152,6 +159,24 @@ def chart_options(text):
     return {m[0]: "".join(m[1:]) for m in ATTR.findall(text)}
 
 
+def era(text):
+    """'1955-1974' (or an en dash, or a single year) -> (1955, 1974); None if it isn't one."""
+    m = ERA.fullmatch(text or "")
+    if not m:
+        return None
+    a, b, one = m.groups()
+    return (int(one), int(one)) if one else (int(a), int(b))
+
+
+def then_now_attrs(opts):
+    """A [[then-now]]'s options with defaults filled in and eras written as 'YYYY-YYYY'."""
+    attrs = {**THEN_NOW_DEFAULTS, **{k: v.strip() for k, v in chart_options(opts).items()}}
+    for k in ("then", "now"):
+        if span := era(attrs[k]):
+            attrs[k] = f"{span[0]}-{span[1]}"
+    return attrs
+
+
 def link_footnote_urls(body):
     """Wrap bare URLs in footnote definitions (and their indented continuation lines) in <...>."""
     def wrap(m):
@@ -195,6 +220,11 @@ def render(body_md, base=""):
         )
         return f'<figure class="storm-chart" {attrs}></figure>'
 
+    def then_now(m):
+        attrs = " ".join(f'data-{k.replace("_", "-")}="{html.escape(v)}"'
+                         for k, v in then_now_attrs(m.group(1)).items() if v)
+        return f'<figure class="then-now" {attrs}></figure>'
+
     def link(m):
         path = m.group(2)
         if base and (f"/{path}" + "/").startswith(base + "/"):
@@ -203,6 +233,7 @@ def render(body_md, base=""):
 
     body = link_footnote_urls(COMMENT.sub("", body_md))
     body = SHORTCODE.sub(chart, body)
+    body = THEN_NOW.sub(then_now, body)
     # Number footnotes in the order they're cited, wherever their definitions are written.
     out = markdown.markdown(body, extensions=["extra", "smarty"],
                             extension_configs={"extra": {"footnotes": {"USE_DEFINITION_ORDER": False}}})
@@ -341,6 +372,38 @@ def check_chart(code, opts, meta=None):
     return warn
 
 
+def check_then_now(code, opts, meta=None):
+    """Warnings for one [[then-now ...]]; meta (_site/data/meta.json.gz) adds year-range and state checks."""
+    code = " ".join(code.split())
+    raw = chart_options(opts)
+    attrs = then_now_attrs(opts)
+    warn = []
+    if ATTR.sub("", opts).strip():
+        warn.append(f'{code}: couldn\'t read all of its options; write each as name="value"')
+    for k in sorted(raw.keys() - THEN_NOW_OPTIONS):
+        warn.append(f"{code}: unknown option '{k}'{_suggest(k, sorted(THEN_NOW_OPTIONS))}")
+    if attrs["metric"] not in METRICS:
+        warn.append(f"{code}: metric must be one of {', '.join(METRICS)}{_suggest(attrs['metric'], METRICS)}")
+    if raw.get("dollars") and raw["dollars"].strip() not in ("real", "nominal"):
+        warn.append(f"{code}: dollars must be real (inflation-adjusted, the default) or nominal (as reported)"
+                    f"{_suggest(raw['dollars'].strip(), ['real', 'nominal'])}")
+    first, last = (meta or {}).get("first_year"), (meta or {}).get("last_year")
+    for k in ("then", "now"):
+        span = era(attrs[k])
+        if not span:
+            warn.append(f'{code}: {k} must be a range of years like {k}="{THEN_NOW_DEFAULTS[k]}"')
+        elif span[0] > span[1]:
+            warn.append(f"{code}: {k} starts after it ends ({span[0]} > {span[1]}); write the earlier year first")
+        elif first and last and (span[0] < first or span[1] > last):
+            warn.append(f"{code}: {k}={attrs[k]!r} is outside the storm data, which covers {first}–{last}")
+    if meta and attrs.get("state"):
+        states = [s for s in meta.get("states", []) if s]
+        if attrs["state"] not in states:
+            warn.append(f"{code}: no state named {attrs['state']!r} in the storm data{_suggest(attrs['state'], states)}."
+                        " Use full names, spelled as in the Storm Desk's State menu (e.g. Oklahoma)")
+    return warn
+
+
 def check_body(body_md, meta=None):
     """Warnings about a Markdown body (posts and tool pages): unclosed comments, storm charts, citations."""
     warn = []
@@ -349,6 +412,8 @@ def check_body(body_md, meta=None):
         warn.append("a <!-- comment is never closed with -->, so everything after it is hidden")
     for m in SHORTCODE.finditer(body):
         warn += check_chart(m.group(0), m.group(1), meta)
+    for m in THEN_NOW.finditer(body):
+        warn += check_then_now(m.group(0), m.group(1), meta)
     defined = set(re.findall(r"^\[\^([^\]]+)\]:", body, re.M))
     for ref in sorted(set(FOOTNOTE_REF.findall(body)) - defined):
         warn.append(f"[^{ref}] is cited but has no source line ('[^{ref}]: ...'), so it shows as plain text")

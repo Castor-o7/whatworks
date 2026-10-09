@@ -25,6 +25,7 @@ is computed in your own browser.
 ## Reading the data honestly
 
 Storm records changed far more than storms did, and that matters most when comparing today with the past.
+To compare two eras fairly, with damage adjusted for inflation, use [Then & Now](/storms/then-and-now).
 
 [[storm-chart title="Recorded events per year" sub="All event types · NOAA Storm Events"]]
 
