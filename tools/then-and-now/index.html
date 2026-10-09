@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Then &amp; Now — Tools — What Works?</title>
+  <meta name="description" content="Are storms getting worse, or are we counting more? Compare two eras of U.S. storm records fairly, with damage in today&#39;s dollars and the record&#39;s blind spots spelled out.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script>window.WW_BASE = "/whatworks"; window.WW_TILES = {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "tiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"};</script>
+  <link rel="icon" href="/whatworks/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/whatworks/static/style.css">
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-top">
+      <span class="dateline" id="dateline">Friday, October 9, 2026</span>
+      <script>document.getElementById("dateline").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });</script>
+      <div class="channel-links">
+        <a href="https://www.youtube.com/@BlanketBaron" rel="noopener">YouTube</a>
+        <a href="https://www.twitch.tv/blanketbaron" rel="noopener">Twitch</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <a class="wordmark" href="/whatworks/">What Works<span>?</span></a>
+      <p class="tagline">Everyday solutions. Out-of-the-ordinary situations. The news behind both.</p>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <div class="wrap">
+        
+          <a href="/whatworks/section/politics/"
+             >Politics</a>
+        
+          <a href="/whatworks/section/economics/"
+             >Economics</a>
+        
+          <a href="/whatworks/section/tech/"
+             >Technology</a>
+        
+          <a href="/whatworks/section/science/"
+             >Science</a>
+        
+          <a href="/whatworks/storms/"
+             >Storm Desk</a>
+        
+          <a href="/whatworks/section/channel/"
+             >From the Channel</a>
+        
+        <a href="/whatworks/tools/" aria-current="page">Tools</a>
+        <a href="/whatworks/about/" >About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+<article class="story">
+  
+  <header>
+    <a class="kicker" href="/whatworks/tools/">Tools</a>
+    <h1>Then &amp; Now</h1>
+    <p class="dek">Are storms getting worse, or are we counting more? Compare two eras of U.S. storm records fairly, with damage in today&#39;s dollars and the record&#39;s blind spots spelled out.</p>
+    <p class="meta"><span class="tool-status status-live">Live</span> · For: Anyone weighing today&#39;s storms against the storms of yore</p>
+  </header>
+  <p class="tool-actions big">
+    <a class="tool-open" href="/whatworks/storms/then-and-now/">Open Then &amp; Now →</a>
+    <a href="https://github.com/Castor-o7/whatworks" rel="noopener">Source code</a>
+  </p>
+  <div class="prose"><p>Then &amp; Now sets two spans of years side by side in NOAA&rsquo;s Storm Events Database<sup id="fnref:noaa"><a class="footnote-ref" href="#fn:noaa">1</a></sup> and compares them only
+where a comparison is fair. It&rsquo;s part of the <a href="/whatworks/storms/">Storm Desk</a>, and like the rest of it, it runs entirely in
+your browser.</p>
+<h2>How to use it</h2>
+<ul>
+<li><strong>Pick two eras.</strong> Set <em>Then</em> and <em>Now</em> with the year boxes, or start from a preset: 1955–1974 vs 2005–2024 (the
+  default), 1975–1994 vs 2005–2024, or 1996–2005 vs 2015–2024. The eras can be different lengths; every number is a
+  yearly average, so they still line up.</li>
+<li><strong>Choose a measure:</strong> recorded events, deaths, injuries or damage. For damage, choose <em>2024 dollars</em> (adjusted for
+  inflation, the default) or <em>as reported</em>.</li>
+<li><strong>Narrow to a state</strong> if you like. The comparison, the tornado lens and the caveats all follow it.</li>
+<li><strong>Read down the page.</strong> <em>The comparison</em> shows each event type&rsquo;s yearly average then and now as a pair of dots,
+  with the change in percent (switch to the table for exact numbers). <em>The tornado lens</em> splits recorded tornado
+  segments into weak (F/EF0–1) and strong (F/EF2 and up). <em>Can&rsquo;t be compared yet</em> lists the event types left out, with the year each
+  began being recorded every year. <em>What the record can&rsquo;t tell us</em> names the breaks in the record for the eras you chose.</li>
+<li><strong>Share a comparison</strong> by copying the address bar; the eras, state and measure are saved in the link.</li>
+</ul>
+<h2>Reading it honestly</h2>
+<p>The page is built on a few rules, because how storms were recorded changed a great deal over these years. For
+tornadoes, NOAA&rsquo;s Storm Prediction Center says the rise in reports &ldquo;doesn&rsquo;t mean that actual tornado occurrence has
+gone up.&rdquo;<sup id="fnref:spc-faq"><a class="footnote-ref" href="#fn:spc-faq">2</a></sup></p>
+<ul>
+<li><strong>Only what was recorded in both eras.</strong> An event type is compared only if NOAA recorded it in every year of both
+  eras, judged nationally. Before 1993 the database holds only tornadoes, thunderstorm wind and hail, so for
+  1955–1974 vs 2005–2024 those three are the whole comparison, and more than 30 types recorded every year lately
+  (heat, flash flood and winter storm among them) wait under <em>Can&rsquo;t be compared yet</em>.<sup id="fnref:types"><a class="footnote-ref" href="#fn:types">3</a></sup> The same goes for
+  deaths, injuries and damage: a toll counts for an era only if the records hold it from the era&rsquo;s first year
+  (thunderstorm wind deaths start in 1983, hail and thunderstorm wind damage in 1993).<sup id="fnref2:types"><a class="footnote-ref" href="#fn:types">3</a></sup></li>
+<li><strong>Recorded every year isn&rsquo;t the same as like with like.</strong> The event types themselves changed after 1996: heat,
+  for one, is recorded as both <em>Heat</em> and <em>Excessive Heat</em>, and <em>Excessive Heat</em> appears every year only from
+  2007.<sup id="fnref3:types"><a class="footnote-ref" href="#fn:types">3</a></sup> When a compared type has a related type that isn&rsquo;t compared, the page says how much the related
+  type holds in each era.</li>
+<li><strong>Recorded events, not storms.</strong> A rise in reports isn&rsquo;t by itself a rise in storms. Tornadoes are recorded once
+  per county a track crosses, so the counts are &ldquo;county-segments of tornado tracks,&rdquo; not tornadoes.<sup id="fnref2:spc-faq"><a class="footnote-ref" href="#fn:spc-faq">2</a></sup> NOAA&rsquo;s Storm Prediction Center
+  notes that tornado reports &ldquo;increased dramatically in the 1990s&rdquo; as the National Weather Service installed its
+  Doppler radar network and began training storm spotters.<sup id="fnref:spc-reports"><a class="footnote-ref" href="#fn:spc-reports">4</a></sup> The tornado lens splits weak (F/EF0–1) from strong
+  (F/EF2 and up) tornadoes: the Storm Prediction Center&rsquo;s FAQ says strong to violent tornadoes&rsquo; records are &ldquo;much better
+  documented and more stable,&rdquo; and that looking at them, &ldquo;very little overall change has occurred since the
+  1950s.&rdquo;<sup id="fnref3:spc-faq"><a class="footnote-ref" href="#fn:spc-faq">2</a></sup> It also calls rating damage on the original F scale &ldquo;largely a judgment call&ndash;quite inconsistent
+  and arbitrary,&rdquo;<sup id="fnref4:spc-faq"><a class="footnote-ref" href="#fn:spc-faq">2</a></sup> so even the strong group can shift with rating practice.</li>
+<li><strong>Damage before 1993 is a category, not an estimate.</strong> Through 1992 the database holds only 6 to 10 distinct
+  nonzero damage amounts a year, a ladder of round figures ($250, $2,500, $25,000 and on up by tens) that marks a
+  category rather than a dollar estimate. The count rises to 15 in 1993, 50 in 1994, 198 in 1995 and 272 in
+  1996.<sup id="fnref4:types"><a class="footnote-ref" href="#fn:types">3</a></sup> Comparing those with modern estimates is rough at best, and the page says so when an era reaches
+  back that far.</li>
+<li><strong>Real dollars by default.</strong> Each year&rsquo;s damage is converted to 2024 dollars with that year&rsquo;s average Consumer
+  Price Index for All Urban Consumers (CPI-U), from the Bureau of Labor Statistics.<sup id="fnref:cpi"><a class="footnote-ref" href="#fn:cpi">5</a></sup> That corrects for
+  prices only: the page makes no adjustment for growth in population or in what there is to damage. Dollars <em>as
+  reported</em> are shown without a percent change, since they are dollars of different years.</li>
+<li><strong>Small numbers get no percent.</strong> When a type averages under one event, death or injury a year in the <em>Then</em>
+  era, the change is shown as a per-year difference instead of a percent.</li>
+<li><strong>F and EF are not quite the same scale.</strong> Tornadoes were rated on the Fujita scale until the Enhanced Fujita
+  scale was implemented in the U.S. on 1 February 2007.<sup id="fnref:ef"><a class="footnote-ref" href="#fn:ef">6</a></sup> Historical tornadoes probably won&rsquo;t be re-rated: NOAA&rsquo;s
+  tornado FAQ says that would mean examining tens of thousands of them one by one, and there are &ldquo;neither plans nor
+  money nor staffing&rdquo; for the task.<sup id="fnref5:spc-faq"><a class="footnote-ref" href="#fn:spc-faq">2</a></sup> The page merges F and EF by number (F2 with EF2) and keeps unrated tornadoes apart.</li>
+<li><strong>Deaths and injuries are counted under the event they were recorded with</strong>, so how each one was attributed
+  shapes the totals.</li>
+</ul>
+<h2>How it&rsquo;s built</h2>
+<p>Then &amp; Now reads the same pre-summarized files as the Storm Desk, plus three small ones: tornado counts by
+rating, the number of distinct damage values per year (so the categorical-damage break is computed from the data
+itself), and annual CPI-U averages. The CPI figures come from FRED&rsquo;s copy of the BLS series CPIAUCNS; each year is the
+average of its 12 monthly values, saved in the project so the numbers can be rebuilt offline. Every sentence on
+the page is generated from those numbers or cites a source. Writers can drop a compact version into a story with
+a <code>&lt;figure class="then-now" data-then="1955-1974" data-now="2005-2024" data-metric="events"&gt;&lt;/figure&gt;</code> line.</p>
+<section class="sources" aria-labelledby="sources"><h2 id="sources">Sources</h2><ol>
+<li id="fn:noaa">
+<p>NOAA National Centers for Environmental Information, Storm Events Database, 1950–2024. <a href="https://www.ncdc.noaa.gov/stormevents/">https://www.ncdc.noaa.gov/stormevents/</a>&#160;<a class="footnote-backref" href="#fnref:noaa" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:spc-faq">
+<p>NOAA Storm Prediction Center, &ldquo;The Online Tornado FAQ.&rdquo; <a href="https://www.spc.noaa.gov/faq/tornado/">https://www.spc.noaa.gov/faq/tornado/</a>&#160;<a class="footnote-backref" href="#fnref:spc-faq" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:spc-faq" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:spc-faq" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:spc-faq" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref5:spc-faq" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:types">
+<p>Counted from the database itself: the event types recorded in each year, and the distinct nonzero property-damage values in each year, 1950–2024.&#160;<a class="footnote-backref" href="#fnref:types" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:types" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:types" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:types" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:spc-reports">
+<p>NOAA Storm Prediction Center, &ldquo;The Enhanced Fujita Scale (EF Scale).&rdquo; <a href="https://www.spc.noaa.gov/efscale/">https://www.spc.noaa.gov/efscale/</a>&#160;<a class="footnote-backref" href="#fnref:spc-reports" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:cpi">
+<p>U.S. Bureau of Labor Statistics, Consumer Price Index for All Urban Consumers: All Items in U.S. City Average, not seasonally adjusted [CPIAUCNS], retrieved from FRED, Federal Reserve Bank of St. Louis. <a href="https://fred.stlouisfed.org/series/CPIAUCNS">https://fred.stlouisfed.org/series/CPIAUCNS</a>&#160;<a class="footnote-backref" href="#fnref:cpi" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:ef">
+<p>NOAA Storm Prediction Center, &ldquo;Enhanced F Scale for Tornado Damage.&rdquo; <a href="https://www.spc.noaa.gov/faq/tornado/ef-scale.html">https://www.spc.noaa.gov/faq/tornado/ef-scale.html</a>&#160;<a class="footnote-backref" href="#fnref:ef" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+</ol></section></div>
+</article>
+
+</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span class="wordmark small">What Works<span>?</span></span>
+      <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
+      <p><a href="https://www.youtube.com/@BlanketBaron">YouTube</a> · <a href="https://www.twitch.tv/blanketbaron">Twitch</a> · <a href="/whatworks/tools/">Tools</a> · <a href="/whatworks/about/">About</a></p>
+    </div>
+  </footer>
+  <script src="/whatworks/static/data.js"></script>
+  <script src="/whatworks/static/charts.js"></script>
+  <script src="/whatworks/static/site.js"></script>
+  
+</body>
+</html>
