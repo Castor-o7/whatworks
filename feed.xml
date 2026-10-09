@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <title>What Works?</title>
+  <subtitle>Everyday solutions. Out-of-the-ordinary situations. The news behind both.</subtitle>
+  <id>https://castor-o7.github.io/whatworks/</id>
+  <link rel="alternate" type="text/html" href="https://castor-o7.github.io/whatworks/"/>
+  <link rel="self" type="application/atom+xml" href="https://castor-o7.github.io/whatworks/feed.xml"/>
+  <updated>2026-10-08T00:00:00Z</updated>
+  <author><name>Josh</name></author>
+  <icon>https://castor-o7.github.io/whatworks/static/favicon.svg</icon>
+  <entry>
+    <title type="text">The deadliest weather in America doesn't come with a siren</title>
+    <id>https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/</id>
+    <link rel="alternate" type="text/html" href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"/>
+    <published>2026-10-08T00:00:00Z</published>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <author><name>Josh</name></author>
+    <category term="storms" label="Storm Desk"/>
+    <summary type="text">Tornadoes get the headlines. Across nearly three decades of NOAA records, heat has killed almost three times as many people.</summary>
+    <content type="html">&lt;p&gt;Ask someone to name the deadliest kind of severe weather and most people will say tornadoes. That makes sense: tornadoes are sudden, violent, and easy to film. But the records tell a different story.&lt;/p&gt;
+&lt;p&gt;NOAA&amp;rsquo;s Storm Events Database has tracked the full range of weather hazards since 1996. Since then it has recorded &lt;strong&gt;22,713 deaths&lt;/strong&gt;. Heat and excessive heat account for &lt;strong&gt;6,313&lt;/strong&gt; of them, about 28%. Tornadoes account for 2,176.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"&gt;Interactive chart: Deaths by event type, 1996–2024 — view it on What Works? →&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt;It&amp;rsquo;s getting worse, or we&amp;rsquo;re counting better, or both&lt;/h2&gt;
+&lt;p&gt;Heat deaths in the database have climbed sharply. From 2015 to 2024 NOAA recorded 3,666 of them, nearly triple the 1,321 recorded from 2005 to 2014. The worst year on record was 2023, with 879.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"&gt;Interactive chart: Heat deaths per year — view it on What Works? →&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;One caveat applies here. A death only appears in this database if it gets attributed to a weather event, and attribution practices vary across places and over time. Some of this rise reflects better counting. Even so, the trend is consistent with what public-health agencies have been reporting.&lt;/p&gt;
+&lt;h2&gt;Where and when&lt;/h2&gt;
+&lt;p&gt;Heat deaths cluster where you&amp;rsquo;d expect: the desert Southwest and the peak of summer. July alone accounts for more than half of them.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"&gt;Interactive chart: Heat deaths by state, 1996–2024 — view it on What Works? →&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"&gt;Interactive chart: Heat deaths by month — view it on What Works? →&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt;What works&lt;/h2&gt;
+&lt;p&gt;Unlike a tornado, a heat wave arrives with days of warning, which makes most heat deaths preventable. The approaches public-health agencies point to are simple ones. They include cooling centers people can actually reach, checking on neighbors who live alone, keeping water and shade available for outdoor workers, and treating heat warnings with the same seriousness as a tornado warning.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Want to dig in yourself? Every number in this story comes from the &lt;a href="https://castor-o7.github.io/whatworks/storms/?event_type=Excessive+Heat&amp;amp;metric=deaths&amp;amp;year_from=1996&amp;amp;sort=deaths"&gt;Storm Desk&lt;/a&gt;. Switch the event type to &amp;ldquo;Heat&amp;rdquo; to see the rest.&lt;/em&gt;&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title type="text">Welcome to the What Works? News Center</title>
+    <id>https://castor-o7.github.io/whatworks/post/welcome-to-what-works/</id>
+    <link rel="alternate" type="text/html" href="https://castor-o7.github.io/whatworks/post/welcome-to-what-works/"/>
+    <published>2026-10-08T00:00:00Z</published>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <author><name>Josh</name></author>
+    <category term="channel" label="From the Channel"/>
+    <summary type="text">Everyday solutions, out-of-the-ordinary situations, and the news behind both, now with a newsroom.</summary>
+    <content type="html">&lt;p&gt;&lt;strong&gt;What Works?&lt;/strong&gt; started as a channel about everyday solutions and fresh takes on out-of-the-ordinary situations. This site is where that work comes together. Videos and clips from YouTube and Twitch sit alongside written reporting on politics, economics, technology and science.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s what you&amp;rsquo;ll find:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;From the Channel:&lt;/strong&gt; new videos and the best Twitch clips, each with a write-up.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Politics &amp;amp; Economics:&lt;/strong&gt; policy and markets, judged by one question: does it work?&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Technology &amp;amp; Science:&lt;/strong&gt; explained plainly by someone with a computer science degree who likes reading the primary source.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The Storm Desk:&lt;/strong&gt; an explorable archive of 75 years of NOAA storm records, plus stories built from it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Start with the &lt;a href="https://castor-o7.github.io/whatworks/storms/"&gt;Storm Desk&lt;/a&gt;, or read our first data story on &lt;a href="https://castor-o7.github.io/whatworks/post/heat-is-the-deadliest-storm/"&gt;the deadliest weather in America&lt;/a&gt;.&lt;/p&gt;</content>
+  </entry>
+</feed>
