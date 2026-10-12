@@ -7,9 +7,21 @@ between the three pieces: the data builder, the client data layer, and the page 
 ```
 data/storms.db  --scripts/build_data.py-->  _site/data/**          (slow, run once; ~minutes)
 content + app/templates --scripts/build_site.py-->  _site/**.html, _site/static/**  (fast; never touches _site/data)
+content/papers/<slug>/ --scripts/build_papers.py (latexmk, cached in .cache/papers/)--> _site/papers/<slug>/<slug>.pdf
 scripts/serve.py      preview _site at http://localhost:8000/whatworks/ exactly as Pages serves it
-scripts/deploy.sh     publish _site to the gh-pages branch
+scripts/ci_publish.py (GitHub Actions) publish _site (pages + data) to the public repo's gh-pages branch
+scripts/publish_data.sh  _site/data -> the public repo's site-data branch (CI copies it into _site/data)
 ```
+
+**Publishing** ([STUDIO.md](STUDIO.md)). The source lives in the private studio repo; GitHub Actions
+(`.github/workflows/publish.yml`) runs `scripts/ci_publish.py` on every push to its `main`:
+`fetch-data` (the public `site-data` branch into `_site/data/`), `build` (the checks of `scripts/checks.py`,
+then `build_site.py` without drafts, then a search of everything in `_site/` outside `data/` for any draft's
+path, share card, PDF name or title, refusing a `.drafts` build), and `deploy` (a commit of `_site/` to
+`gh-pages` titled `Deploy from studio <sha>`, which the next run diffs against, and of the code without
+`content/` to `main`). `build --preview DIR` also renders the site with drafts into `DIR/site/` for the
+private `draft-preview` artifact, with every compiled PDF in `DIR/pdfs/` and the warnings in
+`DIR/problems.txt`. Nothing is deployed from a local checkout.
 
 `base_url = "/whatworks"` lives in `site.toml`. Every link, asset and fetch is prefixed with it.
 Templates get it as `{{ base }}`; JavaScript reads `window.WW_BASE` (set in `base.html`). Where a full URL
@@ -81,11 +93,14 @@ asks the reader to zoom in. Narrative full-text search is not available on the s
 | `/post/<slug>/` | `post.html` | `[[storm-chart ...]]` shortcodes become `<figure class="storm-chart" data-...>` rendered by `charts.js` via `WWData`; `[[then-now ...]]` becomes `<figure class="then-now" data-then="YYYY-YYYY" data-now="YYYY-YYYY" data-metric="..." [data-state="..."] [data-dollars="real|nominal"]>` (defaults filled in) rendered by `charts.js` (chart, summary and tornado sentences, a `p.tn-compact-notes` line on the breaks that apply, and the link) |
 | `/tools/` | `tools.html` | one card per tool in `content/tools/*.md` (see `app/tools.py`), ordered by `order` then title |
 | `/tools/<slug>/` | `tool.html` | the tool's Markdown body + the posts whose front matter says `tool: <slug>` |
+| `/papers/` | `papers.html` | one `article.paper-card` per paper in `content/papers/<slug>/` (see `app/papers.py`), newest first; empty state when there are none. "Papers" is in the nav and footer |
+| `/papers/<slug>/` | `paper.html` | title, date, `section.paper-abstract`, the Markdown body, `.paper-actions` (`a.paper-download` with `download`, `.paper-facts` "N pages · size"), `section.paper-viewer` (an `object.paper-embed` of the PDF whose fallback content links it, plus `.paper-open-alt`, shown instead on screens ≤ 640px and when `navigator.pdfViewerEnabled` is false, via `paper.js`), and `section#cite` (plain citation + `pre#bibtex-<slug>` with `button.copy-btn[data-copy]`). In a `--drafts` build a paper LaTeX couldn't compile shows `.paper-error` with the log excerpt instead of the PDF |
+| `/papers/<slug>/<slug>.pdf` | (compiled by `scripts/build_papers.py`) | copied from `.cache/papers/<hash>/paper.pdf`; only papers that compiled. Published builds never compile or include drafts |
 | `/about/` | `about.html` | |
 | `/404.html` | `404.html` | GitHub Pages serves this for unknown paths. No canonical link (it answers for every missing path); `robots: noindex` |
-| `/feed.xml` | (built in `build_site.py`) | Atom 1.0: the 20 newest published posts, full HTML with absolute links; charts become links to the post. Never drafts, so it's identical with or without `--drafts` |
-| `/sitemap.xml` | (built in `build_site.py`) | every published page except the event shell and 404; referenced by `<link rel="sitemap">` in each head |
-| `/static/og/<slug>.png`, `/static/og/tool-<slug>.png`, `/static/og/site.png` | (drawn by `app/share.py`) | 1200x630 share cards; a post's `og:image` is its `image:`, its YouTube thumbnail, or its card. A post whose slug is `site` or starts with `tool-` or `post-` gets `post-<slug>.png`, so post, tool and site card names never overlap. `og:image:width`/`height` for an `image:` file are its size as displayed (EXIF rotation applied) |
+| `/feed.xml` | (built in `build_site.py`) | Atom 1.0: the 20 newest published posts and papers, full HTML with absolute links; charts become links to the post; a paper's entry is its abstract + note + PDF link. Never drafts, so it's identical with or without `--drafts` |
+| `/sitemap.xml` | (built in `build_site.py`) | every published page except the event shell and 404 (including `/papers/` and each paper page); referenced by `<link rel="sitemap">` in each head |
+| `/static/og/<slug>.png`, `/static/og/tool-<slug>.png`, `/static/og/paper-<slug>.png`, `/static/og/site.png` | (drawn by `app/share.py`) | 1200x630 share cards; a post's `og:image` is its `image:`, its YouTube thumbnail, or its card; a paper's is its card (kicker "Paper"). A post whose slug is `site` or starts with `tool-`, `paper-` or `post-` gets `post-<slug>.png`, so post, tool, paper and site card names never overlap. `og:image:width`/`height` for an `image:` file are its size as displayed (EXIF rotation applied) |
 | `/images/<file>` | (copied from `content/images/`) | only the images a rendered post or tool uses (its `image:`, or `/images/...` in its text) |
 
 Every page's head has the link-preview tags from `base.html` (`canonical`, `og:*`, `twitter:card`, and
@@ -93,6 +108,6 @@ Every page's head has the link-preview tags from `base.html` (`canonical`, `og:*
 Descriptions are the summary, blurb or tagline as written (whitespace collapsed, cut to 200 characters),
 escaped by Jinja like any other text, so a summary that mentions `<video>` keeps it.
 
-Script order on every page: `data.js`, `charts.js`, `site.js`, then page scripts. Leaflet/topojson/map.js are
+Script order on every page: `data.js`, `charts.js`, `site.js`, then page scripts (`paper.js` on paper pages). Leaflet/topojson/map.js are
 loaded only on `/storms/` and the event page; `then-now.js` on `/storms/then-and-now/`. Links built in JS use `` `${WW_BASE}/storms/event/?id=${id}` ``.
 `_site/.nojekyll` must exist.

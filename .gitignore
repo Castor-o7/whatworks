@@ -11,3 +11,17 @@ __pycache__/
 *.bak
 # Share cards drawn by scripts/build_site.py, kept so unchanged ones aren't drawn again
 .cache/
+# LaTeX build leftovers in a paper's folder (scripts/build_papers.py compiles in .cache/papers/ instead)
+content/papers/**/*.aux
+content/papers/**/*.log
+content/papers/**/*.fls
+content/papers/**/*.fdb_latexmk
+content/papers/**/*.synctex.gz
+content/papers/**/*.xdv
+content/papers/**/*.bcf
+content/papers/**/*.blg
+content/papers/**/*.run.xml
+content/papers/**/*.toc
+content/papers/**/*.out
+# A draft preview built inside the project (scripts/ci_publish.py build --preview _preview): never commit it
+_preview/

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Git pre-commit hook: refuse to commit a draft post. The repo is public, so a committed draft would
-be published to GitHub even though the site doesn't show it.
+"""Git pre-commit hook (docs/STUDIO.md). scripts/new_post.py, preview.py and publish.py turn it on with
+`git config core.hooksPath scripts/git-hooks`. Skip it once with `git commit --no-verify`.
 
-Checks every staged file under content/ (except the template) and rejects any whose staged text is a
-draft, or might be one (see app/content.py), or is a .md file that
-isn't valid UTF-8 (so it can't be checked). scripts/new_post.py, preview.py and publish.py turn it
-on with `git config core.hooksPath scripts/git-hooks`. Skip it once with `git commit --no-verify`.
+Always: refuses a staged .md file under content/ that isn't valid UTF-8 (TextEdit and some Windows
+editors save UTF-16), since nothing can tell whether it's a draft.
+
+Drafts are fine to commit: the studio repo is private, and GitHub builds the public site without them.
+Only while `origin` is still the public repo (before scripts/setup_studio.sh has run) does it also
+refuse drafts, as it did when this was the public repo: any staged file whose text is (or might be) a
+draft (see app/content.py), and any file in a paper's folder whose staged paper.md is a draft or missing.
 """
 import os
 import subprocess
@@ -17,18 +20,38 @@ VENV = ROOT / ".venv"
 if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.resolve():
     os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
 sys.path.insert(0, str(ROOT))
-from app import content  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+from app import content, papers  # noqa: E402
+import repos  # noqa: E402
 
 
 def git(*args):
     return subprocess.run(["git", "-C", str(ROOT), *args], check=True, capture_output=True).stdout
 
 
+def staged_paper_is_draft(folder, cache={}):
+    """A paper's files may be committed (to the public repo) only with a staged paper.md that isn't a draft."""
+    if folder not in cache:
+        shown = subprocess.run(["git", "-C", str(ROOT), "show", f":{folder}/paper.md"], capture_output=True)
+        cache[folder] = shown.returncode != 0 or papers.is_draft_text(content.loose_text(shown.stdout),
+                                                                      f"{folder}/paper.md")
+    return cache[folder]
+
+
+guard_drafts = repos.origin_is_public(ROOT)
 staged = git("diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR", "--", "content").decode().split("\0")
 drafts, not_utf8 = [], []
 for name in staged:
-    if not name or name == "content/POST_TEMPLATE.md":
+    if not name or name == "content/POST_TEMPLATE.md" or name.startswith("content/PAPER_TEMPLATE/"):
         continue
+    parts = name.split("/")
+    in_paper = len(parts) > 3 and parts[1] == "papers"  # content/papers/<slug>/<file>
+    if in_paper and guard_drafts:
+        if staged_paper_is_draft("/".join(parts[:3])):
+            drafts.append(name)
+        continue
+    if not name.endswith(".md") and not guard_drafts:
+        continue  # images, .tex, .bib: nothing to check once drafts may be committed
     raw = git("show", f":{name}")
     try:
         text = raw.decode("utf-8")
@@ -39,15 +62,16 @@ for name in staged:
             not_utf8.append(name)
             continue
         text = content.loose_text(raw)
-    if content.is_draft(text, name):
+    if guard_drafts and not in_paper and content.is_draft(text, name):
         drafts.append(name)
 if not_utf8:
     print("Not committed: these aren't plain UTF-8 text, so they can't be checked for drafts.\n  "
           + "\n  ".join(not_utf8) + "\nSave them as UTF-8 (in TextEdit: Format > Make Plain Text, then save"
           + " with encoding Unicode (UTF-8)) and stage them again.", file=sys.stderr)
 if drafts:
-    print("Not committed: these are drafts, and this repo is public.\n  " + "\n  ".join(drafts)
-          + "\nUnstage them with: git restore --staged <file>"
-          + "\nTo publish a post, delete its 'draft: true' line and run scripts/publish.py.", file=sys.stderr)
+    print(f"Not committed: these are drafts, and origin is still the public repo ({repos.PUBLIC}).\n  "
+          + "\n  ".join(drafts) + "\nUnstage them with: git restore --staged <file>"
+          + "\nDrafts can be committed once scripts/setup_studio.sh has moved origin to the private studio"
+          + " repo (docs/STUDIO.md).", file=sys.stderr)
 if drafts or not_utf8:
     sys.exit(1)

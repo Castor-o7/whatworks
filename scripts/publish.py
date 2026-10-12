@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
-"""Publish: rebuild without drafts, deploy to GitHub Pages, and save your published posts to GitHub.
+"""Publish from your computer: check, build, then commit your writing to the studio repo and push it.
+GitHub then builds and deploys the site (scripts/ci_publish.py; docs/STUDIO.md), live a few minutes later.
 
     scripts/publish.py               # do it
     scripts/publish.py --dry-run     # show what would happen, change nothing
-    scripts/publish.py --force       # publish even if the checks below find something
+    scripts/publish.py --force       # publish even if the checks below find template leftovers etc.
 
 What it does, in order:
-  0. Checks the posts going live: it stops on a post it can't read, and, unless you pass --force, on
-     a new or changed post with template leftovers (the placeholder summary, empty headings, a [^ref]
-     with no source) or a storm chart it can't make sense of. For a
-     post going live for the first time, it offers to change its date to today.
-  1. Builds the site WITHOUT drafts (scripts/build_site.py).
-  2. Deploys it (scripts/deploy.sh), live about a minute later.
-  3. Commits your published posts (content/posts/*.md that aren't drafts, deleted posts, and the
-     template), tools, and the images in content/images/ that a published post or tool uses to the
-     main branch and pushes them, so your writing is backed up in the repo. Drafts, images only a
-     draft uses, and other files (editor backups and such) are never committed: the repo is public,
-     so a draft stays only on this computer until you publish it.
-Code changes outside content/ are left for you to commit yourself.
+  0. Checks what's meant to be live (scripts/checks.py, the same checks GitHub runs). It stops on a
+     post, tool or paper that isn't a draft but can't be read, on a published paper LaTeX can't
+     compile, and, unless you pass --force, on template leftovers (the placeholder summary, empty
+     headings, a [^ref] with no source) or a storm chart it can't make sense of in a post, tool or
+     paper you changed. For a post going live for the first time, it offers to change its date to today.
+  1. Builds the site WITHOUT drafts into _site/, as a last look (scripts/build_site.py). Nothing is
+     deployed from your computer: GitHub does that, so there's only ever one writer of the live site.
+  2. Commits everything in content/, drafts included (the studio repo is private; .gitignore keeps out
+     editor backups and LaTeX leftovers), and pushes it to the studio repo's main branch. With --force
+     the commit message gets a line "[force]", which tells GitHub to publish despite the warnings.
+Code changes outside content/ are left for you to commit yourself. If GitHub has commits this computer
+doesn't (made in the browser), it stops before committing and says to run `git pull --rebase --autostash`.
+
+Until scripts/setup_studio.sh has moved `origin` to the private studio repo, this refuses to commit:
+origin would still be the public repo, and drafts would be published to it.
 """
 import argparse
 import os
+import re
 import subprocess
 import sys
 from datetime import date
@@ -33,106 +38,29 @@ if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.res
     os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
-from app import content, share, tools as toolkit  # noqa: E402
+from app import content, papers as paperkit, tools as toolkit  # noqa: E402
 import build_site  # noqa: E402
+import checks  # noqa: E402
+import repos  # noqa: E402
+
+
+PULL = "git pull --rebase --autostash"  # puts your commits on top of GitHub's; keeps uncommitted code changes
 
 
 def git(*args, check=True):
-    return subprocess.run(["git", "-C", str(ROOT), *args], check=check, capture_output=True, text=True).stdout
+    return subprocess.run(["git", "-C", str(ROOT), *args], check=check, capture_output=True, text=True)
 
 
-TEMPLATE = "content/POST_TEMPLATE.md"
-
-
-def content_changes():
-    """Changed files under content/ as (status, path), from git's point of view. A rename shows up
-    twice: the new path with status 'R', and the old one as a deletion ('D')."""
-    out = git("status", "--porcelain", "-z", "--untracked-files=all", "--", "content")
-    entries = out.split("\0")
-    changes, i = [], 0
-    while i < len(entries) and entries[i]:
-        status, path = entries[i][:2], entries[i][3:]
-        changes.append((status, path))
-        if status[0] in "RC":  # renames and copies carry the old path as the next entry
-            i += 1
-            if status[0] == "R":
-                changes.append(("D ", entries[i]))
-        i += 1
-    return changes
-
-
-def is_post_path(path):
-    """content/posts/<name>.md or content/tools/<name>.md: the only files (besides the template) that
-    are ever backed up."""
-    p = Path(path)
-    return (p.parent in (Path("content/posts"), Path("content/tools")) and p.suffix == ".md"
-            and not p.name.startswith("."))
-
-
-def is_tool_path(path):
-    return Path(path).parent == Path("content/tools")
-
-
-IMAGES = Path("content/images")
-
-
-def is_image_path(path):
-    return IMAGES in Path(path).parents and not Path(path).name.startswith(".")
-
-
-def published_images():
-    """content/images/ paths (relative to it) that a published post or tool uses: the live site's
-    images. One only a draft uses stays private, like the draft."""
-    used = set()
-    for item in [*content.all_posts(), *build_site.visible_tools()[0]]:
-        used.update(share.referenced_images(item.image, content.COMMENT.sub("", item.body_md)))
-    return used
-
-
-def parse_any(path):
-    """A post or a tool, by where the file lives."""
-    return (toolkit.parse if is_tool_path(path) else content.parse)(ROOT / path)
-
-
-def sort_changes(changes, images=None):
-    """-> (to_save, drafts, skipped, unused). Only an allowlist is backed up: posts that aren't drafts,
-    deleted posts, the template, and images a published post or tool uses (`images`, from
-    published_images()). Drafts, images no published post uses, editor backups (.swp, ~) and anything
-    else stay off GitHub."""
-    images = published_images() if images is None else images
-    to_save, drafts, skipped, unused = [], [], [], []
-    for status, path in changes:
-        p = ROOT / path
-        if path == TEMPLATE:
-            to_save.append(path)
-        elif is_image_path(path):
-            if not p.exists():
-                if head_text(path) is not None:  # a deleted image that was backed up
-                    to_save.append(path)
-            elif Path(path).relative_to(IMAGES).as_posix() in images:
-                to_save.append(path)
-            else:
-                unused.append(path)
-        elif not is_post_path(path):
-            skipped.append(path)
-        elif not p.exists():
-            if head_text(path) is not None:  # a deleted post (one never committed has nothing to back up)
-                to_save.append(path)
-        elif is_draft_file(content.loose_text(p.read_bytes()), path):
-            drafts.append(path)
-        else:
-            to_save.append(path)
-    return to_save, drafts, skipped, unused
-
-
-def is_draft_file(text, path):
-    """Drafts fail closed for tools exactly as for posts (same front-matter reader)."""
-    if not is_tool_path(path):
-        return content.is_draft(text, path)
-    try:
-        return toolkit.parse_text(text, Path(path).stem, path).draft
-    except content.PostError as e:
-        return e.draft
+def changed_paths():
+    """Paths under content/ that differ from what GitHub last got (the upstream branch, else the last
+    commit): committed-but-unpushed, uncommitted and new files alike. Both sides of a rename count."""
+    base = "@{upstream}" if git("rev-parse", "--verify", "--quiet", "@{upstream}", check=False).returncode == 0 \
+        else "HEAD"
+    if git("rev-parse", "--verify", "--quiet", base, check=False).returncode:
+        return None  # no commits yet: everything is new
+    tracked = git("diff", "--name-only", "-z", "--no-renames", base, "--", "content").stdout
+    untracked = git("ls-files", "--others", "--exclude-standard", "-z", "--", "content").stdout
+    return {p for p in (tracked + untracked).split("\0") if p}
 
 
 def head_text(path):
@@ -141,10 +69,34 @@ def head_text(path):
     return content.loose_text(shown.stdout) if shown.returncode == 0 else None
 
 
-def is_new(path):
-    """Not in the last commit yet (or only as a draft): i.e. going live for the first time."""
+def item_at(path):
+    """(kind, item) for a post, tool or paper.md path that exists and can be read, else None."""
+    p = Path(path)
+    try:
+        if p.parent == Path("content/posts") and p.suffix == ".md":
+            return "post", content.parse(ROOT / p)
+        if p.parent == Path("content/tools") and p.suffix == ".md":
+            return "tool", toolkit.parse(ROOT / p)
+        if p.name == "paper.md" and checks.paper_folder(path) and p.parent.as_posix() == checks.paper_folder(path):
+            return "paper", paperkit.parse(ROOT / p.parent)
+    except (OSError, content.PostError):
+        return None
+    return None
+
+
+def was_live(path, kind):
+    """Was this file live (committed and not a draft) as of the last commit?"""
     old = head_text(path)
-    return old is None or is_draft_file(old, path)
+    if old is None:
+        return False
+    if kind == "paper":
+        return not paperkit.is_draft_text(old, path)
+    if kind == "tool":
+        try:
+            return not toolkit.parse_text(old, Path(path).stem, path).draft
+        except content.PostError as e:
+            return not e.draft
+    return not content.is_draft(old, path)
 
 
 def offer_today(path, post, dry_run):
@@ -167,112 +119,117 @@ def offer_today(path, post, dry_run):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Build, deploy, and back up published posts.")
-    ap.add_argument("--dry-run", action="store_true", help="show what would happen without deploying or committing")
+    ap = argparse.ArgumentParser(description="Check, build, and push your writing to the studio repo.")
+    ap.add_argument("--dry-run", action="store_true", help="show what would happen without committing or pushing")
     ap.add_argument("--force", action="store_true", help="publish even with warnings (template leftovers etc.)")
-    ap.add_argument("-m", "--message", help="commit message (default lists the posts)")
+    ap.add_argument("-m", "--message", help="commit message (default lists what goes live)")
     args = ap.parse_args()
     if not args.dry_run:
         build_site.install_draft_guard()
+    public_origin = repos.origin_is_public()
+    if public_origin:
+        print(f"Note: origin is still the public repo ({repos.PUBLIC}). Committing here would publish your\n"
+              "drafts, so publish.py only commits once scripts/setup_studio.sh has moved origin to the\n"
+              f"private studio repo ({repos.STUDIO}). See docs/STUDIO.md.", file=sys.stderr)
+        if not args.dry_run:
+            return 1
 
-    # 0. Every post meant to be live must be readable; a broken draft is just left out.
-    posts, errors = content.load_posts()
-    errors += toolkit.load_tools()[1]
-    broken = [e for e in errors if not e.draft]
-    for e in errors:
-        print(f"{'error' if not e.draft else 'warning'}: {e}" + ("" if not e.draft else " (draft skipped)"),
-              file=sys.stderr)
-    if broken:
-        print("\nFix the file(s) above first (or add 'draft: true' to keep one private). Nothing was published.",
-              file=sys.stderr)
-        return 1
+    # Commits made in the browser (github.dev) are on GitHub but not here yet: committing on top of an
+    # old main would make the push fail, so stop before changing anything.
+    if not public_origin:
+        fetched = git("fetch", "--quiet", "origin", check=False)
+        if fetched.returncode:
+            print("note: couldn't reach GitHub to check for newer commits (offline?):\n  "
+                  + fetched.stderr.strip(), file=sys.stderr)
+        behind = git("rev-list", "--count", "HEAD..@{upstream}", check=False)
+        if behind.returncode == 0 and behind.stdout.strip() not in ("", "0"):
+            print(f"GitHub has {behind.stdout.strip()} commit(s) you don't have here (from the browser?). "
+                  f"Get them first:\n  {PULL}\nthen run scripts/publish.py again.", file=sys.stderr)
+            if not args.dry_run:
+                return 1
 
-    changes = content_changes()
-    to_save, held, skipped, unused = sort_changes(changes)
-    renamed = {path for status, path in changes if status[0] == "R"}
-    new = [(path, parse_any(path)) for path in to_save
-           if is_post_path(path) and path not in renamed and (ROOT / path).exists() and is_new(path)]
+    changed = changed_paths()
+    status = git("status", "--porcelain", "--untracked-files=all", "--", "content").stdout.splitlines()
+    new = []
+    for path in sorted(changed or []):
+        found = item_at(path)
+        if found and not found[1].draft and not was_live(path, found[0]):
+            new.append((path, *found))
     if new:
         print("Going live for the first time:")
-        for path, item in new:
-            if is_tool_path(path):
-                print(f"  {item.title}  ({path}, tool)")
-            else:
-                print(f"  {item.title}  ({path}, dated {item.date})")
+        for path, kind, item in new:
+            where = checks.paper_folder(path) + "/" if kind == "paper" else path
+            print(f"  {item.title}  ({where}, {kind}" + (f", dated {item.date})" if kind != "tool" else ")"))
+            if kind == "post":
                 offer_today(path, item, args.dry_run)
 
-    # 1. Check, then build exactly what readers will see.
-    meta = build_site.load_meta()
-    warnings = build_site.problems(content.all_posts(), [], meta, build_site.visible_tools()[0])
-    # Only posts changed since the last publish can stop it; older ones are just mentioned.
-    blocking = [w for w in warnings if w.split(": ", 1)[0] in to_save]
-    older = [w for w in warnings if w not in blocking]
-    if older:
-        print("\nNotes on posts already live (fix when you can):\n  " + "\n  ".join(older))
-    if blocking:
-        print("\nCheck these before publishing:\n  " + "\n  ".join(blocking))
+    # 0. The same checks GitHub runs before it deploys.
+    r = checks.run(changed)
+    for e in r.draft_errors:
+        print(f"warning: {e} (draft skipped)", file=sys.stderr)
+    if r.older:
+        print("\nNotes on things already live (fix when you can):\n  " + "\n  ".join(r.older))
+    if r.hard():
+        print("\nFix these first (or add 'draft: true' to keep one private). Nothing was published:\n  "
+              + "\n  ".join(r.hard()), file=sys.stderr)
+        if not args.dry_run:
+            return 1
+    if r.blocking:
+        print("\nCheck these before publishing:\n  " + "\n  ".join(r.blocking))
         if not args.force:
             print("Fix them and run publish.py again, or run 'scripts/publish.py --force' to publish anyway."
                   + ("" if not args.dry_run else "\n(Dry run: a real publish would stop here.)"))
             if not args.dry_run:
                 return 1
+
+    # 1. A last look at exactly what readers will see.
     posts = build_site.build(drafts=False, report=False)
-    drafts = [p for p in content.all_posts(drafts=True) if p.draft]
-
-    titles = [parse_any(path).title for path in to_save
-              if is_post_path(path) and (ROOT / path).exists()]
-    message = args.message or ("Publish: " + "; ".join(titles) if titles else "Publish site")
-
-    print(f"\n{len(posts)} published post(s) will be live.")
+    drafts = [p.slug for p in content.all_posts(drafts=True) if p.draft]
+    drafts += [t.slug for t in toolkit.load_tools()[0] if t.draft]
+    drafts += [p.slug for p in paperkit.load_papers()[0] if p.draft]
+    print(f"\n{len(posts)} published post(s)" + (f" and {len(r.papers)} paper(s)" if r.papers else "")
+          + " will be live.")
     if drafts:
-        print(f"{len(drafts)} draft(s) stay private: " + ", ".join(p.slug for p in drafts))
-    print("Will back up to GitHub: " + (", ".join(to_save) if to_save else "nothing new"))
-    if held:
-        print("Not backing up (drafts): " + ", ".join(held))
-    if unused:
-        print("Not backing up (images no published post or tool uses yet; they stay on this computer): "
-              + ", ".join(unused))
-    if skipped:
-        print("Not backing up (not a post, tool or image file: content/posts/<name>.md, "
-              "content/tools/<name>.md, content/images/<file>): "
-              + ", ".join(skipped))
+        print(f"{len(drafts)} draft(s) are saved to the studio repo but stay off the site: " + ", ".join(drafts))
+
+    titles = [item.title for path, kind, item in new]
+    titles += [found[1].title for path in sorted(changed or []) if (found := item_at(path)) and not found[1].draft
+               and path not in {n[0] for n in new}]
+    message = args.message or ("Publish: " + "; ".join(titles) if titles else "Update content")
+    if args.force and r.blocking:
+        message += "\n\n[force]"
+    print("Will commit: " + (", ".join(line[3:] for line in status) if status else "nothing new in content/"))
     if args.dry_run:
-        print("\nDry run: nothing deployed or committed.")
+        print("\nDry run: nothing committed or pushed.")
         return 0
 
-    # 2. Deploy.
-    print("\nDeploying...", flush=True)
-    if subprocess.call([str(ROOT / "scripts" / "deploy.sh"), message]) != 0:
-        print("Deploy failed; nothing was committed.", file=sys.stderr)
-        return 1
-
-    # 3. Back up published writing (only the allowlist above, never drafts). `git commit -- <paths>`
-    # commits just these paths, whatever else is staged; untracked ones must be added first, and a
-    # deletion is recorded with `git rm --cached` (a no-op if it's already staged).
-    if to_save:
-        present = [path for path in to_save if (ROOT / path).exists()]
-        gone = [path for path in to_save if not (ROOT / path).exists()]
-        if present:
-            git("add", "--", *present)
-        if gone:
-            git("rm", "--cached", "--quiet", "--ignore-unmatch", "--", *gone)
-        commit = subprocess.run(["git", "-C", str(ROOT), "commit", "--quiet", "-m", message, "--", *to_save],
-                                capture_output=True, text=True)
+    # 2. Commit all of content/ (drafts too: the studio repo is private) and push.
+    if status:
+        git("add", "--all", "--", "content")
+        commit = git("commit", "--quiet", "-m", message, "--", "content", check=False)
         if commit.returncode:
-            print("The site is live, but backing up your posts failed:\n" + (commit.stderr or commit.stdout).strip(),
-                  file=sys.stderr)
+            print("Committing failed:\n" + (commit.stderr or commit.stdout).strip(), file=sys.stderr)
             return 1
-        push = subprocess.run(["git", "-C", str(ROOT), "push", "--quiet"], capture_output=True, text=True)
-        if push.returncode:
-            print("Committed your posts, but the push to GitHub failed; run 'git push' when you're online.\n"
-                  + push.stderr.strip(), file=sys.stderr)
+    branch = git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+    if branch != "main":
+        print(f"Note: you're on branch '{branch}'. GitHub publishes only main.", file=sys.stderr)
+    push = git("push", "--quiet", "origin", f"HEAD:refs/heads/{branch}", check=False)
+    if push.returncode:
+        if re.search(r"non-fast-forward|\[rejected\]|fetch first", push.stderr):
+            print("Committed here, but GitHub has newer commits (from the browser?), so the push was refused.\n"
+                  f"Get them, then publish again:\n  {PULL}\n  scripts/publish.py\n" + push.stderr.strip(),
+                  file=sys.stderr)
         else:
-            print("Backed up your posts to GitHub (main).")
-    other = [line for line in git("status", "--porcelain").splitlines() if not line[3:].startswith("content/")]
+            print("Committed, but the push to GitHub failed; run 'git push' when you're online.\n"
+                  + push.stderr.strip(), file=sys.stderr)
+        return 1
+    print(f"Pushed to {repos.STUDIO} ({branch}).")
+    other = [line for line in git("status", "--porcelain").stdout.splitlines() if not line[3:].startswith("content/")]
     if other:
         print(f"Note: {len(other)} other uncommitted change(s) outside content/ (code or settings); "
-              "commit those yourself when ready. (The draft guard stops git from committing a draft.)")
-    print(f"\nDone. Live in about a minute at https://castor-o7.github.io{build_site.BASE}/")
+              "commit those yourself when ready.")
+    print(f"\nGitHub builds and deploys it now: watch https://github.com/{repos.STUDIO}/actions\n"
+          f"Live in a few minutes at {build_site.ABS}/")
     return 0
 
 

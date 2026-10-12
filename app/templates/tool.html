@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import card %}
+{% from "_macros.html" import card, paper_card %}
 {% set active = 'tools' %}
 {% block title %}{{ tool.title }} — Tools — {{ site.name }}{% endblock %}
 {% block content %}
@@ -21,6 +21,12 @@
 <section class="related">
   <h2 class="box-title">Stories built with {{ tool.title }}</h2>
   <div class="grid">{% for p in stories %}{{ card(p) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% if papers %}
+<section class="related">
+  <h2 class="box-title">Papers built with {{ tool.title }}</h2>
+  <div class="paper-list">{% for p in papers %}{{ paper_card(p) }}{% endfor %}</div>
 </section>
 {% endif %}
 {% endblock %}

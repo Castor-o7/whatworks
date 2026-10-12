@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set active = 'papers' %}
+{% set pdf_url = base ~ '/papers/' ~ paper.slug ~ '/' ~ paper.pdf_name %}
+{% set ok = paper.pdf and paper.pdf.ok %}
+{% block title %}{{ paper.title }} — Papers — {{ site.name }}{% endblock %}
+{% block content %}
+<article class="story paper">
+  {% if paper.draft %}<p class="draft-banner"><strong>Draft preview.</strong> This paper isn't published. Delete <code>draft: true</code> from its <code>paper.md</code>, set <code>date:</code> to the day you publish, then run <code>scripts/publish.py</code>.</p>{% endif %}
+  {% if not ok %}
+  <div class="paper-error" role="alert">
+    <p><strong>LaTeX couldn't compile this paper</strong>, so it has no PDF yet{% if not paper.draft %} and it won't be published until it compiles{% endif %}. Fix <code>{{ paper.main }}</code> and build again. What LaTeX said:</p>
+    <pre>{{ paper.pdf.error if paper.pdf else 'It was not compiled.' }}</pre>
+  </div>
+  {% endif %}
+  <header>
+    <a class="kicker" href="{{ base }}/papers/">Paper</a>
+    {%- if paper.section and paper.section in section_map %} <span class="kicker-sep">·</span> <a class="kicker" href="{{ base }}{{ '/storms/' if paper.section == 'storms' else '/section/' ~ paper.section ~ '/' }}">{{ section_map[paper.section].label }}</a>{% endif %}
+    <h1>{{ paper.title }}</h1>
+    <p class="meta">By {{ site.author }} · {{ paper.date | nicedate }}</p>
+    {% if paper.tool and paper.tool in tool_map %}{% set t = tool_map[paper.tool] %}
+    <p class="built-with">Built with <a href="{{ base }}/tools/{{ t.slug }}/">{{ t.title }}</a>{% if t.href(base) %} · <a href="{{ t.href(base) }}">try it yourself →</a>{% endif %}</p>
+    {% endif %}
+  </header>
+
+  {% if ok %}
+  <div class="paper-actions">
+    <a class="paper-download" href="{{ pdf_url }}" download="{{ paper.pdf_name }}">Download PDF</a>
+    <span class="paper-facts">{{ paper.pdf.pages_label }} · {{ paper.pdf.size_label }}</span>
+    <a href="{{ pdf_url }}" target="_blank" rel="noopener">Open in a new tab</a>
+    <a href="#cite">Cite</a>
+  </div>
+  {% endif %}
+
+  {% if paper.summary %}
+  <section class="paper-abstract" aria-labelledby="abstract">
+    <h2 id="abstract">Abstract</h2>
+    <p>{{ paper.summary }}</p>
+  </section>
+  {% endif %}
+
+  {% if paper.body_md %}<div class="prose">{{ paper.html(base) | safe }}</div>{% endif %}
+  {% if paper.tags %}<p class="tags">{% for t in paper.tags %}<span>#{{ t }}</span>{% endfor %}</p>{% endif %}
+</article>
+
+{% if ok %}
+<section class="paper-viewer" aria-label="The paper">
+  <object class="paper-embed" data="{{ pdf_url }}#view=FitH" type="application/pdf" aria-label="{{ paper.title }} (PDF)">
+    <div class="paper-open">
+      <p>Your browser can't show the PDF on this page.</p>
+      <a class="paper-download" href="{{ pdf_url }}">Read the PDF</a>
+      <span class="paper-facts">{{ paper.pdf.pages_label }} · {{ paper.pdf.size_label }}</span>
+    </div>
+  </object>
+  {#- Phones and browsers without a built-in PDF viewer (paper.js) get this card instead. #}
+  <div class="paper-open paper-open-alt">
+    <p>Read the full paper as a PDF.</p>
+    <a class="paper-download" href="{{ pdf_url }}">Read the PDF</a>
+    <span class="paper-facts">{{ paper.pdf.pages_label }} · {{ paper.pdf.size_label }}</span>
+  </div>
+</section>
+{% endif %}
+
+<section class="story paper-cite" id="cite" aria-labelledby="cite-title">
+  <h2 class="box-title" id="cite-title">Cite this paper</h2>
+  <p class="cite-plain">{{ site.author }}. “{{ paper.title }}.” <em>{{ site.name }}</em>, {{ paper.date | nicedate }}. {{ abs_base }}/papers/{{ paper.slug }}/</p>
+  <div class="bibtex">
+    <div class="bibtex-head">
+      <span>BibTeX</span>
+      <button class="copy-btn" type="button" data-copy="bibtex-{{ paper.slug }}">Copy BibTeX</button>
+      <span class="copy-status" role="status" aria-live="polite"></span>
+    </div>
+    <pre id="bibtex-{{ paper.slug }}" tabindex="0">{{ bibtex }}</pre>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ base }}/static/paper.js"></script>{% endblock %}

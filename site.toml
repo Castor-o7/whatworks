@@ -8,6 +8,13 @@ site_url = "https://castor-o7.github.io"
 # Path the site is served under (GitHub Pages project site). Every link, asset and fetch uses it.
 base_url = "/whatworks"
 
+[repos]
+# Where things live on GitHub (docs/STUDIO.md). The studio repo is private: all the writing, drafts
+# included. The public repo gets the built site (gh-pages), the storm data (site-data) and the code
+# without content/ (main), pushed only by GitHub Actions (scripts/ci_publish.py).
+studio = "Castor-o7/whatworks-studio"
+public = "Castor-o7/whatworks"
+
 [channels]
 # Put your real handles here. They power the header links and the "Watch" section.
 youtube = "https://www.youtube.com/@BlanketBaron"

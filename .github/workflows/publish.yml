@@ -1,0 +1,110 @@
+# Publish the site from this (private) studio repo to the public Castor-o7/whatworks (docs/STUDIO.md).
+# Thin on purpose: every decision is in scripts/ci_publish.py, which runs the same way on a laptop.
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Publish despite warnings (template leftovers etc.). Unreadable files and LaTeX errors still stop it."
+        type: boolean
+        default: false
+
+# One publish at a time; a newer push cancels the run it makes out of date.
+concurrency:
+  group: publish
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    # The code (this file included) is mirrored to the public repo's main; don't run the copy there.
+    if: github.repository == 'Castor-o7/whatworks-studio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out the studio repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0               # ci_publish.py diffs content/ against the last deployed commit
+          persist-credentials: false   # no token on disk while LaTeX runs (LaTeX can read files)
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      # TeX-Live/setup-texlive-action replaced the deleted teatimeguest/setup-texlive-action; v4 knows
+      # TeX Live 2026 and runs on Node 24. Only the first real run on GitHub proves this step (and the
+      # package list below) works: if it fails there, see README.md, "One-time setup".
+      - name: Install TeX Live (cached between runs)
+        uses: TeX-Live/setup-texlive-action@v4
+        with:
+          packages: |
+            scheme-basic
+            latexmk
+            biber
+            collection-latexrecommended
+            collection-latexextra
+            collection-bibtexextra
+            collection-fontsrecommended
+            collection-mathscience
+            collection-pictures
+            collection-xetex
+            collection-luatex
+
+      - name: Restore compiled papers and share cards
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/papers
+            .cache/og
+          key: build-cache-${{ github.sha }}
+          restore-keys: build-cache-
+
+      - name: Fetch the storm data (public site-data branch) into _site/data
+        run: python scripts/ci_publish.py fetch-data
+
+      - name: Check, build without drafts, and build the draft preview
+        env:
+          FORCE: ${{ inputs.force && '1' || '' }}
+        run: python scripts/ci_publish.py build --preview "$RUNNER_TEMP/draft-preview" ${FORCE:+--force}
+
+      - name: Upload the draft preview (private to this repo)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: draft-preview
+          path: ${{ runner.temp }}/draft-preview
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # The deploy key exists on the runner only from here on, after all LaTeX has run.
+      - name: Deploy to the public repo
+        env:
+          PUBLIC_DEPLOY_KEY: ${{ secrets.PUBLIC_DEPLOY_KEY }}
+        run: |
+          if [ -z "$PUBLIC_DEPLOY_KEY" ]; then
+            echo "::error::The secret PUBLIC_DEPLOY_KEY isn't set. Run scripts/setup_studio.sh (docs/STUDIO.md)."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/deploy_key"
+          (umask 077 && printf '%s\n' "$PUBLIC_DEPLOY_KEY" > "$key")
+          # GitHub's published SSH host key, pinned.
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$RUNNER_TEMP/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$RUNNER_TEMP/known_hosts -o StrictHostKeyChecking=yes"
+          python scripts/ci_publish.py deploy
+
+      - name: Remove the deploy key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/deploy_key"

@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Git pre-push hook (docs/STUDIO.md): once origin is the private studio repo, refuse any push to the
+public repo. Your checkout holds every draft (and commit messages that can name them); only GitHub
+Actions writes the public repo's branches (scripts/ci_publish.py), and scripts/publish_data.sh pushes
+the storm data from its own repo in .cache/, which this hook doesn't see.
+
+scripts/setup_studio.sh also gives the remote `public` a push URL that doesn't work, so this is the
+second guard. Before setup (origin is still the public repo) it allows everything, as before.
+"""
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+import repos  # noqa: E402  (stdlib only)
+
+
+def configured(name, key):
+    p = subprocess.run(["git", "-C", str(ROOT), "config", "--get-all", f"remote.{name}.{key}"],
+                       capture_output=True, text=True)
+    return p.stdout.split() if p.returncode == 0 else []
+
+
+remote, url = (sys.argv[1:3] + ["", ""])[:2]
+if not repos.origin_is_public(ROOT):
+    public = repos.PUBLIC.lower()
+    # The URL git pushes to, and the URLs the remote is configured with (before any insteadOf rewrite).
+    urls = [url, remote, *configured(remote, "url"), *configured(remote, "pushurl")]
+    # ... and where the remote `public` really points (after insteadOf rewrites), for a push by URL.
+    shown = subprocess.run(["git", "-C", str(ROOT), "remote", "get-url", "public"], capture_output=True, text=True)
+    public_url = shown.stdout.strip() if shown.returncode == 0 else None
+    if remote == "public" or url == public_url or any(repos.github_repo(u) == public for u in urls):
+        print(f"Not pushed: {url or remote} is the public repo ({repos.PUBLIC}).\n"
+              "This checkout has your drafts in it, so it never pushes there; GitHub Actions publishes to it\n"
+              "from the studio repo. Push to the studio instead: git push origin   (docs/STUDIO.md)",
+              file=sys.stderr)
+        sys.exit(1)

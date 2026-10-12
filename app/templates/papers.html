@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import paper_card %}
+{% set active = 'papers' %}
+{% block title %}Papers — {{ site.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Papers</h1>
+  <p class="dek">Longer, more formal work from What Works?: research papers written in LaTeX, free to read, download and cite.</p>
+</header>
+<div class="paper-list">
+  {% for p in papers %}{{ paper_card(p, listing=True) }}{% else %}
+  <p class="empty">The first paper is on its way.</p>
+  {% endfor %}
+</div>
+{% endblock %}

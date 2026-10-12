@@ -27,29 +27,90 @@ under `/whatworks/`, with directory `index.html` pages and `404.html` for anythi
 
 ## Publish
 
+The source, drafts included, lives in the **private** repo `Castor-o7/whatworks-studio`. GitHub Actions
+publishes from it to the public `Castor-o7/whatworks`; nothing is deployed from a laptop
+([docs/STUDIO.md](docs/STUDIO.md)).
+
+| Public branch | What | Written by |
+|---|---|---|
+| `gh-pages` | The built site, which Pages serves (Settings > Pages: "Deploy from a branch", `gh-pages`, `/ (root)`) | CI |
+| `site-data` | The storm data tree (`_site/data/`), one orphan commit | `scripts/publish_data.sh` |
+| `main` | The code, without `content/`, under generic commit messages | CI |
+
+On every push to the studio's `main` (and from Actions > Publish > Run workflow),
+`.github/workflows/publish.yml` runs `scripts/ci_publish.py`: the same checks `publish.py` runs, a build
+without drafts, a search of the build for any trace of a draft, then a push of `_site/` (pages + data) to
+`gh-pages` and of the code to `main`. A published post, tool or paper that fails the checks stops it with
+nothing deployed; drafts never do. Each run also uploads a **draft-preview** artifact (the site with
+drafts, every paper PDF, and a list of problems; private, kept 7 days).
+
 ```sh
-scripts/deploy.sh                    # or: scripts/deploy.sh "Post: heat deaths"
+scripts/publish.py            # writing: check, build, commit content/ (drafts too), push to the studio
+scripts/publish_data.sh       # after build_data.py: storm data -> public site-data, then start a deploy
+scripts/ci_publish.py --help  # what CI runs; works locally against any git remotes (--public, --push-url)
 ```
 
-This pushes `_site/` to the `gh-pages` branch of `castor-o7/whatworks`. `_site/` is its own small
-git repo (made on the first run), so the built site never gets committed to `main`. The script
-refuses to run until `_site/data/meta.json.gz` exists. In the GitHub repo settings, set
-**Pages → Source** to "Deploy from a branch", branch `gh-pages`, folder `/ (root)`.
+### One-time setup
+
+```sh
+scripts/setup_studio.sh --dry-run   # print the plan; changes nothing, contacts nothing
+scripts/setup_studio.sh             # do it, asking before each step
+```
+
+It needs the GitHub CLI (`gh auth login`), the studio code committed on `main`, and `_site/data/`. It
+creates the private studio repo; generates an ed25519 deploy key in a temporary folder, adds its public
+half as a **write** deploy key on the public repo only, stores the private half as the studio secret
+`PUBLIC_DEPLOY_KEY`, and deletes the key files; pushes the storm data to `site-data`; pushes `main` to the
+studio (which starts the first deploy); and points `origin` at the studio, with the public repo as the
+remote `public`. Every step is skipped when it's already done, so it's safe to run again. Until it has
+run, `publish.py` and the git hook refuse to commit drafts (origin is still the public repo).
+
+After setup this checkout never pushes to the public repo, since it holds every draft (only CI writes
+there): the remote `public` is fetch-only (its push URL is set to `NO_PUSH_public_is_written_by_CI_only`,
+so `git push public` fails; `publish_data.sh` reads its fetch URL and pushes from its own repo in
+`.cache/`), and the `scripts/git-hooks/pre-push` hook refuses any push to the public repo's URL.
+
+The TeX Live step (`TeX-Live/setup-texlive-action@v4`, which replaced the deleted
+`teatimeguest/setup-texlive-action`) can only be proven by the first real run on GitHub. If it fails
+there, look at that step's log: a package missing from its `packages:` list is the usual cause.
+Compile failures are cached in `.cache/papers/` only together with the TeX installation they ran
+on, so once the package list is fixed the next run compiles again.
+
+A deploy key added with `gh` is tied to the GitHub CLI's access to your account: if that access is ever
+revoked, the key disappears and deploys fail with "Permission denied (publickey)". Run
+`scripts/setup_studio.sh` again; it makes a new key.
 
 ## Write a post
 
 ```sh
 scripts/new_post.py "Your headline" --section science   # start a private draft
 scripts/preview.py                                       # preview, drafts included
-scripts/publish.py                                       # delete "draft: true" first; builds, deploys, backs up
+scripts/publish.py                                       # delete "draft: true" first; checks, then pushes to the studio
 ```
 
-Drafts never leave this computer (the repo is public); `publish.py` commits only published posts,
-and a git hook in `scripts/git-hooks/` (switched on by those scripts) refuses any commit that includes a
-draft. `publish.py` also stops on template leftovers or an unreadable post (`--force` overrides the
-leftover check).
+Or write in the browser at <https://github.dev/Castor-o7/whatworks-studio> and commit: GitHub builds and
+publishes the same way. Drafts are saved in the private studio repo and never reach the public site or
+repo. Writing in both places? Run `git pull --rebase --autostash` before you start on your computer
+(`publish.py` stops and says so if you forget). A publish stops on template leftovers in a post being published (`--force`, or `[force]` in a commit
+message, overrides that) and on an unreadable post or a paper that doesn't compile (nothing overrides those).
 Citations are footnotes (`[^1]`) that become a Sources list. Everything a writer needs, including
 videos, links, storm charts, images and how a shared link previews, is in **[docs/WRITING.md](docs/WRITING.md)**.
+
+## Papers (LaTeX → PDF)
+
+```sh
+scripts/new_paper.py "Your title" [--engine xelatex]   # content/papers/<slug>/: paper.md + main.tex + references.bib
+scripts/build_papers.py [--drafts] [slug ...]           # compile only, to see LaTeX errors (build_site.py runs it too)
+```
+
+Each paper is a folder in `content/papers/` published at `/papers/<slug>/` (abstract, Download PDF with page
+count and size, an embedded viewer, a Cite box with BibTeX) with the PDF at `/papers/<slug>/<slug>.pdf`.
+`build_papers.py` compiles with `latexmk` (pdflatex, xelatex or lualatex per paper; shell escape off; latexmkrc
+ignored; 5-minute limit) in a clean copy of the folder, caching results in `.cache/papers/` by a hash of the
+sources, so only changed papers take LaTeX time. Needs a TeX distribution with `latexmk` and `biber` (MacTeX
+locally; CI installs TeX Live). Drafts are compiled only with `--drafts`; a published paper that fails to compile
+stops the publish. Write papers in the browser too: GitHub compiles them, and the draft preview has the PDFs.
+Details: [docs/WRITING.md](docs/WRITING.md), "Papers".
 
 ## Sharing
 
@@ -67,9 +128,12 @@ newest published posts) and `/sitemap.xml`. The contract is [docs/SHARING.md](do
 | `site.toml` | Site name, tagline, `site_url` + `base_url`, channel links, map tiles, sections |
 | `content/posts/` | Markdown posts |
 | `content/tools/` | One Markdown file per tool on `/tools/` (Josh's software, starting with the Storm Desk) |
-| `content/images/` | Share images and in-post pictures; the ones published posts use are copied to `_site/images/` and backed up |
+| `content/papers/<slug>/` | One folder per LaTeX paper: `paper.md` (front matter + note) and `main.tex` (+ `.bib`, figures) |
+| `content/PAPER_TEMPLATE/` | What `new_paper.py` copies for a new paper |
+| `content/images/` | Share images and in-post pictures; the ones published posts use are copied to `_site/images/` |
 | `app/content.py` | Post loading, Markdown, base-path link rewriting, video-embed URLs |
 | `app/tools.py` | Tool loading and checks (reuses content.py's front-matter reader) |
+| `app/papers.py` | Paper loading and checks (same front-matter reader; drafts fail closed) |
 | `app/share.py` | Link previews: title cards (Pillow), preview descriptions, image checks |
 | `app/fonts/` | Fraunces and Source Sans 3 for the title cards (SIL Open Font License; each folder has its `OFL.txt`) |
 | `app/templates/` | Page templates (Jinja) |
@@ -79,8 +143,12 @@ newest published posts) and `/sitemap.xml`. The contract is [docs/SHARING.md](do
 | `data_sources/cpi-u-annual.csv` | CPI-U annual averages (BLS, via FRED series CPIAUCNS) with a provenance header; committed so data builds work offline |
 | `scripts/fetch_cpi.py` | Downloads CPIAUCNS from FRED and rewrites `data_sources/cpi-u-annual.csv` (complete years only) |
 | `scripts/build_data.py` | Precomputes `_site/data/` (summaries, map grids, tiles, event records) from SQLite |
-| `scripts/build_site.py` | Renders the pages, share cards, `feed.xml` and `sitemap.xml`, and copies `app/static/` into `_site/` |
-| `scripts/serve.py`, `scripts/deploy.sh` | Local preview; publish to GitHub Pages |
+| `scripts/build_site.py` | Renders the pages, share cards, `feed.xml` and `sitemap.xml`, copies `app/static/` and paper PDFs into `_site/` |
+| `scripts/build_papers.py`, `scripts/new_paper.py` | Compile papers (latexmk, cached in `.cache/papers/`); start a new one |
+| `scripts/serve.py` | Local preview (`--dir` serves another build, such as a downloaded draft preview) |
+| `scripts/publish.py`, `scripts/checks.py` | Check and push your writing to the studio repo; the checks GitHub runs too |
+| `scripts/ci_publish.py`, `.github/workflows/publish.yml` | CI: build without drafts, leak check, deploy to the public repo |
+| `scripts/publish_data.sh`, `scripts/setup_studio.sh` | Storm data -> public `site-data`; one-time studio setup |
 
 ## What the static site can't do
 

@@ -28,6 +28,18 @@
       <p class="watch-links"><a href="{{ site.channels.youtube }}">YouTube</a> · <a href="{{ site.channels.twitch }}">Twitch</a></p>
     </section>
 
+    {% if papers %}
+    <section class="box">
+      <h2 class="box-title">Papers</h2>
+      <ul class="section-list">
+        {% for p in papers %}
+          <li><a href="{{ base }}/papers/{{ p.slug }}/">{{ p.title }}</a><span>{{ p.date | nicedate }}{% if p.pdf and p.pdf.ok %} · PDF, {{ p.pdf.pages_label }}{% endif %}</span></li>
+        {% endfor %}
+      </ul>
+      <a class="more" href="{{ base }}/papers/">All papers →</a>
+    </section>
+    {% endif %}
+
     {% if tools %}
     <section class="box">
       <h2 class="box-title">Tools</h2>

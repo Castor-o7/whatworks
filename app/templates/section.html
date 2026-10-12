@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import card %}
+{% from "_macros.html" import card, paper_card %}
 {% set active = section.slug %}
 {% block title %}{{ section.label }} — {{ site.name }}{% endblock %}
 {% block content %}
@@ -12,4 +12,10 @@
   <p class="empty">Nothing here yet. The first {{ section.label | lower }} story is waiting to be written.</p>
   {% endfor %}
 </div>
+{% if papers %}
+<section class="related">
+  <h2 class="box-title">Papers</h2>
+  <div class="paper-list">{% for p in papers %}{{ paper_card(p) }}{% endfor %}</div>
+</section>
+{% endif %}
 {% endblock %}

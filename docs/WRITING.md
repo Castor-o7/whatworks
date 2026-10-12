@@ -1,6 +1,13 @@
 # Writing for What Works?
 
-Three commands cover the whole loop. Run them from the project folder.
+You can write in two places and publish from either. Your writing lives in a **private** GitHub repo,
+[Castor-o7/whatworks-studio](https://github.com/Castor-o7/whatworks-studio), drafts included, so it's backed
+up and reachable from any computer. Every time something is saved there, GitHub builds the site without
+drafts and publishes it (how that works, and why drafts can't get out: [STUDIO.md](STUDIO.md)).
+
+- **In the browser**, nothing to install: see [Writing in the browser](#writing-in-the-browser). GitHub
+  compiles your LaTeX for you, so this is the easy way to write papers.
+- **On your computer**, with three commands run from the project folder:
 
 ```sh
 scripts/new_post.py "Your headline" --section science   # 1. start a draft
@@ -19,33 +26,88 @@ scripts/publish.py                                       # 3. make it live
    it running, run `scripts/build_site.py --drafts` in another terminal, and refresh). The build prints
    a `warning:` line for anything it can't make sense of, such as a mistyped storm chart.
 3. **Publish.** Delete the `draft: true` line and set `date:` to today (it's the day you started the
-   draft until you change it), then run `publish.py`. It checks the post, rebuilds without drafts,
-   deploys, and backs your published posts up to GitHub. Try `publish.py --dry-run` first to see what
-   will happen. Live about a minute later.
+   draft until you change it), then run `publish.py`. It checks the post, builds the site as a last
+   look, and saves everything in `content/` (drafts too) to the studio repo. GitHub then checks again,
+   builds and deploys: live a few minutes later. Try `publish.py --dry-run` first to see what will happen.
+   If you also write in the browser, run `git pull --rebase --autostash` before you start on this
+   computer. If you forget, `publish.py` notices that GitHub has commits you don't (from the browser),
+   stops before committing, and tells you to run that command and then `publish.py` again.
 
-**What publish.py checks.** It stops, changing nothing, if a post that isn't a draft can't be read (a
-bad `date:`, say). It also stops if a post you're publishing or changing still has template leftovers
-(the placeholder summary, an empty `##` heading, a `[^ref]` with no source) or a storm chart it can't
-make sense of. Fix it, or run `publish.py --force` to publish anyway. A post going live for the
-first time is listed with its date, and you're offered to change the date to today.
+**What stops a publish.** GitHub runs these checks before every deploy, and `publish.py` runs the same ones
+first so you hear sooner. Nothing is deployed when:
 
-**Drafts are private.** The GitHub repo is public, so drafts are never committed or deployed; they live
-only on this computer until you publish. (Back up the `content/posts` folder yourself if a draft matters
-to you before it's published.) Some details:
+- a post, tool or paper that isn't a draft can't be read (a bad `date:`, say);
+- a published paper LaTeX can't compile;
+- a post, tool or paper you're publishing or changed still has template leftovers (the placeholder
+  summary, an empty `##` heading, a `[^ref]` with no source) or a storm chart it can't make sense of.
+  Only this last kind can be overridden: `publish.py --force`, or, in the browser, a line `[force]` in the
+  commit message (or Actions > Publish > Run workflow with "force" ticked).
 
-- `publish.py` backs up only `content/posts/<name>.md` files that aren't drafts (plus deleted posts and
-  the template), tool files, and images in `content/images/` that a published post or tool uses. An
-  image only a draft uses stays on this computer (and off the live site) until that post is published.
-  Anything else under `content/`, such as editor backups or a `content/drafts/` folder, is listed as
-  "not backing up" and stays on this computer.
-- If you commit with git, GitHub Desktop or your editor yourself, the **draft guard** (a git hook in
-  `scripts/git-hooks/`, switched on the first time you run any of the three commands) refuses any
-  commit that includes a draft. Unstage the draft (`git restore --staged <file>`) and commit again.
-  It also refuses a `.md` file that isn't saved as UTF-8 (TextEdit and some Windows editors can save
-  UTF-16), since it can't tell whether that's a draft: re-save it as UTF-8 and stage it again.
+Drafts never stop a publish. A post going live for the first time is listed with its date, and
+`publish.py` offers to change the date to today.
+
+**Drafts are private.** The studio repo is private, so drafts are saved there like everything else. Only
+what GitHub builds without drafts reaches the public:
+
+- The live site (the `gh-pages` branch of the public repo `Castor-o7/whatworks`) is built without drafts.
+  Before it's deployed, every page, feed and script is searched for any draft's address, share card, PDF
+  or title, relative links included (`../draft-name/`); if one turns up (say, a published post links to
+  a draft), nothing is deployed and the run says where.
+- The public repo also gets a copy of the code, without `content/`, under a generic commit message
+  ("Sync code from studio <id>"), so a draft's title can't leak through a commit message either. That
+  code is searched the same way, so a draft preview committed by mistake stops the deploy (and
+  `_preview/`, the one in-project folder a preview may be built into, is in `.gitignore`).
+- Your computer never pushes to the public repo: after setup the `public` remote can't be pushed to,
+  and a git hook refuses a push to the public repo's address.
+- Draft previews are a download in the private repo's Actions tab, kept 7 days.
 - Anything other than a plain "no" keeps a post a draft: `draft: true`, `yes`, `True`, an empty
   `draft:`, a typo. To publish, delete the line (or write `draft: false`). If a file's front matter
   can't be read at all, it's never published; the build names the file and says why.
+- A git hook in `scripts/git-hooks/` (switched on the first time you run any of the three commands)
+  refuses a `.md` file that isn't saved as UTF-8 (TextEdit and some Windows editors can save UTF-16),
+  since nothing can tell whether that's a draft: re-save it as UTF-8 and stage it again.
+
+## Writing in the browser
+
+Open **<https://github.dev/Castor-o7/whatworks-studio>** (or open the repo on github.com and press `.`).
+It's VS Code running in the browser on the studio repo, signed in as you; nothing to install.
+
+1. **Start a draft.** In the Explorer on the left, right-click `content/posts` > New File, and name it like
+   the address you want: `heat-and-the-grid.md` (lowercase, dashes). Paste in the text of
+   `content/POST_TEMPLATE.md` and fill in the front matter; keep `draft: true`. For a paper, make a folder
+   `content/papers/<name>/` and in it a `paper.md` and a `main.tex` with the text of the files in
+   `content/PAPER_TEMPLATE/` (plus `references.bib` if you cite; upload figures by dragging them onto the
+   folder). Then fill in what `new_paper.py` would have: in `main.tex`, replace `TITLE` and `AUTHOR` in
+   `\title{TITLE}` and `\author{AUTHOR}`; in `paper.md`, the `title:`, `date:` and `summary:`. (A
+   published paper that still has any of these placeholders stops the publish, like other template
+   leftovers.) The "Papers" section below has the details.
+2. **Write.** `Ctrl+Shift+V` (`⇧⌘V` on a Mac) previews Markdown beside the text (plain styling; charts
+   appear only on the site). LaTeX gets syntax colors, but nothing compiles in the browser: GitHub compiles
+   it when you commit, and the draft preview has the PDF.
+3. **Save to GitHub.** Open Source Control (the branch icon in the left bar, or `Ctrl+Shift+G`), type a
+   short message, and click **Commit & Push**. That commits to `main`, which is what publishes. Until you
+   commit, edits are kept only in this browser, so commit when you stop for the day (drafts are fine
+   to commit).
+4. **Watch it build.** Each commit starts a "Publish" run at
+   <https://github.com/Castor-o7/whatworks-studio/actions>, a few minutes long (the first run takes longer
+   while it installs TeX Live). A green check means the site is up to date; anything published that
+   changed is live a minute or two later. A red X means something stopped it: click the run, and its
+   summary page says what (the file, the line, the LaTeX error). Fix it and commit again. A newer commit
+   cancels a run that's still going, so commit as often as you like.
+5. **Read your drafts.** The run's summary page lists the drafts and, for each draft paper, its page
+   count or its LaTeX error. At the bottom, under Artifacts, **draft-preview** is a zip (kept 7 days) with:
+   - `pdfs/`: every paper that compiled, drafts included; open them directly;
+   - `problems.txt`: every warning, drafts included;
+   - `site/`: the whole site with drafts. To browse it on a computer that has this project, run
+     `.venv/bin/python scripts/serve.py --dir ~/Downloads/draft-preview/site` and open
+     <http://localhost:8000/whatworks/>. The preview has no storm data of its own (it's too big): the
+     Storm Desk and storm charts use that computer's `_site/data/` if it has one (after
+     `scripts/build_data.py` or `scripts/ci_publish.py fetch-data`), and are empty otherwise.
+6. **Publish.** Delete `draft: true` in the front matter (a paper's is in its `paper.md`), set `date:` to
+   today, and commit. That's all.
+
+GitHub's free plan gives a private repo 2,000 minutes of Actions a month; a run takes a few, so that's
+hundreds of commits.
 
 ## The shape of a take
 
@@ -146,7 +208,7 @@ Discord DM to yourself, or into a preview checker such as <https://www.opengraph
 preview for a while, so a fix may take time to show where the link was already shared; Facebook's Sharing
 Debugger (<https://developers.facebook.com/tools/debug/>) can refresh it. Locally, `preview.py` shows the
 card itself at `/whatworks/static/og/<post-name>.png` (or `post-<post-name>.png` for a post named `site`
-or starting with `tool-` or `post-`, so it can't take a tool's card name).
+or starting with `tool-`, `paper-` or `post-`, so it can't take a tool's or paper's card name).
 
 **The feed.** Readers can follow new posts in any feed reader at
 <https://castor-o7.github.io/whatworks/feed.xml> (linked as "Subscribe (RSS)" in every page's footer and on
@@ -205,4 +267,93 @@ image: storm-map.png    # optional: its link-preview picture (see Sharing)
 The body is ordinary Markdown, with citations and storm charts like a post. A good shape: **How to use
 it**, **Reading it honestly** (its limits), **How it's built**. Software that lives somewhere else
 (another repo, an app store) works too: point `url` at it. `draft: true` works the same as for posts,
-`preview.py` shows tool drafts, and `publish.py` checks and backs up tool files alongside posts.
+`preview.py` shows tool drafts, and `publish.py` checks tool files alongside posts.
+
+## Papers: LaTeX, published as PDFs
+
+`/papers/` holds longer, formal work written in LaTeX. Each paper is a folder in `content/papers/`; the
+folder name becomes its address (`content/papers/heat-and-the-grid/` → `/papers/heat-and-the-grid/`, with the
+PDF at `/papers/heat-and-the-grid/heat-and-the-grid.pdf`).
+
+```sh
+scripts/new_paper.py "Heat and the grid"                     # 1. start a draft (pdflatex)
+scripts/new_paper.py "Heat and the grid" --engine xelatex    #    or pick the engine (xelatex, lualatex)
+scripts/preview.py                                           # 2. compiles it and shows its page
+scripts/publish.py                                           # 3. delete "draft: true" in paper.md first
+```
+
+`new_paper.py` makes the folder from `content/PAPER_TEMPLATE/` and test-compiles it:
+
+```
+content/papers/heat-and-the-grid/
+  paper.md         the front matter (below) and an optional Markdown note shown above the PDF
+  main.tex         the paper: article class, amsmath/amssymb, graphicx, hyperref, a bibliography
+  references.bib   its sources; \cite{key} in main.tex, and the References list builds itself (biber)
+```
+
+Put figures and any other files the paper needs in the same folder (subfolders are fine). Already have a
+`.tex` file? Make the folder yourself: copy your `.tex`, `.bib` and figures in, and add a `paper.md`
+(copy the template's) with `main:` set to your file's name.
+
+```yaml
+---
+title: Heat and the grid
+date: 2026-10-10
+summary: One paragraph: the abstract. Shown on the paper's page, on /papers/, in the feed and in link previews.
+tags: heat, grid
+section: science      # optional: also list it on that section's page
+tool: storm-desk      # optional: "Built with" a tool in content/tools/
+main: main.tex        # optional: the file to compile (default main.tex)
+engine: pdflatex      # optional: pdflatex (default), xelatex or lualatex
+draft: true
+---
+Optional Markdown shown on the paper's page above the PDF (citations and links work as in posts).
+```
+
+**What readers get.** The paper's page has the title, date, the abstract, your Markdown note, a **Download
+PDF** button with its page count and size, the PDF itself in the page (phones get a "Read the PDF" button
+instead, since most phone browsers can't show a PDF inside a page), and a **Cite this paper** box with a
+ready-made citation and BibTeX (author from `site.toml`) with a Copy button. Papers are listed newest first
+on `/papers/` ("Papers" in the menu), appear in the feed and sitemap, and get a share card with "Paper" above
+the title.
+
+**Compiling.** The build runs `latexmk` with the paper's engine, so bibliographies (biber or bibtex),
+cross-references and tables of contents just work. It compiles a fresh copy of the folder, so `.aux` and
+`.log` files lying around in it don't matter (and git ignores them). An unchanged paper isn't compiled
+again (results are kept in `.cache/papers/`), so builds stay fast. `\today` prints the paper's `date:`,
+so the date on the PDF matches the site. To see errors without building the site:
+
+```sh
+scripts/build_papers.py              # published papers
+scripts/build_papers.py my-paper     # one paper, draft or not
+scripts/build_papers.py --drafts     # everything
+```
+
+**When LaTeX fails.** You get the file, the line, TeX's message and the line it stopped at, for example:
+
+```
+main.tex, line 42: Undefined control sequence.
+  at: The sum is $\fracc <-- here {1}{2}$
+```
+
+A draft that fails just gets a warning, and its preview page shows the error in place of the PDF (in the
+browser: the run's summary page and the draft preview's `problems.txt`). A published paper that fails stops
+the publish (on GitHub and in `publish.py`), whatever else changed, and nothing is deployed until it compiles.
+The publish also stops on a published paper that still has the template's placeholder text, summary,
+title (`Untitled paper`) or date, or `\title{TITLE}` / `\author{AUTHOR}` in `main.tex`, cites a source the
+`.bib` doesn't have, or has an empty summary.
+
+Messages are made readable where TeX's aren't: a character pdflatex can't print (`≥`, `Ω`) names the line it's
+on and suggests `engine: xelatex` (`new_paper.py` picks xelatex by itself for a title with such characters);
+a missing `\end{document}` or an unclosed `{` says so, with the start of the unclosed text; a `.bib` mistake
+names the `.bib` file and line. A missing package (`File 'x.sty' not found`) is never cached: install it
+and build again. Other failures are reused only while the TeX installation is unchanged. It warns when a PDF is over 20 MB: shrink
+the figures (PDF for drawings, compressed JPEG for photos).
+
+**Limits.** LaTeX runs without shell escape, so packages that run programs (`minted`, `\write18`,
+`epstopdf` on the fly, `gnuplottex`) don't work: use `listings` instead of `minted`, and convert figures to
+PDF or PNG yourself. A paper gets 5 minutes to compile. `latexmkrc` files in a paper's folder are ignored.
+
+**Drafts are private.** As with posts, a paper is never compiled into the live site while its `paper.md`
+says `draft: true` (or can't be read). Its folder is saved in the private studio repo like everything else,
+and its PDF appears only in the draft preview. Delete the line and set `date:` to today to publish.

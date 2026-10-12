@@ -45,3 +45,17 @@
   </p>
 </article>
 {% endmacro %}
+
+{% macro paper_card(p, listing=False) %}
+<article class="paper-card">
+  {%- if not listing %}
+  <a class="kicker" href="{{ base }}/papers/">Paper</a>
+  {%- elif p.section in section_map %}
+  <a class="kicker" href="{{ base }}{{ '/storms/' if p.section == 'storms' else '/section/' ~ p.section ~ '/' }}">{{ section_map[p.section].label }}</a>
+  {%- endif %}
+  <h3><a href="{{ base }}/papers/{{ p.slug }}/">{{ p.title }}</a></h3>
+  {% if p.summary %}<p class="paper-abstract-short">{{ p.summary }}</p>{% endif %}
+  <p class="meta">{% if p.draft %}<span class="badge draft">Draft</span> · {% endif %}{{ p.date | nicedate }}
+    {%- if p.pdf and p.pdf.ok %} · PDF, {{ p.pdf.pages_label }}{% elif p.pdf %} · <span class="badge">LaTeX error</span>{% endif %}</p>
+</article>
+{% endmacro %}

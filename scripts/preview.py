@@ -4,8 +4,8 @@
     scripts/preview.py            # http://localhost:8000/whatworks/
     scripts/preview.py --port 8001
 
-Drafts show a "Draft preview" banner. This build can't be deployed by accident: deploy.sh refuses
-it, and scripts/publish.py always rebuilds without drafts first. Edit a post, then re-run this (or
+Drafts show a "Draft preview" banner. This build is never deployed: the live site is built on GitHub
+(scripts/ci_publish.py, which builds without drafts and refuses a --drafts build). Edit a post, then re-run this (or
 just re-run scripts/build_site.py --drafts in another terminal and refresh).
 """
 import argparse
@@ -24,7 +24,7 @@ if (VENV / "bin" / "python").exists() and Path(sys.prefix).resolve() != VENV.res
     os.execv(VENV / "bin" / "python", [str(VENV / "bin" / "python"), __file__, *sys.argv[1:]])
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
-from app import content  # noqa: E402
+from app import content, papers as paperkit  # noqa: E402
 import build_site  # noqa: E402
 
 
@@ -52,11 +52,15 @@ def main():
         return 1
     build_site.install_draft_guard()
     posts = build_site.build(drafts=True)
-    drafts = [p for p in posts if p.draft]
+    # Land on the draft (post or paper) saved most recently, since that's usually what you're working on.
+    drafts = [((content.POSTS / f"{p.slug}.md").stat().st_mtime, f"post/{p.slug}/") for p in posts if p.draft]
+    for p in paperkit.load_papers()[0]:
+        if p.draft:
+            saved = max((f.stat().st_mtime for f in p.folder.rglob("*") if f.is_file()), default=0)
+            drafts.append((saved, f"papers/{p.slug}/"))
     url = f"http://localhost:{args.port}{build_site.BASE}/"
-    if drafts:  # land on the draft saved most recently, since that's usually what you're working on
-        newest = max(drafts, key=lambda p: (content.POSTS / f"{p.slug}.md").stat().st_mtime)
-        url += f"post/{newest.slug}/"
+    if drafts:
+        url += max(drafts)[1]
     if not args.no_open:
         threading.Timer(1.0, webbrowser.open, [url]).start()
     print(f"Opening {url}", flush=True)
