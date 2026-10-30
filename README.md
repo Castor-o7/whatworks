@@ -4,7 +4,7 @@ A news site for the What Works? channel. It covers politics, economics, tech, sc
 clips from YouTube/Twitch, and the **Storm Desk**, an explorer over 75 years of NOAA storm records, with
 **Then & Now** (`/storms/then-and-now/`) for comparing two eras fairly ([docs/THEN_AND_NOW.md](docs/THEN_AND_NOW.md)).
 
-It's a fully static site, published on GitHub Pages at <https://castor-o7.github.io/whatworks/>.
+It's a fully static site, published on GitHub Pages at <https://whatworksnews.net/>.
 There is no server: the storm database is pre-summarized into JSON files, and every chart, map and
 event list is computed in the reader's browser. The contract between the pieces (data files, the
 browser data layer, pages and URLs) is [docs/STATIC_SITE.md](docs/STATIC_SITE.md).
@@ -17,13 +17,13 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # once
 .venv/bin/python scripts/fetch_cpi.py         # only to add new years of inflation data (needs the network)
 .venv/bin/python scripts/build_data.py        # once per database rebuild (minutes): -> _site/data/
 .venv/bin/python scripts/build_site.py        # after every change (~1 s): pages + static -> _site/
-.venv/bin/python scripts/serve.py             # preview at http://localhost:8000/whatworks/
+.venv/bin/python scripts/serve.py             # preview at http://localhost:8000/
 ```
 
 `build_site.py` never touches `_site/data/`, so editing a post or a template only needs that one
 step. It reads `_site/data/meta.json.gz` for the Storm Desk's totals and dropdowns, so run it after
 `build_data.py`. `serve.py` (add `--port 8001` to change the port) serves `_site/` the way Pages does:
-under `/whatworks/`, with directory `index.html` pages and `404.html` for anything missing.
+under `base_url` (the domain root now), with directory `index.html` pages and `404.html` for anything missing.
 
 ## Publish
 

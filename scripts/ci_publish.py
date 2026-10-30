@@ -367,7 +367,7 @@ def build_preview(dest):
         "problems.txt  every warning, drafts included (LaTeX errors with the line they stopped at).\n"
         "site/      the whole site with drafts. To browse it, from the project folder run:\n"
         "             .venv/bin/python scripts/serve.py --dir <this folder>/site\n"
-        "           and open http://localhost:8000/whatworks/. It has no storm data of its own: the Storm Desk\n"
+        "           and open http://localhost:8000/. It has no storm data of its own: the Storm Desk\n"
         "           and storm charts use that project's _site/data/ if it has one, and are empty otherwise.\n\n"
         "Drafts in this preview:\n" + "".join(f"  {k}: {s}  {t or ''}\n" for k, s, t in drafts),
         encoding="utf-8")

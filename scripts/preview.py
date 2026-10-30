@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Preview the site locally, drafts included: build with --drafts, serve, and open the browser.
 
-    scripts/preview.py            # http://localhost:8000/whatworks/
+    scripts/preview.py            # http://localhost:8000/
     scripts/preview.py --port 8001
 
 Drafts show a "Draft preview" banner. This build is never deployed: the live site is built on GitHub

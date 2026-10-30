@@ -5,7 +5,7 @@ iMessage, Slack or a YouTube description, plus a feed people can subscribe to an
 
 ## Settings (`site.toml`)
 
-- `site_url = "https://castor-o7.github.io"` — the origin. Absolute URLs are `site_url + base_url + path`.
+- `site_url = "https://whatworksnews.net"` — the origin. Absolute URLs are `site_url + base_url + path`.
 
 ## Link previews (every page, in `base.html`)
 

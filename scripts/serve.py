@@ -1,6 +1,6 @@
 """Preview _site/ the way GitHub Pages serves it (see docs/STATIC_SITE.md).
 
-    .venv/bin/python scripts/serve.py [--port 8000]   ->  http://localhost:8000/whatworks/
+    .venv/bin/python scripts/serve.py [--port 8000]   ->  http://localhost:8000/
     .venv/bin/python scripts/serve.py --dir ~/Downloads/draft-preview/site   # serve another build (the
                                                       # draft-preview artifact from GitHub, docs/WRITING.md);
                                                       # with no data/ of its own, it gets this project's _site/data/

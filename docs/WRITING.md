@@ -21,7 +21,7 @@ scripts/publish.py                                       # 3. make it live
 2. **Write and preview.** Open the file in a code editor such as VS Code. Don't use TextEdit: it turns
    `"` into curly quotes even in plain-text files (if you must, first turn off Edit > Substitutions >
    Smart Quotes). `preview.py` builds the site with drafts, serves it at
-   <http://localhost:8000/whatworks/> and opens the draft you saved most recently. Drafts show a
+   <http://localhost:8000/> and opens the draft you saved most recently. Drafts show a
    "Draft preview" banner. After edits, stop the preview with Ctrl+C and re-run `preview.py` (or leave
    it running, run `scripts/build_site.py --drafts` in another terminal, and refresh). The build prints
    a `warning:` line for anything it can't make sense of, such as a mistyped storm chart.
@@ -100,7 +100,7 @@ It's VS Code running in the browser on the studio repo, signed in as you; nothin
    - `problems.txt`: every warning, drafts included;
    - `site/`: the whole site with drafts. To browse it on a computer that has this project, run
      `.venv/bin/python scripts/serve.py --dir ~/Downloads/draft-preview/site` and open
-     <http://localhost:8000/whatworks/>. The preview has no storm data of its own (it's too big): the
+     <http://localhost:8000/>. The preview has no storm data of its own (it's too big): the
      Storm Desk and storm charts use that computer's `_site/data/` if it has one (after
      `scripts/build_data.py` or `scripts/ci_publish.py fetch-data`), and are empty otherwise.
 6. **Publish.** Delete `draft: true` in the front matter (a paper's is in its `paper.md`), set `date:` to
@@ -207,15 +207,15 @@ You can also use images inside a post: put the file in `content/images/` and wri
 Discord DM to yourself, or into a preview checker such as <https://www.opengraph.xyz/>. Apps cache a link's
 preview for a while, so a fix may take time to show where the link was already shared; Facebook's Sharing
 Debugger (<https://developers.facebook.com/tools/debug/>) can refresh it. Locally, `preview.py` shows the
-card itself at `/whatworks/static/og/<post-name>.png` (or `post-<post-name>.png` for a post named `site`
+card itself at `/static/og/<post-name>.png` (or `post-<post-name>.png` for a post named `site`
 or starting with `tool-`, `paper-` or `post-`, so it can't take a tool's or paper's card name).
 
 **The feed.** Readers can follow new posts in any feed reader at
-<https://castor-o7.github.io/whatworks/feed.xml> (linked as "Subscribe (RSS)" in every page's footer and on
+<https://whatworksnews.net/feed.xml> (linked as "Subscribe (RSS)" in every page's footer and on
 About). It holds the 20 newest published posts, in full. Charts are drawn in the browser, so in the feed
 each one becomes a link back to the post ("Interactive chart: ... view it on What Works?"); give your
 storm charts a `title` and that's what the link says. Drafts are never in the feed. Search engines get
-a sitemap at `/whatworks/sitemap.xml` with every published page.
+a sitemap at `/sitemap.xml` with every published page.
 
 ## Front matter reference
 

@@ -71,8 +71,22 @@ jobs:
           key: build-cache-${{ github.sha }}
           restore-keys: build-cache-
 
-      - name: Fetch the storm data (public site-data branch) into _site/data
-        run: python scripts/ci_publish.py fetch-data
+      # Castor-o7/whatworks is private, so it can't be read anonymously: fetch over SSH with the deploy key.
+      # No LaTeX has run yet, and the key is deleted before this step ends (the deploy step writes it again).
+      - name: Fetch the storm data (site-data branch) into _site/data
+        env:
+          PUBLIC_DEPLOY_KEY: ${{ secrets.PUBLIC_DEPLOY_KEY }}
+        run: |
+          if [ -z "$PUBLIC_DEPLOY_KEY" ]; then
+            echo "::error::The secret PUBLIC_DEPLOY_KEY isn't set. Run scripts/setup_studio.sh (docs/STUDIO.md)."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/deploy_key"
+          trap 'rm -f "$key"' EXIT
+          (umask 077 && printf '%s\n' "$PUBLIC_DEPLOY_KEY" > "$key")
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$RUNNER_TEMP/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$RUNNER_TEMP/known_hosts -o StrictHostKeyChecking=yes"
+          WW_PUBLIC_URL="git@github.com:Castor-o7/whatworks.git" python scripts/ci_publish.py fetch-data
 
       - name: Check, build without drafts, and build the draft preview
         env:

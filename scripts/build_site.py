@@ -44,13 +44,13 @@ BASE = ("/" + SITE.get("base_url", "").strip("/")).rstrip("/")  # "/whatworks", 
 SECTIONS = {s["slug"]: s for s in SITE["sections"]}
 # Absolute URLs (link previews, feed, sitemap) are site_url + base_url + path.
 SITE_URL = SITE.get("site_url", "").strip().rstrip("/")
-ABS = SITE_URL + BASE  # "https://castor-o7.github.io/whatworks"
+ABS = SITE_URL + BASE  # "https://whatworksnews.net"
 HOST = ABS.split("://", 1)[-1]  # shown on share cards
 CARD_CACHE = ROOT / ".cache" / "og"  # drawn cards, kept between builds (gitignored)
 FEED_SIZE = 20
 # Everything this script writes at the top of _site/. Nothing else there is ever deleted.
 DRAFTS_MARKER = ".drafts"  # present only in a --drafts preview build; ci_publish.py refuses to publish it
-OWNED = ("index.html", "404.html", ".nojekyll", DRAFTS_MARKER, "section", "post", "storms", "tools", "papers",
+OWNED = ("index.html", "404.html", ".nojekyll", "CNAME", DRAFTS_MARKER, "section", "post", "storms", "tools", "papers",
          "about", "static", "images", "feed.xml", "sitemap.xml")
 
 
@@ -352,7 +352,7 @@ def build(drafts=False, report=True):
     papers = [p for p in papers if p.pdf.ok or drafts]
     if not SITE_URL.startswith(("https://", "http://")):
         sys.exit('error: site.toml needs site_url, the address the site is served from, e.g. '
-                 'site_url = "https://castor-o7.github.io" (link previews and the feed need full URLs)')
+                 'site_url = "https://whatworksnews.net" (link previews and the feed need full URLs)')
     env.globals["tool_map"] = {t.slug: t for t in tools}  # for "Built with" links on posts and papers
     pages = {}  # output path under _site -> (template, context)
     cards, out_cards = sharing.Cards(CARD_CACHE), {}  # share cards: file name in static/og -> cached PNG
@@ -446,6 +446,9 @@ def build(drafts=False, report=True):
     (OUT / "feed.xml").write_text(feed_xml(posts, papers), encoding="utf-8")
     (OUT / "sitemap.xml").write_text(sitemap_xml(posts, tools, papers), encoding="utf-8")
     (OUT / ".nojekyll").write_text("")  # serve files as-is; no Jekyll processing
+    if not BASE and not HOST.endswith(".github.io"):
+        # GitHub Pages' custom domain lives in gh-pages, which every deploy replaces: write it each build.
+        (OUT / "CNAME").write_text(HOST + "\n")
     shown = [p for p in posts if p.draft] + [t for t in tools if t.draft] + [p for p in papers if p.draft]
     if shown:
         # ci_publish.py refuses to publish while this marker exists, so drafts never go live by accident.

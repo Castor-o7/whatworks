@@ -3,10 +3,11 @@ name = "What Works?"
 tagline = "Everyday solutions. Out-of-the-ordinary situations. The news behind both."
 author = "Josh"
 # The site's origin (scheme + host, no path). Link previews, the feed and the sitemap need full URLs:
-# site_url + base_url + path, e.g. https://castor-o7.github.io/whatworks/post/<slug>/
-site_url = "https://castor-o7.github.io"
-# Path the site is served under (GitHub Pages project site). Every link, asset and fetch uses it.
-base_url = "/whatworks"
+# site_url + base_url + path, e.g. https://whatworksnews.net/post/<slug>/
+# A custom domain here (not *.github.io) also makes the build write _site/CNAME for GitHub Pages.
+site_url = "https://whatworksnews.net"
+# Path the site is served under: "" at a domain root. Every link, asset and fetch uses it.
+base_url = ""
 
 [repos]
 # Where things live on GitHub (docs/STUDIO.md). The studio repo is private: all the writing, drafts
@@ -20,7 +21,7 @@ public = "Castor-o7/whatworks"
 youtube = "https://www.youtube.com/@BlanketBaron"
 twitch = "https://www.twitch.tv/blanketbaron"
 # Twitch embeds only play on domains listed here (Twitch requires it).
-twitch_parents = ["castor-o7.github.io", "localhost", "127.0.0.1"]
+twitch_parents = ["whatworksnews.net", "www.whatworksnews.net", "localhost", "127.0.0.1"]
 
 [map]
 # Basemap tiles. OpenStreetMap's free tiles are fine for a personal site; for heavier traffic

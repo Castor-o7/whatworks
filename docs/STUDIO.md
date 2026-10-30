@@ -8,7 +8,7 @@ papers as PDFs. Drafts must stay private, so the source moves to a **private** r
 | Where | What | Written by |
 |---|---|---|
 | `Castor-o7/whatworks-studio` (private) `main` | Everything: code + `content/` (drafts included). Source of truth. | Josh (github.dev or local git) |
-| `Castor-o7/whatworks` (public) `gh-pages` | The built site (served at https://castor-o7.github.io/whatworks/). | CI only |
+| `Castor-o7/whatworks` (public) `gh-pages` | The built site (served at https://whatworksnews.net/). | CI only |
 | `Castor-o7/whatworks` (public) `site-data` | Orphan branch holding the storm data tree (`_site/data`, ~207 MB gzipped). | `scripts/publish_data.sh` (local, after `build_data.py`) |
 | `Castor-o7/whatworks` (public) `main` | Open-source mirror of the **code** only: everything except `content/` (and anything gitignored). Commit message is generic (`Sync code from studio <short-sha>`), never copied from studio commits, so no draft title can leak. | CI only |
 

@@ -1,6 +1,6 @@
 # Static site contract (GitHub Pages)
 
-The site is served by GitHub Pages at `https://castor-o7.github.io/whatworks/`, so there is **no server**.
+The site is served by GitHub Pages at `https://whatworksnews.net/` (custom domain), so there is **no server**.
 Everything is precomputed into `_site/` and the browser does the querying. This file is the contract
 between the three pieces: the data builder, the client data layer, and the page builder.
 
@@ -8,7 +8,7 @@ between the three pieces: the data builder, the client data layer, and the page 
 data/storms.db  --scripts/build_data.py-->  _site/data/**          (slow, run once; ~minutes)
 content + app/templates --scripts/build_site.py-->  _site/**.html, _site/static/**  (fast; never touches _site/data)
 content/papers/<slug>/ --scripts/build_papers.py (latexmk, cached in .cache/papers/)--> _site/papers/<slug>/<slug>.pdf
-scripts/serve.py      preview _site at http://localhost:8000/whatworks/ exactly as Pages serves it
+scripts/serve.py      preview _site at http://localhost:8000/ exactly as Pages serves it
 scripts/ci_publish.py (GitHub Actions) publish _site (pages + data) to the public repo's gh-pages branch
 scripts/publish_data.sh  _site/data -> the public repo's site-data branch (CI copies it into _site/data)
 ```
@@ -23,10 +23,11 @@ path, share card, PDF name or title, refusing a `.drafts` build), and `deploy` (
 private `draft-preview` artifact, with every compiled PDF in `DIR/pdfs/` and the warnings in
 `DIR/problems.txt`. Nothing is deployed from a local checkout.
 
-`base_url = "/whatworks"` lives in `site.toml`. Every link, asset and fetch is prefixed with it.
+`base_url` lives in `site.toml` (`""` now that the site is at a domain root; a project site would use
+`"/whatworks"`). Every link, asset and fetch is prefixed with it.
 Templates get it as `{{ base }}`; JavaScript reads `window.WW_BASE` (set in `base.html`). Where a full URL
 is needed (link previews, the feed, the sitemap), it is `site_url + base_url + path`: templates get
-`{{ abs_base }}` (`https://castor-o7.github.io/whatworks`). Link previews, feed and sitemap: [SHARING.md](SHARING.md).
+`{{ abs_base }}` (`https://whatworksnews.net`). Link previews, feed and sitemap: [SHARING.md](SHARING.md).
 
 ## Conventions
 

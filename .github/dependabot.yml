@@ -1,0 +1,17 @@
+# Keeps the Actions in .github/workflows current. The publish job holds the
+# public repo's deploy key, so its actions are worth keeping patched.
+# pip is left out: requirements.txt uses minimum versions and CI installs
+# fresh on every run, so each publish already gets the newest releases.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Los_Angeles
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "deps(actions)"
