@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://whatworksnews.net/</loc><lastmod>2026-10-08</lastmod></url>
-  <url><loc>https://whatworksnews.net/section/politics/</loc></url>
+  <url><loc>https://whatworksnews.net/</loc><lastmod>2026-11-04</lastmod></url>
+  <url><loc>https://whatworksnews.net/section/politics/</loc><lastmod>2026-11-04</lastmod></url>
   <url><loc>https://whatworksnews.net/section/economics/</loc></url>
   <url><loc>https://whatworksnews.net/section/tech/</loc></url>
   <url><loc>https://whatworksnews.net/section/science/</loc></url>
   <url><loc>https://whatworksnews.net/storms/</loc><lastmod>2026-10-08</lastmod></url>
   <url><loc>https://whatworksnews.net/section/channel/</loc><lastmod>2026-10-08</lastmod></url>
+  <url><loc>https://whatworksnews.net/post/the-2026-midterms-what-happened-and-where-it-was-decided/</loc><lastmod>2026-11-04</lastmod></url>
   <url><loc>https://whatworksnews.net/post/heat-is-the-deadliest-storm/</loc><lastmod>2026-10-08</lastmod></url>
   <url><loc>https://whatworksnews.net/post/welcome-to-what-works/</loc><lastmod>2026-10-08</lastmod></url>
   <url><loc>https://whatworksnews.net/storms/then-and-now/</loc></url>
