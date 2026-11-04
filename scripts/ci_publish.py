@@ -505,6 +505,15 @@ def commit_and_push(url, branch, tree, parent, message):
     return commit
 
 
+def install_pages_workflow():
+    """Put the Pages deploy workflow on gh-pages (_site/.github/workflows/pages.yml): pushing gh-pages then
+    runs it, and it hands the site to GitHub Pages (source: "GitHub Actions"). The legacy branch build hung
+    on every deploy from 2026-11-04, which is why this exists; docs/STUDIO.md."""
+    dest = SITE / ".github" / "workflows" / "pages.yml"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / "scripts" / "pages_workflow.yml", dest)
+
+
 def cmd_deploy(args):
     sha = head()
     try:
@@ -533,6 +542,7 @@ def cmd_deploy(args):
     main_parent = fetch_tip(url, "main")
     if not rev("refs/public/site-data"):
         print("note: site-data wasn't fetched, so the storm data may be uploaded in full.", file=sys.stderr)
+    install_pages_workflow()
     pages = commit_and_push(url, "gh-pages", site_tree(), pages_parent, DEPLOY_MSG + sha)
     wgit("fetch", "--quiet", "--no-tags", str(ROOT), "+HEAD:refs/studio/head")
     if rev("refs/studio/head") != sha:

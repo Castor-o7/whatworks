@@ -1,0 +1,44 @@
+# Copied onto the public repo's gh-pages branch (as .github/workflows/pages.yml) by
+# scripts/ci_publish.py deploy, so every deploy to gh-pages publishes itself to GitHub Pages.
+# Pages' source is "GitHub Actions" (Settings > Pages); see docs/STUDIO.md.
+# Edit this template in the studio, never the copy on gh-pages: each deploy overwrites it.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [gh-pages]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One Pages deploy at a time; let a running one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'Castor-o7/whatworks'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out the built site
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          persist-credentials: false
+
+      - name: Package the site (upload-pages-artifact leaves out .git and .github)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
