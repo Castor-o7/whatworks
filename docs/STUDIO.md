@@ -29,7 +29,10 @@ On push to `main` (and manual `workflow_dispatch`), with `concurrency: publish` 
       is deployed**. Drafts never block.
    b. Build papers (published only) and the site **without drafts**; verify no draft slug appears in `_site`
       (belt and braces).
-   c. Push `_site` (pages + data) to public `gh-pages`.
+   c. Push `_site` (pages + data) to public `gh-pages`, with `scripts/pages_workflow.yml` copied in as
+      `.github/workflows/pages.yml`. That push runs the workflow on the public repo, which hands the site to GitHub
+      Pages (Settings > Pages > Source: **GitHub Actions**; the `github-pages` environment allows `gh-pages`). Since
+      2026-11-04: the legacy branch build hung in `updating_pages` on every deploy. The workflow's files aren't served.
    d. Push the code mirror to public `main` (exclude `content/`; generic message).
 4. Build a **draft preview**: the site with `--drafts` (+ draft paper PDFs) uploaded as a workflow artifact
    (`draft-preview`, retention 7 days) — private to the studio repo, never pushed anywhere public.
