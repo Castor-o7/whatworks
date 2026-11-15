@@ -378,7 +378,8 @@ specialty = "Digestive"
 code = "45378"
 about = "A scope exam of the whole colon, with nothing removed."
 anesthesia = "00811"
-note = "A routine screening colonoscopy is free under most insurance plans. If the doctor takes a biopsy or removes a polyp, the price rises and a lab bills separately."
+note = "Marketplace health plans and many other plans must cover colorectal cancer screening for adults 45 to 75 without a copayment or coinsurance, generally when the provider is in your plan's network. If the doctor takes a biopsy or removes a polyp, the price rises and a lab bills separately."
+note_source = { label = "HealthCare.gov, Preventive care benefits for adults", url = "https://www.healthcare.gov/preventive-care-adults/" }
 
 [[procedure]]
 id = "colonoscopy-polyp"
@@ -712,7 +713,8 @@ aka = ["mammogram", "mammography", "breast screening", "breast cancer screening"
 specialty = "Scans and tests"
 code = "77067"
 about = "Routine X-ray screening of both breasts, including the radiologist's reading."
-note = "Free under most insurance plans. 3D imaging (tomosynthesis) adds a smaller separate charge."
+note = "Marketplace health plans and many other plans must cover a screening mammogram every 1 to 2 years for women 40 and older without a copayment or coinsurance, generally when the provider is in your plan's network. 3D imaging (tomosynthesis) is a separate charge."
+note_source = { label = "HealthCare.gov, Preventive care benefits for women", url = "https://www.healthcare.gov/preventive-care-women/" }
 
 [[procedure]]
 id = "sleep-study"
