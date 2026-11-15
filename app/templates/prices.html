@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% set active = 'prices' %}
+{% block title %}Price Check — {{ site.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <a class="kicker" href="{{ base }}/tools/">Tools</a>
+  <h1>Price Check</h1>
+  <p class="dek">What does a medical procedure cost? Most offices won't say until you've paid for a consultation. Here is an honest best guess, built from what Medicare publishes and what research says private insurers pay on top of it.{% if 'price-check' in tool_map %} <a href="{{ base }}/tools/price-check/">How it works →</a>{% endif %}</p>
+</header>
+
+{% if not prices %}
+  <p class="empty">The price data hasn't been fetched yet. Run <code>scripts/fetch_procedure_prices.py</code>, then rebuild the site.</p>
+{% else %}
+<div class="pc" id="pc">
+  <form class="pc-search" id="pc-form" role="search" autocomplete="off">
+    <label class="pc-field pc-field-q" for="pc-q">Procedure, condition or kind of doctor
+      <input type="search" id="pc-q" name="q" placeholder="Try “dermatologist”, “cataract” or “colonoscopy”" aria-describedby="pc-count" enterkeyhint="search" spellcheck="false">
+    </label>
+    <label class="pc-field" for="pc-state">Your state
+      <select id="pc-state" name="state"><option value="">United States (average)</option>
+        {% for s in prices.states %}<option>{{ s }}</option>{% endfor %}</select>
+    </label>
+    {% if prices.specialties %}
+    <div class="pc-doctors">
+      <p class="pc-label" id="pc-doctors-label">Or see a price menu for</p>
+      <ul aria-labelledby="pc-doctors-label">
+        {% for s in prices.specialties %}<li><a href="?q={{ s.aka[0] | urlencode }}" data-q="{{ s.aka[0] }}">{{ s.doctor }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </form>
+
+  <nav class="pc-list" aria-label="Procedures">
+    <p class="pc-count" id="pc-count" role="status" aria-live="polite">{{ prices.procedures | length }} procedures</p>
+    {% for group in groups %}
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">{{ group.name }}{% if group.doctor %} <span class="pc-group-doctor">{{ group.doctor }}</span>{% endif %}</h2>
+      <ul>
+        {% for p in group.procedures %}
+        <li data-item="{{ p.id }}"><a href="?p={{ p.id }}" data-id="{{ p.id }}"><span class="pc-item-name">{{ p.name }}</span><span class="pc-item-price" data-price></span></a></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+    <p class="pc-none" id="pc-none" hidden>Nothing here matches. This page covers {{ prices.procedures | length }} common procedures so far. For anything else, Medicare's own <a href="https://www.medicare.gov/procedure-price-lookup/" rel="noopener">Procedure Price Lookup</a> lists what Medicare pays, which is a useful floor.</p>
+  </nav>
+
+  <section class="pc-detail" id="pc-detail" aria-live="polite" tabindex="-1">
+    <div class="pc-empty" id="pc-empty">
+      <h2>Pick a procedure to see its estimate</h2>
+      <p>Search above, pick a kind of doctor to see their price menu, or choose from the list. You'll get a best guess for the total price, the range most people fall in, and what each part of the bill is.</p>
+      <noscript><p><strong>This tool needs JavaScript</strong> to calculate estimates. The figures behind it are public: see the sources at the bottom of this page.</p></noscript>
+    </div>
+  </section>
+</div>
+
+<section class="pc-how" aria-labelledby="pc-how-h">
+  <h2 class="box-title" id="pc-how-h">How to read an estimate</h2>
+  <div class="pc-how-grid">
+    <div>
+      <h3>It's the total price, not your share</h3>
+      <p>The estimate is what the doctor and the facility are paid in total. With insurance, what you owe depends on your deductible and coinsurance: if you haven't met your deductible, expect to owe most of it. Paying yourself, a fair cash quote lands inside the range.</p>
+    </div>
+    <div>
+      <h3>Where it's done matters most</h3>
+      <p>The same procedure costs least in a doctor's office, more in a surgery center, and most in a hospital outpatient department, because each adds its own facility fee. You can ask where it will be done.</p>
+    </div>
+    <div>
+      <h3>It is an estimate</h3>
+      <p>Medicare's figures are real payments. The step up to private prices uses national research averages, some of them several years old, and real prices vary by city, insurer and doctor. Use this to know whether a quote is reasonable, not as the quote.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pc-how" aria-labelledby="pc-method-h">
+  <h2 class="box-title" id="pc-method-h">How we come up with these numbers</h2>
+  {% set m = prices.multipliers %}
+  <ol class="pc-steps">
+    <li><strong>We start with Medicare's price.</strong> Medicare publishes what it paid for every procedure: the doctor's fee, the surgery center's fee and the hospital's fee. These are real payments from {{ prices.sources.doctor.year }} (surgery center and scan prices are {{ prices.sources.center.period }}), counting both Medicare's share and the patient's.<sup class="tn-cite"><a href="#pc-src-doctor">1</a></sup><sup class="tn-cite"><a href="#pc-src-center">2</a></sup><sup class="tn-cite"><a href="#pc-src-hospital">3</a></sup></li>
+    <li><strong>We scale it up to private prices.</strong> Private insurers pay more than Medicare, and studies have measured how much more: about {{ (m.doctor.mid * 100) | round | int }}% of Medicare's price for doctors,<sup class="tn-cite"><a href="#pc-src-kff">4</a></sup> {{ (m.center.mid * 100) | round | int }}% for surgery centers and {{ (m.hospital.mid * 100) | round | int }}% for hospital outpatient departments.<sup class="tn-cite"><a href="#pc-src-rand">5</a></sup> We multiply each part of the bill by its figure. That is the best guess.</li>
+    <li><strong>The range uses the lowest and highest figures.</strong> For doctors ({{ (m.doctor.low * 100) | round | int }}% to {{ (m.doctor.high * 100) | round | int }}%) and hospitals ({{ (m.hospital.low * 100) | round | int }}% to {{ (m.hospital.high * 100) | round | int }}%), those are the lowest and highest averages the studies found.<sup class="tn-cite"><a href="#pc-src-kff">4</a></sup></li>
+    <li><strong>One range is our own assumption.</strong> No study gives a national range for surgery centers, so we set one ourselves: from Medicare's own price ({{ (m.center.low * 100) | round | int }}%) up to what hospitals average ({{ (m.center.high * 100) | round | int }}%). Some states' surgery centers average no more than Medicare's price, and on average surgery centers are paid well below hospitals for the same services.<sup class="tn-cite"><a href="#pc-src-rand">5</a></sup> Every estimate that includes a surgery center marks that range with a star.</li>
+    <li><strong>We add the parts up and round.</strong> Every estimate shows this arithmetic under “How we got this number”, so you can check it.</li>
+  </ol>
+</section>
+
+<section class="pc-how" aria-labelledby="pc-ask-h">
+  <h2 class="box-title" id="pc-ask-h">Getting a real number</h2>
+  <ul class="pc-ask">
+    <li><strong>Give them the billing code.</strong> Each estimate here shows one. Asking “what is your price for code 15823?” gets further than asking what a procedure costs.</li>
+    <li><strong>Ask for the self-pay or cash price</strong>, and whether it covers the facility and anesthesia or only the doctor.</li>
+    <li><strong>Ask for a Good Faith Estimate.</strong> If you are uninsured or not using insurance, federal law (the No Surprises Act) requires providers to give you a written estimate when you schedule care or ask for one.<sup class="tn-cite"><a href="#pc-src-gfe">7</a></sup></li>
+    <li><strong>Ask whether it can be done in the office or a surgery center</strong> instead of a hospital.</li>
+  </ul>
+</section>
+
+<section class="sources pc-sources" aria-labelledby="pc-sources">
+  <h2 id="pc-sources">Sources</h2>
+  <ol>
+    <li id="pc-src-doctor">Centers for Medicare &amp; Medicaid Services, {{ prices.sources.doctor.title }}, {{ prices.sources.doctor.year }}: the average amount practitioners billed and the average amount Medicare allowed for each billing code, nationally and by state, in offices and in facilities. <a href="{{ prices.sources.doctor.url }}">{{ prices.sources.doctor.url }}</a></li>
+    <li id="pc-src-center">Centers for Medicare &amp; Medicaid Services, {{ prices.sources.center.title }}, {{ prices.sources.center.period }}: the national rate Medicare pays a surgery center for each procedure. <a href="{{ prices.sources.center.url }}">{{ prices.sources.center.url }}</a></li>
+    <li id="pc-src-hospital">Centers for Medicare &amp; Medicaid Services, {{ prices.sources.hospital.title }}, {{ prices.sources.hospital.year }}: the average amount Medicare allowed hospital outpatient departments, for the procedures it reports individually. <a href="{{ prices.sources.hospital.url }}">{{ prices.sources.hospital.url }}</a></li>
+    {% set m = prices.multipliers %}
+    <li id="pc-src-kff">{{ m.doctor.source }}. Doctors' fees: “{{ m.doctor.quote }}” Hospital range: {{ m.hospital.range }} <a href="{{ m.doctor.url }}">{{ m.doctor.url }}</a></li>
+    <li id="pc-src-rand">{{ m.center.source }}. Surgery centers ({{ m.center.page }}): “{{ m.center.quote }}” We use the 170 percent, because we start from Medicare's surgery center price. Hospital outpatient departments ({{ m.hospital.page }}): “{{ m.hospital.quote }}” Surgery center range: {{ m.center.range }} <a href="{{ m.center.url }}">{{ m.center.url }}</a></li>
+    <li id="pc-src-anesthesia">{{ m.anesthesia.source }}: “{{ m.anesthesia.quote }}”. <a href="{{ m.anesthesia.url }}">{{ m.anesthesia.url }}</a> {{ m.anesthesia.range }} {{ m.anesthesia.range_source }}: “{{ m.anesthesia.range_quote }}” <a href="{{ m.anesthesia.range_url }}">{{ m.anesthesia.range_url }}</a></li>
+    {# New sources go at the end: prices.js cites these by number (SOURCE_NUMBER). #}
+    <li id="pc-src-gfe">Centers for Medicare &amp; Medicaid Services, No Surprises: Understand your rights against surprise medical bills (Good Faith Estimates for people who are uninsured or self-pay). <a href="https://www.cms.gov/medical-bill-rights">https://www.cms.gov/medical-bill-rights</a></li>
+    {% if prices.sources.schedule %}<li id="pc-src-schedule">Centers for Medicare &amp; Medicaid Services, {{ prices.sources.schedule.title }}, {{ prices.sources.schedule.period }}: for scans and tests, Medicare's national price for the scan and the doctor's reading together, and the hospital outpatient rate the file carries for comparison (relative value units times the conversion factor, before the adjustment for local costs). <a href="{{ prices.sources.schedule.url }}">{{ prices.sources.schedule.url }}</a></li>{% endif %}
+  </ol>
+  <p class="pc-fine">Medicare data retrieved {{ prices.retrieved }}. Billing codes are CPT® codes, © American Medical Association; procedure names and descriptions on this page are our own. This page is general information, not medical or financial advice, and not a quote from any provider.</p>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if prices %}
+<script src="{{ base }}/static/prices.js"></script>
+{% endif %}{% endblock %}

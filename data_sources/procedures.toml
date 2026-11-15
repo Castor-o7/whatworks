@@ -1,0 +1,695 @@
+# The procedures Price Check covers (/prices/). One entry per procedure.
+#
+# scripts/fetch_procedure_prices.py reads this list, looks every `code` up in Medicare's public data
+# and writes data_sources/procedure-prices.json, which the page is built from. To add a procedure,
+# add an entry here and run the script; it prints Medicare's own description of each code so you can
+# check the code means what the entry says.
+#
+#   id          the #anchor and ?p= value in links; lowercase, hyphens, never reused
+#   name        what a patient would call it
+#   aka         other words people search for (medical name, misspellings, the condition it treats)
+#   specialty   the group it is listed under
+#   code        the billing code (HCPCS/CPT) of the main procedure, one side / one lesion / first unit
+#   about       one plain sentence on what it is
+#   anesthesia  optional: the anesthesia billing code used when an anesthesia provider takes part
+#   note        optional: something the estimate does not include, said plainly
+#   retired     optional table {ask, note}, for a code that is no longer in force (the script says when one
+#               isn't in this year's fee schedule): `note` says what replaced it, and `ask` is how to name
+#               the procedure on the phone instead of quoting the dead code ("a prostate biopsy")
+#   cosmetic    optional table {fee, quote, excludes, source, url}: a published average for the cosmetic
+#               (never insured) version of the procedure, shown beside the estimate. `quote` and
+#               `excludes` are the source's own words, copied exactly; the page shows them in quotation marks
+#
+# Names, descriptions and search words here are written for this site. Medicare's descriptions come
+# from its data files.
+
+# The groups, and who does the procedures in each. Every procedure's `specialty` must be a `name` here.
+#
+#   name     the group's heading in the list
+#   doctor   the kind of doctor, as a short label ("Dermatologist"): shown beside the heading and as a
+#            button under the search box
+#   doctors  the same in the plural, as it reads mid-sentence ("What dermatologists commonly do")
+#   aka      words people search for when they mean this kind of doctor; searching any of them lists the
+#            whole group. The first one is what the button searches for.
+
+[[specialty]]
+name = "Eyes"
+doctor = "Eye doctor"
+doctors = "eye doctors (ophthalmologists)"
+aka = ["eye doctor", "ophthalmologist", "ophthalmology", "eye surgeon", "eye specialist", "oculoplastic surgeon", "retina specialist"]
+
+[[specialty]]
+name = "Skin"
+doctor = "Dermatologist"
+doctors = "dermatologists"
+aka = ["dermatologist", "dermatology", "skin doctor", "skin specialist", "derm", "Mohs surgeon"]
+
+[[specialty]]
+name = "Ear, nose and throat"
+doctor = "ENT"
+doctors = "ear, nose and throat doctors (ENTs)"
+aka = ["ENT", "otolaryngologist", "otolaryngology", "ear nose and throat doctor", "sinus doctor"]
+
+[[specialty]]
+name = "Digestive"
+doctor = "GI doctor or general surgeon"
+doctors = "gastroenterologists and general surgeons"
+aka = ["gastroenterologist", "gastroenterology", "GI doctor", "stomach doctor", "general surgeon", "general surgery", "colorectal"]
+
+[[specialty]]
+name = "Bones and joints"
+doctor = "Orthopedic surgeon"
+doctors = "orthopedic surgeons"
+aka = ["orthopedic surgeon", "orthopedist", "orthopedics", "orthopaedic", "ortho", "bone doctor", "joint doctor", "sports medicine", "hand surgeon"]
+
+[[specialty]]
+name = "Pain and spine"
+doctor = "Pain clinic"
+doctors = "pain management doctors"
+aka = ["pain management", "pain clinic", "pain doctor", "pain specialist", "physiatrist", "spine doctor"]
+
+[[specialty]]
+name = "Urinary and men's health"
+doctor = "Urologist"
+doctors = "urologists"
+aka = ["urologist", "urology", "bladder doctor", "prostate doctor"]
+
+[[specialty]]
+name = "Women's health"
+doctor = "Gynecologist"
+doctors = "gynecologists and breast surgeons"
+aka = ["gynecologist", "gynecology", "OB-GYN", "obgyn", "ob gyn", "women's doctor", "breast surgeon"]
+
+[[specialty]]
+name = "Heart and veins"
+doctor = "Cardiologist"
+doctors = "cardiologists and vein specialists"
+aka = ["cardiologist", "cardiology", "heart doctor", "vein specialist", "vein clinic", "vascular surgeon"]
+
+[[specialty]]
+name = "Scans and tests"
+doctor = "Imaging and testing"
+doctors = "imaging centers and testing labs"
+aka = ["imaging", "radiologist", "radiology", "imaging center", "scan", "test", "lab"]
+
+# ------------------------------------------------------------------ Eyes
+
+[[procedure]]
+id = "upper-eyelid-surgery"
+name = "Upper eyelid surgery (blepharoplasty)"
+aka = ["blepharoplasty", "eyelid lift", "droopy eyelids", "hooded eyelids", "excess eyelid skin", "dermatochalasis", "ptosis", "eye lift"]
+specialty = "Eyes"
+code = "15823"
+about = "Removes extra skin and fat from one upper eyelid, often because it droops into the line of sight."
+anesthesia = "00103"
+note = "Priced per eyelid. For both eyes on the same day, the second is usually billed at about half."
+cosmetic = { fee = 3359, quote = "The average cost of cosmetic eyelid surgery is $3,359 for an upper blepharoplasty", excludes = "it does not include anesthesia, operating room facilities or other related expenses", source = "American Society of Plastic Surgeons", url = "https://www.plasticsurgery.org/cosmetic-procedures/eyelid-surgery/cost" }
+
+[[procedure]]
+id = "droopy-eyelid-repair"
+name = "Droopy eyelid repair (ptosis repair)"
+aka = ["ptosis", "ptosis repair", "ptosis surgery", "levator advancement", "droopy eyelid", "drooping eyelid", "blepharoptosis", "eyelid muscle"]
+specialty = "Eyes"
+code = "67904"
+about = "Tightens the muscle that lifts one upper eyelid, so the lid itself sits higher."
+anesthesia = "00103"
+note = "Priced per eyelid. For both eyes on the same day, the second is usually billed at about half."
+
+[[procedure]]
+id = "cataract-surgery"
+name = "Cataract surgery with a lens implant"
+aka = ["cataract", "cataracts", "lens replacement", "intraocular lens", "IOL", "phacoemulsification", "cloudy lens"]
+specialty = "Eyes"
+code = "66984"
+about = "Replaces the eye's clouded lens with a clear artificial one. One eye."
+anesthesia = "00142"
+note = "A standard lens is included. Premium lenses (for astigmatism or to reduce the need for glasses) are an extra charge that insurance does not cover."
+
+[[procedure]]
+id = "yag-laser-after-cataract"
+name = "Laser to clear cloudiness after cataract surgery (YAG)"
+aka = ["YAG", "YAG capsulotomy", "posterior capsulotomy", "secondary cataract", "after cataract", "cloudy vision after cataract surgery"]
+specialty = "Eyes"
+code = "66821"
+about = "A few-minute laser treatment that opens the cloudy film that can form behind a lens implant."
+
+[[procedure]]
+id = "glaucoma-laser"
+name = "Laser treatment for glaucoma (SLT)"
+aka = ["SLT", "selective laser trabeculoplasty", "trabeculoplasty", "glaucoma", "eye pressure", "ALT"]
+specialty = "Eyes"
+code = "65855"
+about = "A laser treatment to the eye's drain that lowers eye pressure. One eye."
+
+[[procedure]]
+id = "eye-injection"
+name = "Eye injection for macular degeneration or diabetic eye disease"
+aka = ["intravitreal injection", "macular degeneration", "AMD", "Eylea", "Avastin", "Lucentis", "Vabysmo", "diabetic retinopathy", "macular edema", "retina injection"]
+specialty = "Eyes"
+code = "67028"
+about = "An injection of medicine into the eye, usually repeated every one to three months."
+note = "This is the fee for giving the injection only. The drug is billed separately and can cost far more than the injection, depending on which one is used."
+
+[[procedure]]
+id = "chalazion-removal"
+name = "Stye or eyelid bump removal (chalazion)"
+aka = ["chalazion", "stye", "eyelid cyst", "eyelid bump", "hordeolum"]
+specialty = "Eyes"
+code = "67800"
+about = "Opens and drains one stubborn bump in the eyelid."
+
+[[procedure]]
+id = "pterygium-removal"
+name = "Pterygium removal with a graft"
+aka = ["pterygium", "surfer's eye", "growth on the eye", "conjunctival graft"]
+specialty = "Eyes"
+code = "65426"
+about = "Removes a growth of tissue from the surface of the eye and covers the spot with a graft."
+anesthesia = "00140"
+
+# ------------------------------------------------------------------ Skin
+
+[[procedure]]
+id = "skin-biopsy"
+name = "Skin biopsy (shave)"
+aka = ["biopsy", "mole biopsy", "shave biopsy", "tangential biopsy", "suspicious mole", "skin cancer check", "lesion biopsy"]
+specialty = "Skin"
+code = "11102"
+about = "Shaves off one spot of skin to send to a lab."
+note = "The lab that reads the sample bills separately."
+
+[[procedure]]
+id = "punch-biopsy"
+name = "Skin biopsy (punch)"
+aka = ["biopsy", "punch biopsy", "mole biopsy", "rash biopsy", "skin sample"]
+specialty = "Skin"
+code = "11104"
+about = "Takes one small, deeper core of skin to send to a lab, usually closed with a stitch."
+note = "The lab that reads the sample bills separately."
+
+[[procedure]]
+id = "mohs-surgery"
+name = "Mohs surgery for skin cancer (face, scalp, hands, feet)"
+aka = ["Mohs", "mohs micrographic surgery", "skin cancer removal", "basal cell", "squamous cell", "BCC", "SCC", "skin cancer surgery"]
+specialty = "Skin"
+code = "17311"
+about = "Removes a skin cancer one thin layer at a time, checking each layer under the microscope the same day."
+note = "This is the first layer (stage). Many cases need a second stage, billed in addition, and closing the wound with a flap or graft is billed separately."
+
+[[procedure]]
+id = "precancer-freezing"
+name = "Freezing a precancerous spot (actinic keratosis)"
+aka = ["actinic keratosis", "AK", "cryotherapy", "liquid nitrogen", "freezing", "precancer", "sun spots", "sun damage"]
+specialty = "Skin"
+code = "17000"
+about = "Freezes one rough, sun-damaged spot with liquid nitrogen."
+note = "This is the first spot. Each additional spot the same day adds a much smaller fee, and 15 or more are billed as one flat fee."
+
+[[procedure]]
+id = "wart-removal"
+name = "Wart removal (up to 14)"
+aka = ["wart", "warts", "plantar wart", "molluscum", "freezing warts", "cryotherapy", "seborrheic keratosis"]
+specialty = "Skin"
+code = "17110"
+about = "Destroys up to 14 warts or similar harmless growths in one visit, usually by freezing."
+
+[[procedure]]
+id = "skin-cancer-excision"
+name = "Skin cancer cut out (face, about 1/2 to 3/4 inch)"
+aka = ["excision", "skin cancer removal", "melanoma excision", "basal cell", "squamous cell", "malignant lesion", "wide excision"]
+specialty = "Skin"
+code = "11642"
+about = "Cuts out a skin cancer on the face, ears, eyelids, nose or lips, 1.1 to 2.0 cm across with its margin, and stitches it closed."
+note = "Larger or smaller cancers and other body areas have their own codes, generally within a few hundred dollars of this one. The lab bills separately."
+
+[[procedure]]
+id = "cyst-removal"
+name = "Cyst or benign lump cut out (body, arms or legs)"
+aka = ["cyst", "sebaceous cyst", "epidermoid cyst", "lipoma", "mole removal", "benign lesion", "lump removal", "excision"]
+specialty = "Skin"
+code = "11402"
+about = "Cuts out a harmless growth 1.1 to 2.0 cm across on the trunk, arms or legs and stitches it closed."
+
+[[procedure]]
+id = "skin-tag-removal"
+name = "Skin tag removal (up to 15)"
+aka = ["skin tag", "skin tags", "acrochordon"]
+specialty = "Skin"
+code = "11200"
+about = "Removes up to 15 skin tags in one visit."
+note = "Insurers usually treat skin tag removal as cosmetic unless the tags bleed or are irritated."
+
+[[procedure]]
+id = "abscess-drainage"
+name = "Draining a boil or abscess"
+aka = ["abscess", "boil", "incision and drainage", "I&D", "lancing", "infected cyst"]
+specialty = "Skin"
+code = "10060"
+about = "Opens and drains one simple pocket of infection under the skin."
+
+[[procedure]]
+id = "ingrown-toenail"
+name = "Ingrown toenail removal (permanent)"
+aka = ["ingrown toenail", "ingrown nail", "nail removal", "matrixectomy", "toenail", "podiatrist", "podiatry", "foot doctor"]
+specialty = "Skin"
+code = "11750"
+about = "Removes part or all of a toenail along with its root, so that edge does not grow back."
+
+# ------------------------------------------------------------------ Ear, nose and throat
+
+[[procedure]]
+id = "ear-tubes"
+name = "Ear tubes"
+aka = ["ear tubes", "tympanostomy", "myringotomy", "ear infections", "PE tubes", "grommets"]
+specialty = "Ear, nose and throat"
+code = "69436"
+about = "Places a tiny tube in one eardrum under general anesthesia so fluid can drain."
+anesthesia = "00126"
+note = "Medicare's figures come mostly from adults; this is most often a children's surgery, and private prices for children may differ."
+
+[[procedure]]
+id = "tonsillectomy"
+name = "Tonsil removal (age 12 and up)"
+aka = ["tonsillectomy", "tonsils", "tonsil removal", "tonsillitis", "strep"]
+specialty = "Ear, nose and throat"
+code = "42826"
+about = "Removes the tonsils in a teenager or adult."
+anesthesia = "00170"
+
+[[procedure]]
+id = "septoplasty"
+name = "Deviated septum repair (septoplasty)"
+aka = ["septoplasty", "deviated septum", "nasal obstruction", "crooked nose", "can't breathe through nose"]
+specialty = "Ear, nose and throat"
+code = "30520"
+about = "Straightens the wall between the nostrils to open the airway."
+anesthesia = "00160"
+note = "This is not a nose job: reshaping the outside of the nose (rhinoplasty) is a separate, usually cosmetic, charge."
+
+[[procedure]]
+id = "sinus-surgery"
+name = "Sinus surgery (endoscopic)"
+aka = ["sinus surgery", "FESS", "ethmoidectomy", "chronic sinusitis", "sinus infection", "nasal polyps", "endoscopic sinus surgery"]
+specialty = "Ear, nose and throat"
+code = "31255"
+about = "Opens the ethmoid sinuses on one side through the nostril, using a scope."
+anesthesia = "00160"
+note = "Sinus surgery is billed per sinus and per side, and most operations open several. Expect the doctor's fee for a typical both-sides operation to be a multiple of this one."
+
+[[procedure]]
+id = "nasal-endoscopy"
+name = "Scope exam of the nose and sinuses"
+aka = ["nasal endoscopy", "nose scope", "sinus scope", "ENT scope"]
+specialty = "Ear, nose and throat"
+code = "31231"
+about = "A thin scope passed through the nostrils in the office to look at the nasal passages and sinus openings."
+note = "Usually billed on top of an office visit."
+
+[[procedure]]
+id = "earwax-removal"
+name = "Earwax removal by a clinician"
+aka = ["earwax", "ear wax", "cerumen", "impacted earwax", "ear cleaning", "clogged ear"]
+specialty = "Ear, nose and throat"
+code = "69210"
+about = "Removes impacted earwax with instruments, for one or both ears."
+
+# ------------------------------------------------------------------ Digestive
+
+[[procedure]]
+id = "colonoscopy"
+name = "Colonoscopy"
+aka = ["colonoscopy", "colon cancer screening", "colon screening", "lower endoscopy", "colon scope"]
+specialty = "Digestive"
+code = "45378"
+about = "A scope exam of the whole colon, with nothing removed."
+anesthesia = "00811"
+note = "A routine screening colonoscopy is free under most insurance plans. If the doctor takes a biopsy or removes a polyp, the price rises and a lab bills separately."
+
+[[procedure]]
+id = "colonoscopy-polyp"
+name = "Colonoscopy with polyp removal"
+aka = ["colonoscopy", "polyp", "polyps", "polypectomy", "snare"]
+specialty = "Digestive"
+code = "45385"
+about = "A scope exam of the whole colon in which one or more polyps are removed with a wire loop."
+anesthesia = "00811"
+note = "The lab that examines the polyps bills separately."
+
+[[procedure]]
+id = "upper-endoscopy"
+name = "Upper endoscopy (EGD) with biopsy"
+aka = ["endoscopy", "EGD", "upper GI", "esophagogastroduodenoscopy", "stomach scope", "acid reflux", "GERD", "ulcer", "celiac"]
+specialty = "Digestive"
+code = "43239"
+about = "A scope exam of the esophagus, stomach and first part of the small intestine, with small tissue samples taken."
+anesthesia = "00731"
+note = "The lab that examines the samples bills separately."
+
+[[procedure]]
+id = "hemorrhoid-banding"
+name = "Hemorrhoid banding"
+aka = ["hemorrhoid", "hemorrhoids", "rubber band ligation", "banding", "piles"]
+specialty = "Digestive"
+code = "46221"
+about = "Places a small rubber band around a hemorrhoid in the office so it shrinks and falls off."
+note = "Often takes two or three sessions, each billed separately."
+
+[[procedure]]
+id = "gallbladder-removal"
+name = "Gallbladder removal (laparoscopic)"
+aka = ["gallbladder", "cholecystectomy", "gallstones", "gall bladder", "lap chole"]
+specialty = "Digestive"
+code = "47562"
+about = "Removes the gallbladder through a few small cuts, usually going home the same day."
+anesthesia = "00790"
+
+[[procedure]]
+id = "hernia-repair"
+name = "Groin hernia repair (open)"
+aka = ["hernia", "inguinal hernia", "hernia surgery", "hernia mesh", "groin hernia"]
+specialty = "Digestive"
+code = "49505"
+about = "Repairs a first-time hernia in the groin through one cut, usually with mesh. One side."
+anesthesia = "00830"
+
+[[procedure]]
+id = "hernia-repair-laparoscopic"
+name = "Groin hernia repair (laparoscopic)"
+aka = ["hernia", "inguinal hernia", "laparoscopic hernia", "robotic hernia", "hernia mesh"]
+specialty = "Digestive"
+code = "49650"
+about = "Repairs a first-time hernia in the groin through a few small cuts using a camera. One side."
+anesthesia = "00840"
+
+# ------------------------------------------------------------------ Bones and joints
+
+[[procedure]]
+id = "knee-arthroscopy"
+name = "Knee arthroscopy for a torn meniscus"
+aka = ["knee scope", "meniscus", "meniscectomy", "torn meniscus", "knee arthroscopy", "knee surgery"]
+specialty = "Bones and joints"
+code = "29881"
+about = "Trims a torn meniscus through two or three small cuts using a camera."
+anesthesia = "01400"
+
+[[procedure]]
+id = "carpal-tunnel-release"
+name = "Carpal tunnel release"
+aka = ["carpal tunnel", "carpal tunnel surgery", "wrist surgery", "numb hands", "median nerve"]
+specialty = "Bones and joints"
+code = "64721"
+about = "Cuts the ligament pressing on the nerve at the wrist. One hand."
+anesthesia = "01810"
+note = "Often done with only local numbing, in which case there is no anesthesia bill."
+
+[[procedure]]
+id = "trigger-finger-release"
+name = "Trigger finger release"
+aka = ["trigger finger", "trigger thumb", "finger locking", "tendon sheath"]
+specialty = "Bones and joints"
+code = "26055"
+about = "Opens the tight sheath that catches the tendon of one finger."
+
+[[procedure]]
+id = "rotator-cuff-repair"
+name = "Rotator cuff repair (arthroscopic)"
+aka = ["rotator cuff", "shoulder surgery", "shoulder scope", "torn rotator cuff", "shoulder arthroscopy"]
+specialty = "Bones and joints"
+code = "29827"
+about = "Reattaches a torn shoulder tendon to bone through small cuts using a camera."
+anesthesia = "01630"
+note = "Other work done at the same time (shaving bone, biceps tendon) is billed in addition. Physical therapy afterward is separate."
+
+[[procedure]]
+id = "acl-reconstruction"
+name = "ACL reconstruction"
+aka = ["ACL", "ACL surgery", "torn ACL", "anterior cruciate ligament", "knee ligament"]
+specialty = "Bones and joints"
+code = "29888"
+about = "Rebuilds the knee's torn front ligament with a tendon graft, using a camera."
+anesthesia = "01400"
+note = "Medicare's figures come from few, older patients; this surgery is far more common in young adults on private insurance. A donor graft, a brace and physical therapy are separate."
+
+[[procedure]]
+id = "knee-replacement"
+name = "Total knee replacement"
+aka = ["knee replacement", "TKA", "total knee", "knee arthroplasty", "arthritis"]
+specialty = "Bones and joints"
+code = "27447"
+about = "Replaces the worn surfaces of the knee joint with metal and plastic."
+anesthesia = "01402"
+note = "Covers the surgery day. An overnight hospital stay, physical therapy and any rehab stay are separate."
+
+[[procedure]]
+id = "hip-replacement"
+name = "Total hip replacement"
+aka = ["hip replacement", "THA", "total hip", "hip arthroplasty", "arthritis"]
+specialty = "Bones and joints"
+code = "27130"
+about = "Replaces the ball and socket of the hip joint."
+anesthesia = "01214"
+note = "Covers the surgery day. An overnight hospital stay, physical therapy and any rehab stay are separate."
+
+[[procedure]]
+id = "bunion-surgery"
+name = "Bunion surgery"
+aka = ["bunion", "bunionectomy", "hallux valgus", "big toe", "podiatrist", "podiatry", "foot doctor"]
+specialty = "Bones and joints"
+code = "28296"
+about = "Cuts and realigns the bone at the base of the big toe. One foot."
+anesthesia = "01480"
+
+[[procedure]]
+id = "joint-injection"
+name = "Cortisone shot in a large joint (knee, shoulder, hip)"
+aka = ["cortisone", "steroid injection", "joint injection", "knee injection", "shoulder injection", "arthritis shot", "aspiration", "bursitis"]
+specialty = "Bones and joints"
+code = "20610"
+about = "An injection into, or fluid drained from, a knee, shoulder or hip, without ultrasound guidance."
+note = "Usually billed on top of an office visit. Cortisone itself costs little; gel (hyaluronic acid) injections are a much more expensive drug, billed separately."
+
+# ------------------------------------------------------------------ Pain and spine
+
+[[procedure]]
+id = "epidural-steroid-injection"
+name = "Epidural steroid injection (lower back)"
+aka = ["epidural", "ESI", "steroid injection", "back injection", "sciatica", "herniated disc", "pinched nerve", "back pain"]
+specialty = "Pain and spine"
+code = "62323"
+about = "A steroid injection into the space around the spinal nerves of the lower back, guided by X-ray."
+
+[[procedure]]
+id = "nerve-root-injection"
+name = "Nerve root injection (lower back, transforaminal)"
+aka = ["transforaminal", "nerve block", "selective nerve root block", "sciatica", "epidural", "back injection", "pinched nerve"]
+specialty = "Pain and spine"
+code = "64483"
+about = "A steroid injection beside one specific nerve where it leaves the lower spine, guided by X-ray."
+note = "Priced for one level on one side. Each additional level is billed in addition."
+
+# ------------------------------------------------------------------ Urinary and men's health
+
+[[procedure]]
+id = "cystoscopy"
+name = "Bladder scope exam (cystoscopy)"
+aka = ["cystoscopy", "bladder scope", "blood in urine", "hematuria", "bladder exam"]
+specialty = "Urinary and men's health"
+code = "52000"
+about = "A thin scope passed through the urethra to look inside the bladder, usually in the office."
+
+[[procedure]]
+id = "prostate-biopsy"
+name = "Prostate biopsy"
+aka = ["prostate biopsy", "prostate cancer", "PSA", "needle biopsy", "elevated PSA"]
+specialty = "Urinary and men's health"
+code = "55700"
+about = "Takes needle samples of the prostate."
+note = "The ultrasound used to guide the needle and the lab that reads the samples bill separately; the lab is often the largest part of the bill."
+retired = { ask = "a prostate biopsy", note = "Billing code 55700 was retired in 2026 and replaced by a set of codes, 55705 to 55715, one for each way of doing the biopsy. The figures here are from 2024, under the old code." }
+
+[[procedure]]
+id = "kidney-stone-laser"
+name = "Kidney stone removal with scope and laser"
+aka = ["kidney stone", "kidney stones", "ureteroscopy", "laser lithotripsy", "stent", "ureter stone"]
+specialty = "Urinary and men's health"
+code = "52356"
+about = "Passes a scope up to the stone, breaks it with a laser and leaves a temporary stent. One side."
+anesthesia = "00918"
+
+[[procedure]]
+id = "kidney-stone-shock-wave"
+name = "Kidney stone shock wave treatment (lithotripsy)"
+aka = ["kidney stone", "kidney stones", "lithotripsy", "ESWL", "shock wave"]
+specialty = "Urinary and men's health"
+code = "50590"
+about = "Breaks a kidney stone from outside the body with focused shock waves."
+anesthesia = "00873"
+
+# ------------------------------------------------------------------ Women's health
+
+[[procedure]]
+id = "colposcopy"
+name = "Colposcopy with biopsy"
+aka = ["colposcopy", "abnormal pap", "pap smear", "HPV", "cervical biopsy", "cervix"]
+specialty = "Women's health"
+code = "57454"
+about = "A magnified look at the cervix after an abnormal Pap test, with small samples taken."
+note = "The lab that reads the samples bills separately."
+
+[[procedure]]
+id = "endometrial-biopsy"
+name = "Endometrial biopsy"
+aka = ["endometrial biopsy", "uterine biopsy", "abnormal bleeding", "postmenopausal bleeding", "uterus lining"]
+specialty = "Women's health"
+code = "58100"
+about = "Takes a small sample of the lining of the uterus in the office."
+note = "The lab that reads the sample bills separately."
+
+[[procedure]]
+id = "hysteroscopy"
+name = "Hysteroscopy with biopsy or polyp removal"
+aka = ["hysteroscopy", "D&C", "dilation and curettage", "uterine polyp", "polypectomy", "abnormal bleeding", "heavy periods"]
+specialty = "Women's health"
+code = "58558"
+about = "A scope exam inside the uterus in which the lining is sampled or a polyp is removed."
+anesthesia = "00952"
+
+[[procedure]]
+id = "breast-biopsy"
+name = "Breast biopsy (needle, ultrasound-guided)"
+aka = ["breast biopsy", "core biopsy", "breast lump", "needle biopsy", "abnormal mammogram"]
+specialty = "Women's health"
+code = "19083"
+about = "Takes needle samples of one spot in the breast, guided by ultrasound, and leaves a tiny marker."
+note = "The lab that reads the samples bills separately."
+
+[[procedure]]
+id = "lumpectomy"
+name = "Lumpectomy (partial mastectomy)"
+aka = ["lumpectomy", "partial mastectomy", "breast cancer surgery", "breast conserving surgery"]
+specialty = "Women's health"
+code = "19301"
+about = "Removes a breast cancer with a rim of normal tissue, keeping the rest of the breast."
+anesthesia = "00400"
+note = "Checking the lymph nodes at the same time, the lab work and any radiation afterward are billed separately."
+
+# ------------------------------------------------------------------ Heart and veins
+
+[[procedure]]
+id = "echocardiogram"
+name = "Echocardiogram (heart ultrasound)"
+aka = ["echo", "echocardiogram", "heart ultrasound", "TTE", "heart murmur"]
+specialty = "Heart and veins"
+code = "93306"
+about = "A complete ultrasound of the heart through the chest wall, with Doppler."
+note = "Done in a hospital, the hospital adds its own fee, which is usually much larger; ask where it will be done."
+
+[[procedure]]
+id = "stress-test"
+name = "Treadmill stress test"
+aka = ["stress test", "treadmill test", "exercise stress test", "EKG stress test", "chest pain"]
+specialty = "Heart and veins"
+code = "93015"
+about = "An EKG recorded while walking on a treadmill, with a doctor supervising and reading it. No imaging."
+note = "A stress test with imaging (nuclear or echo) is a different, much more expensive test."
+
+[[procedure]]
+id = "varicose-vein-ablation"
+name = "Varicose vein treatment (radiofrequency ablation)"
+aka = ["varicose veins", "vein ablation", "RFA", "Venefit", "ClosureFast", "saphenous vein", "venous insufficiency", "leg veins"]
+specialty = "Heart and veins"
+code = "36475"
+about = "Seals the main faulty vein in one leg with heat from a thin catheter, in the office."
+note = "Priced for the first vein. Insurers cover it only when the veins cause symptoms, not for appearance."
+
+[[procedure]]
+id = "heart-catheterization"
+name = "Heart catheterization (coronary angiogram)"
+aka = ["heart cath", "cardiac catheterization", "angiogram", "coronary angiography", "blocked arteries", "left heart cath"]
+specialty = "Heart and veins"
+code = "93458"
+about = "Threads a catheter to the heart to take X-ray pictures of its arteries and measure pressures."
+note = "If a blockage is opened with a stent at the same time, the total is several times higher."
+
+# ------------------------------------------------------------------ Scans and tests
+
+[[procedure]]
+id = "mri-knee"
+name = "MRI of a knee, hip or ankle (no contrast)"
+aka = ["MRI", "knee MRI", "joint MRI", "magnetic resonance", "leg MRI"]
+specialty = "Scans and tests"
+code = "73721"
+about = "An MRI of one leg joint without contrast dye, including the radiologist's reading."
+note = "The same scan usually costs far less at a freestanding imaging center than at a hospital. If your doctor orders one, you can ask to have it done at an imaging center."
+
+[[procedure]]
+id = "mri-brain"
+name = "MRI of the brain (no contrast)"
+aka = ["MRI", "brain MRI", "head MRI", "magnetic resonance", "headache"]
+specialty = "Scans and tests"
+code = "70551"
+about = "An MRI of the brain without contrast dye, including the radiologist's reading."
+note = "The same scan usually costs far less at a freestanding imaging center than at a hospital. If your doctor orders one, you can ask to have it done at an imaging center."
+
+[[procedure]]
+id = "mri-lower-back"
+name = "MRI of the lower back (no contrast)"
+aka = ["MRI", "lumbar MRI", "spine MRI", "back MRI", "back pain", "sciatica"]
+specialty = "Scans and tests"
+code = "72148"
+about = "An MRI of the lumbar spine without contrast dye, including the radiologist's reading."
+note = "The same scan usually costs far less at a freestanding imaging center than at a hospital. If your doctor orders one, you can ask to have it done at an imaging center."
+
+[[procedure]]
+id = "ct-abdomen-pelvis"
+name = "CT scan of the abdomen and pelvis (with contrast)"
+aka = ["CT", "CAT scan", "CT scan", "abdominal CT", "stomach pain", "appendicitis", "kidney stone scan"]
+specialty = "Scans and tests"
+code = "74177"
+about = "A CT scan of the belly and pelvis with contrast dye, including the radiologist's reading."
+note = "The same scan usually costs far less at a freestanding imaging center than at a hospital. In an emergency room, the visit itself is billed on top of the scan."
+
+[[procedure]]
+id = "screening-mammogram"
+name = "Screening mammogram (3D not included)"
+aka = ["mammogram", "mammography", "breast screening", "breast cancer screening"]
+specialty = "Scans and tests"
+code = "77067"
+about = "Routine X-ray screening of both breasts, including the radiologist's reading."
+note = "Free under most insurance plans. 3D imaging (tomosynthesis) adds a smaller separate charge."
+
+[[procedure]]
+id = "sleep-study"
+name = "Overnight sleep study in a lab"
+aka = ["sleep study", "polysomnography", "sleep apnea", "snoring", "CPAP", "sleep test", "sleep doctor", "sleep specialist", "pulmonologist"]
+specialty = "Scans and tests"
+code = "95810"
+about = "A night in a sleep lab with brain, breathing and oxygen monitoring, to diagnose sleep apnea and other disorders."
+note = "A home sleep apnea test is far cheaper, and many insurers require it first."
+
+[[procedure]]
+id = "nerve-conduction-emg"
+name = "EMG needle test of one arm or leg"
+aka = ["EMG", "electromyography", "nerve test", "nerve conduction", "pinched nerve", "neuropathy", "carpal tunnel test", "neurologist", "neurology"]
+specialty = "Scans and tests"
+code = "95886"
+about = "A needle test of the muscles in one limb, done along with nerve conduction studies."
+note = "This is billed on top of the nerve conduction studies done the same visit, which usually cost a similar amount again."
+
+[[procedure]]
+id = "thyroid-biopsy"
+name = "Thyroid nodule biopsy (fine needle, ultrasound-guided)"
+aka = ["thyroid biopsy", "FNA", "fine needle aspiration", "thyroid nodule", "neck lump", "endocrinologist", "endocrinology"]
+specialty = "Scans and tests"
+code = "10005"
+about = "Draws cells from one nodule through a thin needle, guided by ultrasound."
+note = "The lab that reads the sample bills separately."
+
+[[procedure]]
+id = "botox-migraine"
+name = "Botox injections for chronic migraine"
+aka = ["Botox", "migraine", "chronic migraine", "botulinum toxin", "headache injections", "chemodenervation", "neurologist", "neurology", "headache specialist"]
+specialty = "Scans and tests"
+code = "64615"
+about = "A set of small injections around the head and neck, repeated every 12 weeks."
+note = "This is the fee for giving the injections. The drug is billed separately and costs far more than the injections."

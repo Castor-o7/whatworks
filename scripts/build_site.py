@@ -51,7 +51,8 @@ FEED_SIZE = 20
 # Everything this script writes at the top of _site/. Nothing else there is ever deleted.
 DRAFTS_MARKER = ".drafts"  # present only in a --drafts preview build; ci_publish.py refuses to publish it
 OWNED = ("index.html", "404.html", ".nojekyll", "CNAME", DRAFTS_MARKER, "section", "post", "storms", "tools", "papers",
-         "about", "static", "images", "feed.xml", "sitemap.xml")
+         "prices", "about", "static", "images", "feed.xml", "sitemap.xml")
+PRICES = ROOT / "data_sources" / "procedure-prices.json"  # written by scripts/fetch_procedure_prices.py
 
 
 def environment():
@@ -77,6 +78,27 @@ def load_meta():
               "filters. Run scripts/build_data.py, then build the site again.", file=sys.stderr)
         return None
     return json.loads(gzip.decompress(path.read_bytes()))
+
+
+def load_prices():
+    """Price Check's data (docs/PRICE_CHECK.md): Medicare's published figures for each procedure, or None
+    (with a warning) when the file is missing or unreadable, in which case /prices/ says so."""
+    try:
+        return json.loads(PRICES.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"warning: {display_path(PRICES)} can't be read ({e}); Price Check renders without estimates. "
+              "Run scripts/fetch_procedure_prices.py, then build the site again.", file=sys.stderr)
+        return None
+
+
+def price_groups(prices):
+    """The procedures grouped by specialty, in the order the specialties first appear in the list, each
+    with the kind of doctor who does them (when the data names one)."""
+    groups = {}
+    for p in prices["procedures"]:
+        groups.setdefault(p["specialty"], []).append(p)
+    doctors = {s["name"]: s["doctor"] for s in prices.get("specialties", [])}
+    return [dict(name=name, doctor=doctors.get(name), procedures=found) for name, found in groups.items()]
 
 
 def cpi_base_year(meta):
@@ -300,7 +322,7 @@ def sitemap_xml(posts, tools, papers=()):
     urls = [("/", newest(posts))]
     urls += [(section_href(slug), newest([p for p in posts if p.section == slug])) for slug in SECTIONS]
     urls += [(f"/post/{p.slug}/", p.date) for p in posts]
-    urls += [("/storms/then-and-now/", None), ("/tools/", None)]
+    urls += [("/storms/then-and-now/", None), ("/prices/", None), ("/tools/", None)]
     urls += [(f"/tools/{t.slug}/", None) for t in tools if not t.draft]
     urls += [("/papers/", max((p.date for p in papers), default=None))]
     urls += [(f"/papers/{p.slug}/", p.date) for p in papers]
@@ -389,6 +411,12 @@ def build(drafts=False, report=True):
             "/storms/then-and-now/", f"Then & Now — {name}",
             "Are storms getting worse, or are we counting more? Compare two eras of NOAA storm records "
             "fairly, and see what the records can't tell us.")))
+    prices = load_prices()
+    pages["prices/index.html"] = ("prices.html", dict(
+        prices=prices, groups=price_groups(prices) if prices else [], share=page_share(
+            "/prices/", f"Price Check — {name}",
+            "What does a medical procedure cost? Search a procedure and see an honest best guess, built from "
+            "what Medicare publishes and what private insurers pay on top of it.")))
     pages["tools/index.html"] = ("tools.html", dict(tools=tools, share=page_share(
         "/tools/", f"Tools — {name}", f"Software from {name} that anyone can use.")))
     for t in tools:
@@ -428,6 +456,9 @@ def build(drafts=False, report=True):
 
     shutil.copytree(ROOT / "app" / "static", OUT / "static",
                     ignore=shutil.ignore_patterns(".DS_Store", "__pycache__"))
+    if prices:  # the data prices.js reads, as published (compact)
+        (OUT / "prices" / "data.json").write_text(
+            json.dumps(prices, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT / "static" / "og").mkdir()
     for card, png in out_cards.items():
         shutil.copyfile(png, OUT / "static" / "og" / card)

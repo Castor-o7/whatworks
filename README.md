@@ -143,6 +143,7 @@ newest published posts) and `/sitemap.xml`. The contract is [docs/SHARING.md](do
 | `data_sources/cpi-u-annual.csv` | CPI-U annual averages (BLS, via FRED series CPIAUCNS) with a provenance header; committed so data builds work offline |
 | `scripts/fetch_cpi.py` | Downloads CPIAUCNS from FRED and rewrites `data_sources/cpi-u-annual.csv` (complete years only) |
 | `scripts/build_data.py` | Precomputes `_site/data/` (summaries, map grids, tiles, event records) from SQLite |
+| `data_sources/procedures.toml`, `scripts/fetch_procedure_prices.py` | Price Check (`/prices/`): the procedure list, and the script that fetches Medicare's figures for it into `data_sources/procedure-prices.json` ([docs/PRICE_CHECK.md](docs/PRICE_CHECK.md)) |
 | `scripts/build_site.py` | Renders the pages, share cards, `feed.xml` and `sitemap.xml`, copies `app/static/` and paper PDFs into `_site/` |
 | `scripts/build_papers.py`, `scripts/new_paper.py` | Compile papers (latexmk, cached in `.cache/papers/`); start a new one |
 | `scripts/serve.py` | Local preview (`--dir` serves another build, such as a downloaded draft preview) |
