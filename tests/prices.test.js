@@ -88,7 +88,9 @@ test("rounding doesn't claim more precision than an estimate has", () => {
   assert.equal(W.round(832), 830);
   assert.equal(W.round(3349), 3350);
   assert.equal(W.round(38649), 38600);
-  assert.equal(W.round(1), 5);
+  assert.equal(W.round(5.18), 5);
+  assert.equal(W.round(13.6), 14);
+  assert.equal(W.round(0.2), 1);
 });
 
 test("searching a kind of doctor lists everything in their group", () => {
@@ -100,7 +102,10 @@ test("searching a kind of doctor lists everything in their group", () => {
     }
     assert.equal(W.specialtyFor(data, s.aka[0]).name, s.name);
   }
-  assert.deepEqual(ids("dermatologist").sort(), data.procedures.filter((p) => p.specialty === "Skin").map((p) => p.id).sort());
+  const skin = data.procedures.filter((p) => p.specialty === "Skin" || (p.also || []).includes("Skin")).map((p) => p.id);
+  assert.deepEqual(ids("dermatologist").sort(), skin.sort());
+  assert.ok(skin.includes("ingrown-toenail"), "a podiatrist's procedure a dermatologist also does");
+  assert.ok(ids("orthopedic surgeon").includes("bunion-surgery"));
   assert.equal(W.specialtyFor(data, "dermatologists").name, "Skin");
   assert.equal(W.specialtyFor(data, "cataract"), null);
 });
@@ -108,6 +113,9 @@ test("searching a kind of doctor lists everything in their group", () => {
 test("search matches whole words or their beginnings, not letters inside other words", () => {
   assert.ok(!ids("urologist").includes("botox-migraine"), "urologist is not neurologist");
   assert.ok(ids("neurologist").includes("botox-migraine"));
+  assert.ok(!ids("PT").includes("droopy-eyelid-repair"), "PT is not ptosis");
+  assert.ok(ids("PT").includes("pt-exercise"));
+  assert.ok(ids("eye").includes("upper-eyelid-surgery"), "three letters still match a word's beginning");
   assert.equal(ids("ENT").length, data.procedures.filter((p) => p.specialty === "Ear, nose and throat").length);
   assert.deepEqual(ids("cataracts").slice(0, 1), ["cataract-surgery"]);
   assert.ok(ids("scopy").includes("colonoscopy"));
@@ -118,7 +126,7 @@ test("search matches whole words or their beginnings, not letters inside other w
 
 test("every procedure's group names its kind of doctor", () => {
   const names = new Set(data.specialties.map((s) => s.name));
-  for (const p of data.procedures) assert.ok(names.has(p.specialty), `${p.id}: ${p.specialty}`);
+  for (const p of data.procedures) for (const s of [p.specialty].concat(p.also || [])) assert.ok(names.has(s), `${p.id}: ${s}`);
 });
 
 test("a scan is priced from the fee schedule: whole outside a hospital, reading plus the hospital's part inside", () => {

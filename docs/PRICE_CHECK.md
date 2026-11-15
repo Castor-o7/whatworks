@@ -30,11 +30,19 @@ are missing: almost nobody on Medicare has them).
 
 Every procedure's `specialty` must have a `[[specialty]]` entry at the top of the list, naming the kind of
 doctor (`doctor`, `doctors`) and the words people search for (`aka`). The script refuses a group without
-one. For a procedure that another kind of doctor also does, add that doctor to the procedure's own `aka`
-(the bunion entry has "podiatrist").
+one. For a procedure that another group's doctors also do, give it `also = ["<group name>"]` (the bunion
+entry, under Feet and ankles, has `also = ["Bones and joints"]`): searching either kind of doctor then
+lists it. For a kind of doctor with no group of their own, add the word to the procedure's `aka` (the eye
+exams have "optometrist").
+
+Some entries are priced per unit, because that is how they are billed: physical therapy per 15 minutes,
+allergy skin tests per allergen. Say so in the `name` and tell the reader in the `note` to multiply.
 
 Notes in the list must not state dollar figures unless they come with a source (`cosmetic` is the field
-for a sourced outside figure).
+for a sourced outside figure). A note that says what insurance or Medicare covers needs a `note_source`
+(`{label, url}`, shown as a link after the note) and must say only what that page says. Give an entry
+`billed_by` ("physical therapists") when the clinician isn't a physician: its estimate then says the
+doctor multiplier was measured for physicians' services and not for them.
 
 ## The data file
 
@@ -48,7 +56,7 @@ price.)
 | `multipliers.{doctor,center,hospital,anesthesia}` | `low`, `mid`, `high`: what private insurers pay as a multiple of Medicare, with `source`, `url`, `quote` (the source's sentence for `mid`, **copied exactly**; `page` for a PDF) and `range` (our words: where `low` and `high` come from). `range_source`, `range_quote`, `range_url` when the range has a source of its own |
 | `states` | The states and territories with at least one figure |
 | `specialties[]` | `name`, `doctor` ("Dermatologist"), `doctors` ("dermatologists"), `aka` (search words; the first is what the page's button searches) |
-| `procedures[]` | `id, name, aka, specialty, code, about, note?, cosmetic?, medicare_description` plus the figures below. `cosmetic` is `{fee, quote, excludes, source, url}`, with `quote` and `excludes` in the source's exact words |
+| `procedures[]` | `id, name, aka, specialty, also?, billed_by?, code, about, note?, note_source?, cosmetic?, medicare_description` plus the figures below. `cosmetic` is `{fee, quote, excludes, source, url}`, with `quote` and `excludes` in the source's exact words |
 | `doctor.office`, `doctor.facility` | `[services, average Medicare allowed amount, average billed amount]`, national |
 | `states.<State>.office` / `.facility` | The same triple for a state, kept only when it rests on 50 or more services |
 | `center` | The national rate Medicare pays a surgery center (ASC Addendum AA), or null |
@@ -104,7 +112,7 @@ An earlier draft used 289% for hospitals. That number is not in the RAND report;
    number", each step with its source.
 5. **State.** The doctor's fee is the state's own when published, else national (the page says which).
    Facility and anesthesia fees are national.
-6. **Rounding.** To $5 under $100, $10 under $1,000, $50 under $10,000, else $100.
+6. **Rounding.** To $1 under $20, $5 under $100, $10 under $1,000, $50 under $10,000, else $100.
 
 ## Retired codes
 
@@ -118,8 +126,9 @@ replaced in 2026 by 55705 to 55715) is the one such entry.
 ## Search and the price menu
 
 `WWPrices.search` needs every word of the search to match the entry: the procedure's name, its `aka`, its
-group's doctor words, or its code and descriptions. A word matches a text when one of the text's words
-starts with it; a name also matches inside a word for words of four letters or more. Searching a kind of
+group's doctor words (and those of any group in its `also`), or its code and descriptions. A word matches
+a text when one of the text's words starts with it (one or two letters must be the whole word, so "PT"
+doesn't find "ptosis"); a name also matches inside a word for words of four letters or more. Searching a kind of
 doctor therefore lists that doctor's whole group. With a search and no procedure chosen, the page shows a
 price menu of the matches (`WWPrices.specialtyFor` gives the heading when the search names one kind of
 doctor). Enter opens the menu, or the estimate when there is exactly one match.
@@ -133,7 +142,9 @@ doctor). Enter opens the menu, or the estimate when there is exactly one match.
   bill, so a case's anesthesia total can be higher than the average bill.
 - The research is national and some of it is old (KFF's review is from 2020; RAND's prices are 2022).
 - The multipliers are national research averages applied to every procedure. Real ratios differ by
-  service (scans run higher), market and insurer.
+  service, market and insurer. The doctor multiplier comes from studies of physician services as a
+  whole; it is also applied to therapists, physical therapists, chiropractors and optometrists, whose
+  private rates relative to Medicare we have no separate source for.
 - Medicare patients are mostly over 65, so procedures common in younger people rest on less data.
 - Surgery center rates and the fee schedule prices used for scans are 2026; the physician and hospital
   averages are 2024.

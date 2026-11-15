@@ -249,7 +249,7 @@ def main():
     if dupes := {i for i in ids if ids.count(i) > 1}:
         raise SystemExit(f"{LIST.relative_to(ROOT)}: id used twice: {', '.join(sorted(dupes))}")
     known = {s["name"] for s in specialties}
-    if unknown := sorted({p["specialty"] for p in wanted} - known):
+    if unknown := sorted({s for p in wanted for s in [p["specialty"], *p.get("also", [])]} - known):
         raise SystemExit(f"{LIST.relative_to(ROOT)}: no [[specialty]] entry named: {', '.join(unknown)}")
     print(f"Reading surgery center rates ({CENTER['period']})...")
     centers = center_rates()
@@ -266,7 +266,8 @@ def main():
             problems.append(f"{p['id']}: code {p['code']} has under {MIN_NATIONAL} services nationally, too few "
                             "to estimate from; left out")
             continue
-        entry = {k: p[k] for k in ("id", "name", "aka", "specialty", "code", "about", "note", "cosmetic", "retired")
+        entry = {k: p[k] for k in ("id", "name", "aka", "specialty", "also", "billed_by", "code", "about", "note", "note_source", "cosmetic",
+                                  "retired")
                  if k in p}
         entry["medicare_description"] = desc
         entry["doctor"] = national

@@ -8,7 +8,7 @@
   "use strict";
 
   const PLACES = {
-    office: { label: "Doctor's office", where: "in a doctor's office" },
+    office: { label: "Office or clinic", where: "in an office or clinic" },
     center: { label: "Surgery center", where: "at a surgery center" },
     hospital: { label: "Hospital outpatient", where: "at a hospital outpatient department" },
   };
@@ -37,6 +37,8 @@
   // reading plus the hospital's part, when the schedule carries the hospital's rate and CMS publishes
   // no hospital or surgery center figure of its own for the code.
   const scanHospital = (p) => Boolean(p.schedule && p.schedule.hospital && !p.hospital && !p.center && p.doctor.facility);
+
+  const isScan = (p) => p.specialty === "Scans and tests" || Boolean(p.schedule && p.schedule.hospital);
 
   /** The settings a procedure is priced in, most likely first. */
   function settings(p) {
@@ -75,8 +77,8 @@
     flags.state = local && !whole ? opts.state : null;
     flags.stateMissing = Boolean(opts.state && !local && !whole);
     flags.national = Boolean(opts.state && whole);
-    if (whole) parts.push(part("doctor", "Scan and reading", p.schedule.global, m.doctor, { scheduled: true }));
-    else parts.push(part("doctor", scanHospital(p) ? "Doctor's reading" : "Doctor's fee", fee[1], m.doctor, { billed: fee[2], services: fee[0], place, state: flags.state }));
+    if (whole) parts.push(part("doctor", isScan(p) ? "Scan and reading" : "Test and reading", p.schedule.global, m.doctor, { scheduled: true, thing: isScan(p) ? "scan" : "test" }));
+    else parts.push(part("doctor", scanHospital(p) ? "Doctor's reading" : p.billed_by ? "Clinician's fee" : "Doctor's fee", fee[1], m.doctor, { billed: fee[2], services: fee[0], place, state: flags.state }));
     if (setting === "center") parts.push(part("center", "Surgery center fee", p.center, m.center, {}));
     if (setting === "hospital") {
       if (p.hospital) parts.push(part("hospital", "Hospital fee", p.hospital[1], m.hospital, { billed: p.hospital[2], services: p.hospital[0] }));
@@ -100,7 +102,7 @@
 
   /** Round to a figure that doesn't claim more precision than an estimate has. */
   function round(v) {
-    const step = v < 100 ? 5 : v < 1000 ? 10 : v < 10000 ? 50 : 100;
+    const step = v < 20 ? 1 : v < 100 ? 5 : v < 1000 ? 10 : v < 10000 ? 50 : 100;
     return Math.max(step, Math.round(v / step) * step);
   }
   const usd = (v) => "$" + round(v).toLocaleString("en-US");
@@ -113,9 +115,10 @@
   const stem = (w) => (w.length > 4 && w.endsWith("s") ? w.slice(0, -1) : w);   // "cataracts" finds "cataract"
   const words = (query) => fold(query).split(" ").filter(Boolean).map(stem);
   // A search word matches a text when one of the text's words starts with it ("derm" finds "dermatologist",
-  // but "ent" doesn't find "treatment", nor "urologist" "neurologist"). A procedure's name also matches
-  // inside a word, for words long enough to mean something ("scopy" finds "colonoscopy").
-  const starts = (text, w) => text.split(" ").some((t) => t.startsWith(w));
+  // but "ent" doesn't find "treatment", nor "urologist" "neurologist"). One or two letters must be the
+  // whole word ("PT" is not "ptosis"). A procedure's name also matches inside a word, for words long
+  // enough to mean something ("scopy" finds "colonoscopy").
+  const starts = (text, w) => text.split(" ").some((t) => (w.length < 3 ? t === w : t.startsWith(w)));
   const inside = (text, w) => w.length >= 4 && text.includes(w);
 
   const doctorWords = (s) => fold(`${s.name} ${s.doctor} ${s.doctors} ${(s.aka || []).join(" ")}`);
@@ -137,7 +140,8 @@
     for (const s of data.specialties || []) doctors[s.name] = doctorWords(s);
     const scored = [];
     for (const p of data.procedures) {
-      const name = fold(p.name), aka = fold((p.aka || []).join(" ")), doctor = doctors[p.specialty] || fold(p.specialty),
+      const name = fold(p.name), aka = fold((p.aka || []).join(" ")),
+        doctor = [p.specialty].concat(p.also || []).map((s) => doctors[s] || fold(s)).join(" "),
         rest = fold(`${p.code} ${p.about} ${p.medicare_description}`);
       let score = 0, ok = true;
       for (const w of ws) {
@@ -180,7 +184,7 @@
     return node;
   }
 
-  const placeText = (p, key) => (key === "office" && (p.schedule || p.specialty === "Scans and tests") ? SCAN_OFFICE : PLACES[key]);
+  const placeText = (p, key) => (key === "office" && (p.specialty === "Scans and tests" || (p.schedule && p.schedule.hospital)) ? SCAN_OFFICE : PLACES[key]);
 
   function readUrl() {
     const u = new URLSearchParams(location.search);
@@ -266,9 +270,9 @@
 
   function notes(p, e) {
     const out = [], f = e.flags, state = stateSel.value;
-    if (p.note) out.push(p.note);
+    if (p.note) out.push(p.note_source ? [p.note + " (", el("a", { href: p.note_source.url, rel: "noopener", text: p.note_source.label }), ")"] : p.note);
     if (f.state) out.push(`The doctor's fee is ${state}'s own average. ${e.parts.length > 1 ? "Facility and anesthesia fees are national figures; Medicare adjusts them somewhat for local wages." : ""}`.trim());
-    if (f.national) out.push(`This is Medicare's national price. Medicare adjusts it somewhat for local costs, and we don't have a ${state} figure for the whole scan.`);
+    if (f.national) out.push(`This is Medicare's national price. Medicare adjusts it somewhat for local costs, and we don't have a ${state} figure for the whole ${e.parts[0].thing}.`);
     if (p.retired) out.push(p.retired.note);
     if (f.stateMissing) out.push(`Medicare paid for too few of these in ${state} to publish a reliable figure there, so this is the national average.`);
     if (f.thin) out.push("Medicare covers this procedure relatively rarely, so its averages rest on fewer cases than most on this page. Treat the estimate as rougher than usual.");
@@ -286,9 +290,9 @@
     const span = (mult) => (mult.low === mult.mid ? `up to ${percent(mult.high)}` : `${percent(mult.low)} to ${percent(mult.high)}`);
     return e.parts.map((x) => {
       if (x.key === "doctor" && x.scheduled) {
-        return el("li", {}, el("strong", { text: "Scan and reading. " }),
-          `Medicare's national price for the scan and the doctor's reading together, done outside a hospital, is ${exact(x.medicare)} (${s.schedule.year} fee schedule).`, cite("schedule"),
-          " We use that instead of Medicare's average bill, because many of those bills are for the scan alone or the reading alone.",
+        return el("li", {}, el("strong", { text: `${x.label}. ` }),
+          `Medicare's national price for the ${x.thing} and the doctor's reading together, done outside a hospital, is ${exact(x.medicare)} (${s.schedule.year} fee schedule).`, cite("schedule"),
+          ` We use that instead of Medicare's average bill, because many of those bills are for the ${x.thing} alone or the reading alone.`,
           ` Studies find private insurers pay about ${percent(m.doctor.mid)} of Medicare's price for services on this fee schedule (${span(m.doctor)} across studies).`, cite("kff"), ` ${times(x, m.doctor)}`);
       }
       if (x.key === "hospital" && x.scheduled) {
@@ -299,8 +303,9 @@
       }
       if (x.key === "doctor") {
         return el("li", {}, el("strong", { text: `${x.label}. ` }),
-          `Medicare's price for the doctor averaged ${exact(x.medicare)} ${x.place === "office" ? "in an office" : "in a facility"}, across ${x.services.toLocaleString("en-US")} cases ${x.state ? "in " + x.state : "nationwide"} in ${s.doctor.year}.`, cite("doctor"),
-          ` Studies find private insurers pay doctors about ${percent(m.doctor.mid)} of Medicare's price (${span(m.doctor)} across studies).`, cite("kff"), ` ${times(x, m.doctor)}`);
+          `Medicare's price for the ${p.billed_by ? "clinician" : "doctor"} averaged ${exact(x.medicare)} ${x.place === "office" ? "in an office" : "in a facility"}, across ${x.services.toLocaleString("en-US")} cases ${x.state ? "in " + x.state : "nationwide"} in ${s.doctor.year}.`, cite("doctor"),
+          ` Studies find private insurers pay doctors about ${percent(m.doctor.mid)} of Medicare's price (${span(m.doctor)} across studies).`, cite("kff"), ` ${times(x, m.doctor)}`,
+          p.billed_by ? ` That figure was measured for physicians' services. We have no separate figure for ${p.billed_by}, so treat this estimate as rougher than most.` : "");
       }
       if (x.key === "center") {
         return el("li", {}, el("strong", { text: "Surgery center fee. " }),
@@ -338,7 +343,7 @@
   // The price menu: every procedure a search found, with its best guess and range.
   function menu(found) {
     const text = q.value.trim(), state = stateSel.value, who = specialtyFor(data, text), m = data.multipliers, s = data.sources;
-    const whole = who && found.every((p) => p.specialty === who.name);
+    const whole = who && found.every((p) => p.specialty === who.name || (p.also || []).includes(who.name));
     const title = whole ? `What ${who.doctors} commonly do, and what it costs` : `${found.length} ${found.length === 1 ? "procedure" : "procedures"} matching “${text}”`;
     const rows = found.map((p) => {
       const e = estimate(data, p, { state }), t = e.total;
@@ -421,7 +426,7 @@
       breakdown(e),
       el("div", { class: "pc-notes" }, el("h3", { text: "How we got this number" }), el("ol", {}, working(p, e)),
         el("p", { class: "pc-fineprint", text: "Medicare's price is the full amount it allows for the service: its own payment plus the patient's share." })),
-      el("div", { class: "pc-notes" }, el("h3", { text: "Good to know" }), el("ul", {}, notes(p, e).map((n) => el("li", { text: n })))),
+      el("div", { class: "pc-notes" }, el("h3", { text: "Good to know" }), el("ul", {}, notes(p, e).map((n) => el("li", {}, n)))),
       callScript(p, e),
       cosmetic,
       el("p", { class: "pc-share" }, el("button", { type: "button", class: "pc-copy", onclick: copyLink, text: "Copy link to this estimate" }),

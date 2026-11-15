@@ -9,6 +9,8 @@
 #   name        what a patient would call it
 #   aka         other words people search for (medical name, misspellings, the condition it treats)
 #   specialty   the group it is listed under
+#   also        optional list of other groups whose doctors do this too: searching one of those kinds of
+#               doctor lists it as well (the bunion entry has also = ["Bones and joints"])
 #   code        the billing code (HCPCS/CPT) of the main procedure, one side / one lesion / first unit
 #   about       one plain sentence on what it is
 #   anesthesia  optional: the anesthesia billing code used when an anesthesia provider takes part
@@ -16,6 +18,10 @@
 #   retired     optional table {ask, note}, for a code that is no longer in force (the script says when one
 #               isn't in this year's fee schedule): `note` says what replaced it, and `ask` is how to name
 #               the procedure on the phone instead of quoting the dead code ("a prostate biopsy")
+#   note_source optional table {label, url}: where a fact in the note comes from. A note that says what
+#               insurance or Medicare covers needs one, and must say only what that page says
+#   billed_by   optional: the kind of clinician, in the plural ("physical therapists"), when it isn't a
+#               physician. The estimate then says the doctor multiplier wasn't measured for them
 #   cosmetic    optional table {fee, quote, excludes, source, url}: a published average for the cosmetic
 #               (never insured) version of the procedure, shown beside the estimate. `quote` and
 #               `excludes` are the source's own words, copied exactly; the page shows them in quotation marks
@@ -31,6 +37,12 @@
 #   doctors  the same in the plural, as it reads mid-sentence ("What dermatologists commonly do")
 #   aka      words people search for when they mean this kind of doctor; searching any of them lists the
 #            whole group. The first one is what the button searches for.
+
+[[specialty]]
+name = "Primary care"
+doctor = "Primary care doctor"
+doctors = "primary care doctors"
+aka = ["primary care", "family doctor", "family medicine", "internist", "internal medicine", "general practitioner", "GP", "PCP", "urgent care", "nurse practitioner", "checkup", "doctor visit"]
 
 [[specialty]]
 name = "Eyes"
@@ -85,6 +97,48 @@ name = "Heart and veins"
 doctor = "Cardiologist"
 doctors = "cardiologists and vein specialists"
 aka = ["cardiologist", "cardiology", "heart doctor", "vein specialist", "vein clinic", "vascular surgeon"]
+
+[[specialty]]
+name = "Lungs and sleep"
+doctor = "Lung or sleep doctor"
+doctors = "lung and sleep doctors"
+aka = ["pulmonologist", "pulmonology", "lung doctor", "lung specialist", "sleep doctor", "sleep specialist", "sleep medicine", "respiratory"]
+
+[[specialty]]
+name = "Brain and nerves"
+doctor = "Neurologist"
+doctors = "neurologists"
+aka = ["neurologist", "neurology", "nerve doctor", "brain doctor", "headache specialist"]
+
+[[specialty]]
+name = "Allergy"
+doctor = "Allergist"
+doctors = "allergists"
+aka = ["allergist", "allergy doctor", "allergy", "allergies", "immunologist", "allergy testing"]
+
+[[specialty]]
+name = "Feet and ankles"
+doctor = "Podiatrist"
+doctors = "podiatrists"
+aka = ["podiatrist", "podiatry", "foot doctor", "foot specialist", "foot and ankle"]
+
+[[specialty]]
+name = "Mental health"
+doctor = "Therapist or psychiatrist"
+doctors = "therapists and psychiatrists"
+aka = ["therapist", "psychiatrist", "psychiatry", "psychologist", "counselor", "counseling", "psychotherapy", "mental health", "therapy"]
+
+[[specialty]]
+name = "Physical therapy"
+doctor = "Physical therapist"
+doctors = "physical therapists"
+aka = ["physical therapist", "physical therapy", "PT", "physio", "physiotherapy", "rehab"]
+
+[[specialty]]
+name = "Chiropractic"
+doctor = "Chiropractor"
+doctors = "chiropractors"
+aka = ["chiropractor", "chiropractic", "chiro", "spinal adjustment", "spinal manipulation"]
 
 [[specialty]]
 name = "Scans and tests"
@@ -250,8 +304,9 @@ about = "Opens and drains one simple pocket of infection under the skin."
 [[procedure]]
 id = "ingrown-toenail"
 name = "Ingrown toenail removal (permanent)"
-aka = ["ingrown toenail", "ingrown nail", "nail removal", "matrixectomy", "toenail", "podiatrist", "podiatry", "foot doctor"]
-specialty = "Skin"
+aka = ["ingrown toenail", "ingrown nail", "nail removal", "matrixectomy", "toenail"]
+specialty = "Feet and ankles"
+also = ["Skin"]
 code = "11750"
 about = "Removes part or all of a toenail along with its root, so that edge does not grow back."
 
@@ -453,8 +508,9 @@ note = "Covers the surgery day. An overnight hospital stay, physical therapy and
 [[procedure]]
 id = "bunion-surgery"
 name = "Bunion surgery"
-aka = ["bunion", "bunionectomy", "hallux valgus", "big toe", "podiatrist", "podiatry", "foot doctor"]
-specialty = "Bones and joints"
+aka = ["bunion", "bunionectomy", "hallux valgus", "big toe"]
+specialty = "Feet and ankles"
+also = ["Bones and joints"]
 code = "28296"
 about = "Cuts and realigns the bone at the base of the big toe. One foot."
 anesthesia = "01480"
@@ -661,8 +717,8 @@ note = "Free under most insurance plans. 3D imaging (tomosynthesis) adds a small
 [[procedure]]
 id = "sleep-study"
 name = "Overnight sleep study in a lab"
-aka = ["sleep study", "polysomnography", "sleep apnea", "snoring", "CPAP", "sleep test", "sleep doctor", "sleep specialist", "pulmonologist"]
-specialty = "Scans and tests"
+aka = ["sleep study", "polysomnography", "sleep apnea", "snoring", "CPAP", "sleep test"]
+specialty = "Lungs and sleep"
 code = "95810"
 about = "A night in a sleep lab with brain, breathing and oxygen monitoring, to diagnose sleep apnea and other disorders."
 note = "A home sleep apnea test is far cheaper, and many insurers require it first."
@@ -670,8 +726,8 @@ note = "A home sleep apnea test is far cheaper, and many insurers require it fir
 [[procedure]]
 id = "nerve-conduction-emg"
 name = "EMG needle test of one arm or leg"
-aka = ["EMG", "electromyography", "nerve test", "nerve conduction", "pinched nerve", "neuropathy", "carpal tunnel test", "neurologist", "neurology"]
-specialty = "Scans and tests"
+aka = ["EMG", "electromyography", "nerve test", "nerve conduction", "pinched nerve", "neuropathy", "carpal tunnel test"]
+specialty = "Brain and nerves"
 code = "95886"
 about = "A needle test of the muscles in one limb, done along with nerve conduction studies."
 note = "This is billed on top of the nerve conduction studies done the same visit, which usually cost a similar amount again."
@@ -688,8 +744,351 @@ note = "The lab that reads the sample bills separately."
 [[procedure]]
 id = "botox-migraine"
 name = "Botox injections for chronic migraine"
-aka = ["Botox", "migraine", "chronic migraine", "botulinum toxin", "headache injections", "chemodenervation", "neurologist", "neurology", "headache specialist"]
-specialty = "Scans and tests"
+aka = ["Botox", "migraine", "chronic migraine", "botulinum toxin", "headache injections", "chemodenervation"]
+specialty = "Brain and nerves"
 code = "64615"
 about = "A set of small injections around the head and neck, repeated every 12 weeks."
 note = "This is the fee for giving the injections. The drug is billed separately and costs far more than the injections."
+
+# ------------------------------------------------------------------ Primary care
+
+[[procedure]]
+id = "office-visit"
+name = "Doctor's visit, returning patient (20 to 29 minutes)"
+aka = ["office visit", "doctor visit", "appointment", "follow-up", "sick visit", "urgent care visit", "established patient"]
+specialty = "Primary care"
+code = "99213"
+about = "A routine visit with a doctor or nurse practitioner you have seen before, for one or two straightforward problems."
+note = "Tests, shots and procedures done at the visit are billed separately. A yearly preventive checkup is a different kind of visit: most health plans must cover a set of preventive services at no cost to you, generally when the provider is in your plan's network."
+note_source = { label = "HealthCare.gov, Preventive care benefits", url = "https://www.healthcare.gov/coverage/preventive-care-benefits/" }
+
+[[procedure]]
+id = "office-visit-longer"
+name = "Doctor's visit, returning patient (30 to 39 minutes)"
+aka = ["office visit", "doctor visit", "appointment", "follow-up", "established patient", "long visit"]
+specialty = "Primary care"
+code = "99214"
+about = "A longer visit with a doctor or nurse practitioner you have seen before, for several problems or one that needs more working out."
+note = "Tests, shots and procedures done at the visit are billed separately. A yearly preventive checkup is a different kind of visit: most health plans must cover a set of preventive services at no cost to you, generally when the provider is in your plan's network."
+note_source = { label = "HealthCare.gov, Preventive care benefits", url = "https://www.healthcare.gov/coverage/preventive-care-benefits/" }
+
+[[procedure]]
+id = "new-patient-visit"
+name = "Doctor's visit, new patient (30 to 44 minutes)"
+aka = ["new patient", "first visit", "office visit", "doctor visit", "consultation", "consult", "specialist visit"]
+specialty = "Primary care"
+code = "99203"
+about = "A first visit with a doctor or practice you haven't been to in the last three years. Specialists bill a first visit the same way."
+note = "Tests, shots and procedures done at the visit are billed separately. A yearly preventive checkup is a different kind of visit: most health plans must cover a set of preventive services at no cost to you, generally when the provider is in your plan's network."
+note_source = { label = "HealthCare.gov, Preventive care benefits", url = "https://www.healthcare.gov/coverage/preventive-care-benefits/" }
+
+[[procedure]]
+id = "new-patient-visit-longer"
+name = "Doctor's visit, new patient (45 to 59 minutes)"
+aka = ["new patient", "first visit", "office visit", "doctor visit", "consultation", "consult", "specialist visit"]
+specialty = "Primary care"
+code = "99204"
+about = "A longer first visit with a doctor or practice you haven't been to in the last three years."
+note = "Tests, shots and procedures done at the visit are billed separately. A yearly preventive checkup is a different kind of visit: most health plans must cover a set of preventive services at no cost to you, generally when the provider is in your plan's network."
+note_source = { label = "HealthCare.gov, Preventive care benefits", url = "https://www.healthcare.gov/coverage/preventive-care-benefits/" }
+
+[[procedure]]
+id = "stitches"
+name = "Stitches for a small cut (up to 1 inch)"
+aka = ["stitches", "sutures", "laceration", "cut", "wound repair", "urgent care"]
+specialty = "Primary care"
+code = "12001"
+about = "Closes a simple cut of up to 2.5 cm on the scalp, neck, body, arms or legs."
+note = "The visit itself is billed on top of the stitches. In an emergency room, the hospital bills its own fee as well."
+
+# ------------------------------------------------------------------ Eye exams, hearing, heart tests
+
+[[procedure]]
+id = "eye-exam"
+name = "Eye exam, returning patient (comprehensive)"
+aka = ["eye exam", "eye test", "vision exam", "optometrist", "optometry", "eye checkup", "dilated eye exam"]
+specialty = "Eyes"
+billed_by = "optometrists"
+code = "92014"
+about = "A full medical eye exam by an optometrist or ophthalmologist you have seen before."
+note = "The check for a glasses prescription (refraction) and a contact lens fitting are separate charges."
+
+[[procedure]]
+id = "eye-exam-new"
+name = "Eye exam, new patient (comprehensive)"
+aka = ["eye exam", "eye test", "vision exam", "optometrist", "optometry", "eye checkup", "dilated eye exam", "first eye exam"]
+specialty = "Eyes"
+billed_by = "optometrists"
+code = "92004"
+about = "A full medical eye exam at a practice you haven't been to before."
+note = "The check for a glasses prescription (refraction) and a contact lens fitting are separate charges."
+
+[[procedure]]
+id = "hearing-test"
+name = "Hearing test (comprehensive)"
+aka = ["hearing test", "audiogram", "audiologist", "audiology", "hearing loss", "hearing exam", "hearing aid"]
+specialty = "Ear, nose and throat"
+billed_by = "audiologists"
+code = "92557"
+about = "Measures how well you hear tones and speech in each ear, in a sound booth."
+note = "Hearing aids and their fitting are separate. Medicare doesn't cover hearing aids or the exams for fitting them."
+note_source = { label = "Medicare.gov, Hearing aids", url = "https://www.medicare.gov/coverage/hearing-aids" }
+
+[[procedure]]
+id = "ecg"
+name = "Electrocardiogram (ECG or EKG)"
+aka = ["ECG", "EKG", "electrocardiogram", "heart tracing", "heart rhythm", "palpitations", "chest pain"]
+specialty = "Heart and veins"
+code = "93000"
+about = "A few minutes' recording of the heart's electrical rhythm, with a doctor's reading."
+note = "Usually done during a visit, which is billed separately."
+
+[[procedure]]
+id = "carotid-ultrasound"
+name = "Ultrasound of the neck arteries (carotid)"
+aka = ["carotid ultrasound", "carotid doppler", "carotid duplex", "neck artery scan", "stroke screening"]
+specialty = "Heart and veins"
+code = "93880"
+about = "An ultrasound of the arteries on both sides of the neck, looking for narrowing."
+
+# ------------------------------------------------------------------ Lungs and sleep
+
+[[procedure]]
+id = "spirometry"
+name = "Breathing test (spirometry)"
+aka = ["spirometry", "lung function test", "pulmonary function test", "PFT", "breathing test", "asthma", "COPD"]
+specialty = "Lungs and sleep"
+code = "94010"
+about = "Measures how much air you can blow out and how fast."
+
+[[procedure]]
+id = "spirometry-inhaler"
+name = "Breathing test before and after an inhaler"
+aka = ["spirometry", "bronchodilator", "lung function test", "pulmonary function test", "PFT", "breathing test", "asthma", "COPD"]
+specialty = "Lungs and sleep"
+code = "94060"
+about = "The same breathing test done twice, before and after a dose of inhaled medicine, to see whether it opens the airways."
+
+[[procedure]]
+id = "bronchoscopy"
+name = "Scope exam of the lungs (bronchoscopy)"
+aka = ["bronchoscopy", "lung scope", "airway scope"]
+specialty = "Lungs and sleep"
+code = "31622"
+about = "A thin camera passed through the nose or mouth to look inside the airways, without taking samples."
+anesthesia = "00520"
+note = "Taking biopsies or washings is billed under different codes and costs more."
+
+# ------------------------------------------------------------------ Brain and nerves
+
+[[procedure]]
+id = "eeg"
+name = "EEG (brain wave test), awake and drowsy"
+aka = ["EEG", "electroencephalogram", "brain wave test", "seizure test", "epilepsy"]
+specialty = "Brain and nerves"
+code = "95816"
+about = "Records the brain's electrical activity through sensors on the scalp for 20 to 40 minutes."
+
+# ------------------------------------------------------------------ Allergy
+
+[[procedure]]
+id = "allergy-skin-test"
+name = "Allergy skin test (per allergen)"
+aka = ["allergy test", "allergy testing", "skin prick test", "scratch test", "hay fever", "food allergy"]
+specialty = "Allergy"
+code = "95004"
+about = "A tiny amount of one allergen pricked into the skin to see whether it raises a bump."
+note = "Priced per allergen, and a visit tests many at once. Multiply by the number tested. The visit itself is billed separately."
+
+[[procedure]]
+id = "allergy-shot"
+name = "Allergy shot (one injection)"
+aka = ["allergy shot", "allergy shots", "immunotherapy", "allergy injection"]
+specialty = "Allergy"
+code = "95115"
+about = "Giving one allergy injection. Shots are given on a schedule over months or years."
+note = "The allergy serum itself is billed separately."
+
+[[procedure]]
+id = "allergy-shots"
+name = "Allergy shots (two or more injections)"
+aka = ["allergy shot", "allergy shots", "immunotherapy", "allergy injection"]
+specialty = "Allergy"
+code = "95117"
+about = "Giving two or more allergy injections at one visit."
+note = "The allergy serum itself is billed separately."
+
+# ------------------------------------------------------------------ Feet and ankles
+
+[[procedure]]
+id = "toenail-trimming"
+name = "Trimming thick or fungal toenails (6 or more)"
+aka = ["toenail trimming", "nail debridement", "thick toenails", "fungal nails", "nail care", "diabetic foot care"]
+specialty = "Feet and ankles"
+code = "11721"
+about = "Thinning and cutting back six or more toenails that are too thick or diseased to trim at home."
+note = "Medicare doesn't usually cover routine foot care such as trimming nails or removing corns and calluses. It covers a podiatrist's treatment when it is medically necessary for a foot injury or disease. Ask your own plan what it covers."
+note_source = { label = "Medicare.gov, Foot care", url = "https://www.medicare.gov/coverage/foot-care" }
+
+[[procedure]]
+id = "callus-trimming"
+name = "Trimming corns or calluses (2 to 4)"
+aka = ["corn", "corns", "callus", "calluses", "callus removal", "diabetic foot care"]
+specialty = "Feet and ankles"
+code = "11056"
+about = "Paring down two to four corns or calluses."
+note = "Medicare doesn't usually cover routine foot care such as trimming nails or removing corns and calluses. It covers a podiatrist's treatment when it is medically necessary for a foot injury or disease. Ask your own plan what it covers."
+note_source = { label = "Medicare.gov, Foot care", url = "https://www.medicare.gov/coverage/foot-care" }
+
+[[procedure]]
+id = "plantar-fasciitis-injection"
+name = "Injection for plantar fasciitis or a sore tendon"
+aka = ["plantar fasciitis", "heel pain", "tendon injection", "cortisone shot", "steroid injection", "heel injection"]
+specialty = "Feet and ankles"
+code = "20550"
+about = "A steroid injection into the band of tissue under the heel, or around one tendon."
+note = "The visit itself is billed separately."
+
+[[procedure]]
+id = "hammertoe-surgery"
+name = "Hammertoe surgery (one toe)"
+aka = ["hammertoe", "hammer toe", "claw toe", "toe straightening", "bent toe"]
+specialty = "Feet and ankles"
+code = "28285"
+about = "Straightens one bent toe by removing a small piece of bone or fusing the joint."
+anesthesia = "01480"
+
+# ------------------------------------------------------------------ Mental health
+
+[[procedure]]
+id = "therapy-first-visit"
+name = "First visit with a therapist or psychiatrist (evaluation)"
+aka = ["intake", "psychiatric evaluation", "mental health evaluation", "first therapy session", "assessment", "depression", "anxiety"]
+specialty = "Mental health"
+billed_by = "therapists"
+code = "90791"
+about = "The first appointment: a full conversation about what is going on and what treatment might help, without prescribing."
+note = "Therapists who don't take insurance set their own cash rates, which Medicare's figures don't show."
+
+[[procedure]]
+id = "therapy-45"
+name = "Therapy session (45 minutes)"
+aka = ["therapy", "talk therapy", "counseling session", "psychotherapy", "CBT", "depression", "anxiety"]
+specialty = "Mental health"
+billed_by = "therapists"
+code = "90834"
+about = "A one-to-one talk therapy session of 38 to 52 minutes."
+note = "Therapists who don't take insurance set their own cash rates, which Medicare's figures don't show."
+
+[[procedure]]
+id = "therapy-60"
+name = "Therapy session (60 minutes)"
+aka = ["therapy", "talk therapy", "counseling session", "psychotherapy", "CBT", "depression", "anxiety"]
+specialty = "Mental health"
+billed_by = "therapists"
+code = "90837"
+about = "A one-to-one talk therapy session of 53 minutes or more."
+note = "Therapists who don't take insurance set their own cash rates, which Medicare's figures don't show."
+
+# ------------------------------------------------------------------ Physical therapy
+
+[[procedure]]
+id = "pt-evaluation"
+name = "Physical therapy evaluation (first visit)"
+aka = ["PT evaluation", "physical therapy assessment", "first PT visit", "PT eval"]
+specialty = "Physical therapy"
+billed_by = "physical therapists"
+code = "97161"
+about = "The first appointment, for a straightforward problem: the therapist examines you and sets a treatment plan."
+note = "More complicated problems are billed under two higher evaluation codes."
+
+[[procedure]]
+id = "pt-exercise"
+name = "Physical therapy: guided exercise (per 15 minutes)"
+aka = ["therapeutic exercise", "PT session", "physical therapy session", "rehab exercises", "strengthening"]
+specialty = "Physical therapy"
+billed_by = "physical therapists"
+code = "97110"
+about = "Exercises for strength, range of motion or flexibility, done with the therapist."
+note = "Billed in 15-minute units, and a session is made up of several units, often of different kinds. Multiply by the number of units to estimate a session."
+
+[[procedure]]
+id = "pt-manual"
+name = "Physical therapy: hands-on treatment (per 15 minutes)"
+aka = ["manual therapy", "PT session", "physical therapy session", "joint mobilization", "soft tissue", "massage"]
+specialty = "Physical therapy"
+billed_by = "physical therapists"
+code = "97140"
+about = "The therapist moves or works on joints and soft tissue by hand."
+note = "Billed in 15-minute units, and a session is made up of several units, often of different kinds. Multiply by the number of units to estimate a session."
+
+# ------------------------------------------------------------------ Chiropractic
+
+[[procedure]]
+id = "chiropractic-adjustment"
+name = "Chiropractic adjustment (1 or 2 regions of the spine)"
+aka = ["adjustment", "spinal manipulation", "back cracking", "back pain", "neck pain"]
+specialty = "Chiropractic"
+billed_by = "chiropractors"
+code = "98940"
+about = "A chiropractor's adjustment of one or two regions of the spine."
+note = "From a chiropractor, Medicare covers only adjustments of the spine. It doesn't cover X-rays or other services or tests the chiropractor orders, and those are billed separately."
+note_source = { label = "Medicare.gov, Chiropractic services", url = "https://www.medicare.gov/coverage/chiropractic-services" }
+
+[[procedure]]
+id = "chiropractic-adjustment-more"
+name = "Chiropractic adjustment (3 or 4 regions of the spine)"
+aka = ["adjustment", "spinal manipulation", "back cracking", "back pain", "neck pain"]
+specialty = "Chiropractic"
+billed_by = "chiropractors"
+code = "98941"
+about = "A chiropractor's adjustment of three or four regions of the spine."
+note = "From a chiropractor, Medicare covers only adjustments of the spine. It doesn't cover X-rays or other services or tests the chiropractor orders, and those are billed separately."
+note_source = { label = "Medicare.gov, Chiropractic services", url = "https://www.medicare.gov/coverage/chiropractic-services" }
+
+# ------------------------------------------------------------------ More scans
+
+[[procedure]]
+id = "chest-xray"
+name = "Chest X-ray (2 views)"
+aka = ["chest x-ray", "chest xray", "x-ray", "xray", "radiograph", "pneumonia", "cough"]
+specialty = "Scans and tests"
+code = "71046"
+about = "Two X-ray pictures of the chest, front and side."
+note = "Includes the radiologist's reading."
+
+[[procedure]]
+id = "knee-xray"
+name = "Knee X-ray (3 views)"
+aka = ["knee x-ray", "knee xray", "x-ray", "xray", "radiograph", "knee pain", "arthritis"]
+specialty = "Scans and tests"
+code = "73562"
+about = "Three X-ray pictures of one knee."
+note = "Includes the radiologist's reading."
+
+[[procedure]]
+id = "bone-density-scan"
+name = "Bone density scan (DEXA)"
+aka = ["DEXA", "DXA", "bone density", "osteoporosis", "bone scan"]
+specialty = "Scans and tests"
+code = "77080"
+about = "A low-dose X-ray scan of the hip and spine that measures bone strength."
+note = "Includes the radiologist's reading."
+
+[[procedure]]
+id = "abdominal-ultrasound"
+name = "Ultrasound of the abdomen (complete)"
+aka = ["abdominal ultrasound", "belly ultrasound", "ultrasound", "sonogram", "gallstones", "liver ultrasound"]
+specialty = "Scans and tests"
+code = "76700"
+about = "An ultrasound of the liver, gallbladder, pancreas, spleen and kidneys."
+note = "Includes the radiologist's reading."
+
+[[procedure]]
+id = "pelvic-ultrasound"
+name = "Pelvic ultrasound"
+aka = ["pelvic ultrasound", "ultrasound", "sonogram", "ovarian cyst", "fibroids", "uterus ultrasound"]
+specialty = "Scans and tests"
+code = "76856"
+about = "An ultrasound of the pelvic organs through the abdomen (not through the vagina, which is a different code)."
+note = "Includes the radiologist's reading."

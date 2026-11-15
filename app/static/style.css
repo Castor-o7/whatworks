@@ -446,7 +446,7 @@ main.wrap { padding-top: 28px; padding-bottom: 48px; }
 .pc-item-range { font-size: 13px; }
 .pc-group-doctor { font-weight: 400; letter-spacing: .04em; text-transform: none; }
 .pc-group-doctor::before { content: "· "; }
-.pc-doctors { flex: 1 1 100%; }
+.pc-doctors { flex: 1 1 100%; min-width: 0; max-width: 100%; }
 .pc-doctors ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .pc-doctors a { display: inline-flex; align-items: center; min-height: 40px; padding: 6px 14px; border: 1px solid var(--ink-3); border-radius: 999px; font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: none; background: var(--bg); }
 .pc-doctors a:hover { border-color: var(--ink); }
@@ -532,5 +532,8 @@ main.wrap { padding-top: 28px; padding-bottom: 48px; }
 @media (max-width: 900px) {
   .pc { grid-template-columns: minmax(0, 1fr); grid-template-areas: "search" "detail" "list"; }
   .pc-list { position: static; max-height: none; overflow: visible; padding-right: 0; }
+  /* Eighteen buttons would push the list off a phone's first screen: one row, scrolled sideways. */
+  .pc-doctors ul { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+  .pc-doctors li { flex: none; scroll-snap-align: start; }
   .pc-empty, .pc-card { padding: 18px 16px; }
 }
