@@ -1,5 +1,7 @@
 # What Works? News Center — site settings. Edit freely, then rebuild: python scripts/build_site.py
 name = "What Works?"
+# Not shown under the title any more. Still the description on the home page's share card and link
+# previews, the feed's subtitle, and the fallback description for pages with no summary of their own.
 tagline = "Everyday solutions. Out-of-the-ordinary situations. The news behind both."
 author = "Josh"
 # The site's origin (scheme + host, no path). Link previews, the feed and the sitemap need full URLs:
