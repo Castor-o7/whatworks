@@ -91,6 +91,7 @@
     <div class="pc-doctors">
       <p class="pc-label" id="pc-doctors-label">Or see a price menu for</p>
       <ul aria-labelledby="pc-doctors-label">
+        <li><a href="?q=primary%20care" data-q="primary care">Primary care doctor</a></li>
         <li><a href="?q=eye%20doctor" data-q="eye doctor">Eye doctor</a></li>
         <li><a href="?q=dermatologist" data-q="dermatologist">Dermatologist</a></li>
         <li><a href="?q=ENT" data-q="ENT">ENT</a></li>
@@ -100,6 +101,13 @@
         <li><a href="?q=urologist" data-q="urologist">Urologist</a></li>
         <li><a href="?q=gynecologist" data-q="gynecologist">Gynecologist</a></li>
         <li><a href="?q=cardiologist" data-q="cardiologist">Cardiologist</a></li>
+        <li><a href="?q=pulmonologist" data-q="pulmonologist">Lung or sleep doctor</a></li>
+        <li><a href="?q=neurologist" data-q="neurologist">Neurologist</a></li>
+        <li><a href="?q=allergist" data-q="allergist">Allergist</a></li>
+        <li><a href="?q=podiatrist" data-q="podiatrist">Podiatrist</a></li>
+        <li><a href="?q=therapist" data-q="therapist">Therapist or psychiatrist</a></li>
+        <li><a href="?q=physical%20therapist" data-q="physical therapist">Physical therapist</a></li>
+        <li><a href="?q=chiropractor" data-q="chiropractor">Chiropractor</a></li>
         <li><a href="?q=imaging" data-q="imaging">Imaging and testing</a></li>
         
       </ul>
@@ -108,7 +116,7 @@
   </form>
 
   <nav class="pc-list" aria-label="Procedures">
-    <p class="pc-count" id="pc-count" role="status" aria-live="polite">64 procedures</p>
+    <p class="pc-count" id="pc-count" role="status" aria-live="polite">98 procedures</p>
     
     <section class="pc-group" data-group>
       <h2 class="pc-group-title">Eyes <span class="pc-group-doctor">Eye doctor</span></h2>
@@ -129,6 +137,10 @@
         <li data-item="chalazion-removal"><a href="?p=chalazion-removal" data-id="chalazion-removal"><span class="pc-item-name">Stye or eyelid bump removal (chalazion)</span><span class="pc-item-price" data-price></span></a></li>
         
         <li data-item="pterygium-removal"><a href="?p=pterygium-removal" data-id="pterygium-removal"><span class="pc-item-name">Pterygium removal with a graft</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="eye-exam"><a href="?p=eye-exam" data-id="eye-exam"><span class="pc-item-name">Eye exam, returning patient (comprehensive)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="eye-exam-new"><a href="?p=eye-exam-new" data-id="eye-exam-new"><span class="pc-item-name">Eye exam, new patient (comprehensive)</span><span class="pc-item-price" data-price></span></a></li>
         
       </ul>
     </section>
@@ -155,7 +167,24 @@
         
         <li data-item="abscess-drainage"><a href="?p=abscess-drainage" data-id="abscess-drainage"><span class="pc-item-name">Draining a boil or abscess</span><span class="pc-item-price" data-price></span></a></li>
         
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Feet and ankles <span class="pc-group-doctor">Podiatrist</span></h2>
+      <ul>
+        
         <li data-item="ingrown-toenail"><a href="?p=ingrown-toenail" data-id="ingrown-toenail"><span class="pc-item-name">Ingrown toenail removal (permanent)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="bunion-surgery"><a href="?p=bunion-surgery" data-id="bunion-surgery"><span class="pc-item-name">Bunion surgery</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="toenail-trimming"><a href="?p=toenail-trimming" data-id="toenail-trimming"><span class="pc-item-name">Trimming thick or fungal toenails (6 or more)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="callus-trimming"><a href="?p=callus-trimming" data-id="callus-trimming"><span class="pc-item-name">Trimming corns or calluses (2 to 4)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="plantar-fasciitis-injection"><a href="?p=plantar-fasciitis-injection" data-id="plantar-fasciitis-injection"><span class="pc-item-name">Injection for plantar fasciitis or a sore tendon</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hammertoe-surgery"><a href="?p=hammertoe-surgery" data-id="hammertoe-surgery"><span class="pc-item-name">Hammertoe surgery (one toe)</span><span class="pc-item-price" data-price></span></a></li>
         
       </ul>
     </section>
@@ -175,6 +204,8 @@
         <li data-item="nasal-endoscopy"><a href="?p=nasal-endoscopy" data-id="nasal-endoscopy"><span class="pc-item-name">Scope exam of the nose and sinuses</span><span class="pc-item-price" data-price></span></a></li>
         
         <li data-item="earwax-removal"><a href="?p=earwax-removal" data-id="earwax-removal"><span class="pc-item-name">Earwax removal by a clinician</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hearing-test"><a href="?p=hearing-test" data-id="hearing-test"><span class="pc-item-name">Hearing test (comprehensive)</span><span class="pc-item-price" data-price></span></a></li>
         
       </ul>
     </section>
@@ -217,8 +248,6 @@
         <li data-item="knee-replacement"><a href="?p=knee-replacement" data-id="knee-replacement"><span class="pc-item-name">Total knee replacement</span><span class="pc-item-price" data-price></span></a></li>
         
         <li data-item="hip-replacement"><a href="?p=hip-replacement" data-id="hip-replacement"><span class="pc-item-name">Total hip replacement</span><span class="pc-item-price" data-price></span></a></li>
-        
-        <li data-item="bunion-surgery"><a href="?p=bunion-surgery" data-id="bunion-surgery"><span class="pc-item-name">Bunion surgery</span><span class="pc-item-price" data-price></span></a></li>
         
         <li data-item="joint-injection"><a href="?p=joint-injection" data-id="joint-injection"><span class="pc-item-name">Cortisone shot in a large joint (knee, shoulder, hip)</span><span class="pc-item-price" data-price></span></a></li>
         
@@ -280,6 +309,10 @@
         
         <li data-item="heart-catheterization"><a href="?p=heart-catheterization" data-id="heart-catheterization"><span class="pc-item-name">Heart catheterization (coronary angiogram)</span><span class="pc-item-price" data-price></span></a></li>
         
+        <li data-item="ecg"><a href="?p=ecg" data-id="ecg"><span class="pc-item-name">Electrocardiogram (ECG or EKG)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="carotid-ultrasound"><a href="?p=carotid-ultrasound" data-id="carotid-ultrasound"><span class="pc-item-name">Ultrasound of the neck arteries (carotid)</span><span class="pc-item-price" data-price></span></a></li>
+        
       </ul>
     </section>
     
@@ -297,18 +330,117 @@
         
         <li data-item="screening-mammogram"><a href="?p=screening-mammogram" data-id="screening-mammogram"><span class="pc-item-name">Screening mammogram (3D not included)</span><span class="pc-item-price" data-price></span></a></li>
         
-        <li data-item="sleep-study"><a href="?p=sleep-study" data-id="sleep-study"><span class="pc-item-name">Overnight sleep study in a lab</span><span class="pc-item-price" data-price></span></a></li>
-        
-        <li data-item="nerve-conduction-emg"><a href="?p=nerve-conduction-emg" data-id="nerve-conduction-emg"><span class="pc-item-name">EMG needle test of one arm or leg</span><span class="pc-item-price" data-price></span></a></li>
-        
         <li data-item="thyroid-biopsy"><a href="?p=thyroid-biopsy" data-id="thyroid-biopsy"><span class="pc-item-name">Thyroid nodule biopsy (fine needle, ultrasound-guided)</span><span class="pc-item-price" data-price></span></a></li>
         
-        <li data-item="botox-migraine"><a href="?p=botox-migraine" data-id="botox-migraine"><span class="pc-item-name">Botox injections for chronic migraine</span><span class="pc-item-price" data-price></span></a></li>
+        <li data-item="chest-xray"><a href="?p=chest-xray" data-id="chest-xray"><span class="pc-item-name">Chest X-ray (2 views)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="knee-xray"><a href="?p=knee-xray" data-id="knee-xray"><span class="pc-item-name">Knee X-ray (3 views)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="bone-density-scan"><a href="?p=bone-density-scan" data-id="bone-density-scan"><span class="pc-item-name">Bone density scan (DEXA)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="abdominal-ultrasound"><a href="?p=abdominal-ultrasound" data-id="abdominal-ultrasound"><span class="pc-item-name">Ultrasound of the abdomen (complete)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="pelvic-ultrasound"><a href="?p=pelvic-ultrasound" data-id="pelvic-ultrasound"><span class="pc-item-name">Pelvic ultrasound</span><span class="pc-item-price" data-price></span></a></li>
         
       </ul>
     </section>
     
-    <p class="pc-none" id="pc-none" hidden>Nothing here matches. This page covers 64 common procedures so far. For anything else, Medicare's own <a href="https://www.medicare.gov/procedure-price-lookup/" rel="noopener">Procedure Price Lookup</a> lists what Medicare pays, which is a useful floor.</p>
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Lungs and sleep <span class="pc-group-doctor">Lung or sleep doctor</span></h2>
+      <ul>
+        
+        <li data-item="sleep-study"><a href="?p=sleep-study" data-id="sleep-study"><span class="pc-item-name">Overnight sleep study in a lab</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="spirometry"><a href="?p=spirometry" data-id="spirometry"><span class="pc-item-name">Breathing test (spirometry)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="spirometry-inhaler"><a href="?p=spirometry-inhaler" data-id="spirometry-inhaler"><span class="pc-item-name">Breathing test before and after an inhaler</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="bronchoscopy"><a href="?p=bronchoscopy" data-id="bronchoscopy"><span class="pc-item-name">Scope exam of the lungs (bronchoscopy)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Brain and nerves <span class="pc-group-doctor">Neurologist</span></h2>
+      <ul>
+        
+        <li data-item="nerve-conduction-emg"><a href="?p=nerve-conduction-emg" data-id="nerve-conduction-emg"><span class="pc-item-name">EMG needle test of one arm or leg</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="botox-migraine"><a href="?p=botox-migraine" data-id="botox-migraine"><span class="pc-item-name">Botox injections for chronic migraine</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="eeg"><a href="?p=eeg" data-id="eeg"><span class="pc-item-name">EEG (brain wave test), awake and drowsy</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Primary care <span class="pc-group-doctor">Primary care doctor</span></h2>
+      <ul>
+        
+        <li data-item="office-visit"><a href="?p=office-visit" data-id="office-visit"><span class="pc-item-name">Doctor&#39;s visit, returning patient (20 to 29 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="office-visit-longer"><a href="?p=office-visit-longer" data-id="office-visit-longer"><span class="pc-item-name">Doctor&#39;s visit, returning patient (30 to 39 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="new-patient-visit"><a href="?p=new-patient-visit" data-id="new-patient-visit"><span class="pc-item-name">Doctor&#39;s visit, new patient (30 to 44 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="new-patient-visit-longer"><a href="?p=new-patient-visit-longer" data-id="new-patient-visit-longer"><span class="pc-item-name">Doctor&#39;s visit, new patient (45 to 59 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="stitches"><a href="?p=stitches" data-id="stitches"><span class="pc-item-name">Stitches for a small cut (up to 1 inch)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Allergy <span class="pc-group-doctor">Allergist</span></h2>
+      <ul>
+        
+        <li data-item="allergy-skin-test"><a href="?p=allergy-skin-test" data-id="allergy-skin-test"><span class="pc-item-name">Allergy skin test (per allergen)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="allergy-shot"><a href="?p=allergy-shot" data-id="allergy-shot"><span class="pc-item-name">Allergy shot (one injection)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="allergy-shots"><a href="?p=allergy-shots" data-id="allergy-shots"><span class="pc-item-name">Allergy shots (two or more injections)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Mental health <span class="pc-group-doctor">Therapist or psychiatrist</span></h2>
+      <ul>
+        
+        <li data-item="therapy-first-visit"><a href="?p=therapy-first-visit" data-id="therapy-first-visit"><span class="pc-item-name">First visit with a therapist or psychiatrist (evaluation)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="therapy-45"><a href="?p=therapy-45" data-id="therapy-45"><span class="pc-item-name">Therapy session (45 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="therapy-60"><a href="?p=therapy-60" data-id="therapy-60"><span class="pc-item-name">Therapy session (60 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Physical therapy <span class="pc-group-doctor">Physical therapist</span></h2>
+      <ul>
+        
+        <li data-item="pt-evaluation"><a href="?p=pt-evaluation" data-id="pt-evaluation"><span class="pc-item-name">Physical therapy evaluation (first visit)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="pt-exercise"><a href="?p=pt-exercise" data-id="pt-exercise"><span class="pc-item-name">Physical therapy: guided exercise (per 15 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="pt-manual"><a href="?p=pt-manual" data-id="pt-manual"><span class="pc-item-name">Physical therapy: hands-on treatment (per 15 minutes)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Chiropractic <span class="pc-group-doctor">Chiropractor</span></h2>
+      <ul>
+        
+        <li data-item="chiropractic-adjustment"><a href="?p=chiropractic-adjustment" data-id="chiropractic-adjustment"><span class="pc-item-name">Chiropractic adjustment (1 or 2 regions of the spine)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="chiropractic-adjustment-more"><a href="?p=chiropractic-adjustment-more" data-id="chiropractic-adjustment-more"><span class="pc-item-name">Chiropractic adjustment (3 or 4 regions of the spine)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <p class="pc-none" id="pc-none" hidden>Nothing here matches. This page covers 98 common procedures so far. For anything else, Medicare's own <a href="https://www.medicare.gov/procedure-price-lookup/" rel="noopener">Procedure Price Lookup</a> lists what Medicare pays, which is a useful floor.</p>
   </nav>
 
   <section class="pc-detail" id="pc-detail" aria-live="polite" tabindex="-1">
@@ -333,7 +465,7 @@
     </div>
     <div>
       <h3>It is an estimate</h3>
-      <p>Medicare's figures are real payments. The step up to private prices uses national research averages, some of them several years old, and real prices vary by city, insurer and doctor. Use this to know whether a quote is reasonable, not as the quote.</p>
+      <p>Medicare's figures are real payments. The step up to private prices uses national research averages, some of them several years old. The figure for doctors is applied to every kind of clinician here, including therapists, physical therapists and chiropractors, and real prices vary by city, insurer and clinician. Use this to know whether a quote is reasonable, not as the quote.</p>
     </div>
   </div>
 </section>
