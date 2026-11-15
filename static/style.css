@@ -529,6 +529,8 @@ main.wrap { padding-top: 28px; padding-bottom: 48px; }
 .pc-ask { margin: 14px 0 0; padding-left: 1.2em; max-width: 76ch; }
 .pc-ask li { margin: 8px 0; }
 .pc-fine { margin-top: 1em !important; font-size: 14px; color: var(--ink-3); }
+.pc-disclaimer p { max-width: 76ch; color: var(--ink); }
+.pc-fine a, .page-head .dek a { color: inherit; }
 @media (max-width: 900px) {
   .pc { grid-template-columns: minmax(0, 1fr); grid-template-areas: "search" "detail" "list"; }
   .pc-list { position: static; max-height: none; overflow: visible; padding-right: 0; }
