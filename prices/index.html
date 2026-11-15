@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Price Check — What Works?</title>
+  <meta name="description" content="What does a medical procedure cost? Search a procedure and see an honest best guess, built from what Medicare publishes and what private insurers pay on top of it.">
+  <link rel="canonical" href="https://whatworksnews.net/prices/">
+  <meta property="og:site_name" content="What Works?">
+  <meta property="og:title" content="Price Check — What Works?">
+  <meta property="og:description" content="What does a medical procedure cost? Search a procedure and see an honest best guess, built from what Medicare publishes and what private insurers pay on top of it.">
+  <meta property="og:url" content="https://whatworksnews.net/prices/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://whatworksnews.net/static/og/site.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="What Works? Everyday solutions. Out-of-the-ordinary situations. The news behind both.">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" type="application/atom+xml" title="What Works?" href="https://whatworksnews.net/feed.xml">
+  <link rel="sitemap" type="application/xml" href="https://whatworksnews.net/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script>window.WW_BASE = ""; window.WW_TILES = {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "tiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"};</script>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-top">
+      <span class="dateline" id="dateline">Sunday, November 15, 2026</span>
+      <script>document.getElementById("dateline").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });</script>
+      <div class="channel-links">
+        <a href="https://www.youtube.com/@BlanketBaron" rel="noopener">YouTube</a>
+        <a href="https://www.twitch.tv/blanketbaron" rel="noopener">Twitch</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <a class="wordmark" href="/">What Works<span>?</span></a>
+      <p class="tagline">Everyday solutions. Out-of-the-ordinary situations. The news behind both.</p>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <div class="wrap">
+        
+          <a href="/section/politics/"
+             >Politics</a>
+        
+          <a href="/section/economics/"
+             >Economics</a>
+        
+          <a href="/section/tech/"
+             >Technology</a>
+        
+          <a href="/section/science/"
+             >Science</a>
+        
+          <a href="/storms/"
+             >Storm Desk</a>
+        
+          <a href="/section/channel/"
+             >From the Channel</a>
+        
+        <a href="/tools/" >Tools</a>
+        <a href="/papers/" >Papers</a>
+        <a href="/about/" >About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+<header class="page-head">
+  <a class="kicker" href="/tools/">Tools</a>
+  <h1>Price Check</h1>
+  <p class="dek">What does a medical procedure cost? Most offices won't say until you've paid for a consultation. Here is an honest best guess, built from what Medicare publishes and what research says private insurers pay on top of it. <a href="/tools/price-check/">How it works →</a></p>
+</header>
+
+
+<div class="pc" id="pc">
+  <form class="pc-search" id="pc-form" role="search" autocomplete="off">
+    <label class="pc-field pc-field-q" for="pc-q">Procedure, condition or kind of doctor
+      <input type="search" id="pc-q" name="q" placeholder="Try “dermatologist”, “cataract” or “colonoscopy”" aria-describedby="pc-count" enterkeyhint="search" spellcheck="false">
+    </label>
+    <label class="pc-field" for="pc-state">Your state
+      <select id="pc-state" name="state"><option value="">United States (average)</option>
+        <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>District of Columbia</option><option>Florida</option><option>Georgia</option><option>Guam</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Northern Mariana Islands</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Puerto Rico</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virgin Islands</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select>
+    </label>
+    
+    <div class="pc-doctors">
+      <p class="pc-label" id="pc-doctors-label">Or see a price menu for</p>
+      <ul aria-labelledby="pc-doctors-label">
+        <li><a href="?q=eye%20doctor" data-q="eye doctor">Eye doctor</a></li>
+        <li><a href="?q=dermatologist" data-q="dermatologist">Dermatologist</a></li>
+        <li><a href="?q=ENT" data-q="ENT">ENT</a></li>
+        <li><a href="?q=gastroenterologist" data-q="gastroenterologist">GI doctor or general surgeon</a></li>
+        <li><a href="?q=orthopedic%20surgeon" data-q="orthopedic surgeon">Orthopedic surgeon</a></li>
+        <li><a href="?q=pain%20management" data-q="pain management">Pain clinic</a></li>
+        <li><a href="?q=urologist" data-q="urologist">Urologist</a></li>
+        <li><a href="?q=gynecologist" data-q="gynecologist">Gynecologist</a></li>
+        <li><a href="?q=cardiologist" data-q="cardiologist">Cardiologist</a></li>
+        <li><a href="?q=imaging" data-q="imaging">Imaging and testing</a></li>
+        
+      </ul>
+    </div>
+    
+  </form>
+
+  <nav class="pc-list" aria-label="Procedures">
+    <p class="pc-count" id="pc-count" role="status" aria-live="polite">64 procedures</p>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Eyes <span class="pc-group-doctor">Eye doctor</span></h2>
+      <ul>
+        
+        <li data-item="upper-eyelid-surgery"><a href="?p=upper-eyelid-surgery" data-id="upper-eyelid-surgery"><span class="pc-item-name">Upper eyelid surgery (blepharoplasty)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="droopy-eyelid-repair"><a href="?p=droopy-eyelid-repair" data-id="droopy-eyelid-repair"><span class="pc-item-name">Droopy eyelid repair (ptosis repair)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="cataract-surgery"><a href="?p=cataract-surgery" data-id="cataract-surgery"><span class="pc-item-name">Cataract surgery with a lens implant</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="yag-laser-after-cataract"><a href="?p=yag-laser-after-cataract" data-id="yag-laser-after-cataract"><span class="pc-item-name">Laser to clear cloudiness after cataract surgery (YAG)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="glaucoma-laser"><a href="?p=glaucoma-laser" data-id="glaucoma-laser"><span class="pc-item-name">Laser treatment for glaucoma (SLT)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="eye-injection"><a href="?p=eye-injection" data-id="eye-injection"><span class="pc-item-name">Eye injection for macular degeneration or diabetic eye disease</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="chalazion-removal"><a href="?p=chalazion-removal" data-id="chalazion-removal"><span class="pc-item-name">Stye or eyelid bump removal (chalazion)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="pterygium-removal"><a href="?p=pterygium-removal" data-id="pterygium-removal"><span class="pc-item-name">Pterygium removal with a graft</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Skin <span class="pc-group-doctor">Dermatologist</span></h2>
+      <ul>
+        
+        <li data-item="skin-biopsy"><a href="?p=skin-biopsy" data-id="skin-biopsy"><span class="pc-item-name">Skin biopsy (shave)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="punch-biopsy"><a href="?p=punch-biopsy" data-id="punch-biopsy"><span class="pc-item-name">Skin biopsy (punch)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="mohs-surgery"><a href="?p=mohs-surgery" data-id="mohs-surgery"><span class="pc-item-name">Mohs surgery for skin cancer (face, scalp, hands, feet)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="precancer-freezing"><a href="?p=precancer-freezing" data-id="precancer-freezing"><span class="pc-item-name">Freezing a precancerous spot (actinic keratosis)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="wart-removal"><a href="?p=wart-removal" data-id="wart-removal"><span class="pc-item-name">Wart removal (up to 14)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="skin-cancer-excision"><a href="?p=skin-cancer-excision" data-id="skin-cancer-excision"><span class="pc-item-name">Skin cancer cut out (face, about 1/2 to 3/4 inch)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="cyst-removal"><a href="?p=cyst-removal" data-id="cyst-removal"><span class="pc-item-name">Cyst or benign lump cut out (body, arms or legs)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="skin-tag-removal"><a href="?p=skin-tag-removal" data-id="skin-tag-removal"><span class="pc-item-name">Skin tag removal (up to 15)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="abscess-drainage"><a href="?p=abscess-drainage" data-id="abscess-drainage"><span class="pc-item-name">Draining a boil or abscess</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="ingrown-toenail"><a href="?p=ingrown-toenail" data-id="ingrown-toenail"><span class="pc-item-name">Ingrown toenail removal (permanent)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Ear, nose and throat <span class="pc-group-doctor">ENT</span></h2>
+      <ul>
+        
+        <li data-item="ear-tubes"><a href="?p=ear-tubes" data-id="ear-tubes"><span class="pc-item-name">Ear tubes</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="tonsillectomy"><a href="?p=tonsillectomy" data-id="tonsillectomy"><span class="pc-item-name">Tonsil removal (age 12 and up)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="septoplasty"><a href="?p=septoplasty" data-id="septoplasty"><span class="pc-item-name">Deviated septum repair (septoplasty)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="sinus-surgery"><a href="?p=sinus-surgery" data-id="sinus-surgery"><span class="pc-item-name">Sinus surgery (endoscopic)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="nasal-endoscopy"><a href="?p=nasal-endoscopy" data-id="nasal-endoscopy"><span class="pc-item-name">Scope exam of the nose and sinuses</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="earwax-removal"><a href="?p=earwax-removal" data-id="earwax-removal"><span class="pc-item-name">Earwax removal by a clinician</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Digestive <span class="pc-group-doctor">GI doctor or general surgeon</span></h2>
+      <ul>
+        
+        <li data-item="colonoscopy"><a href="?p=colonoscopy" data-id="colonoscopy"><span class="pc-item-name">Colonoscopy</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="colonoscopy-polyp"><a href="?p=colonoscopy-polyp" data-id="colonoscopy-polyp"><span class="pc-item-name">Colonoscopy with polyp removal</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="upper-endoscopy"><a href="?p=upper-endoscopy" data-id="upper-endoscopy"><span class="pc-item-name">Upper endoscopy (EGD) with biopsy</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hemorrhoid-banding"><a href="?p=hemorrhoid-banding" data-id="hemorrhoid-banding"><span class="pc-item-name">Hemorrhoid banding</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="gallbladder-removal"><a href="?p=gallbladder-removal" data-id="gallbladder-removal"><span class="pc-item-name">Gallbladder removal (laparoscopic)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hernia-repair"><a href="?p=hernia-repair" data-id="hernia-repair"><span class="pc-item-name">Groin hernia repair (open)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hernia-repair-laparoscopic"><a href="?p=hernia-repair-laparoscopic" data-id="hernia-repair-laparoscopic"><span class="pc-item-name">Groin hernia repair (laparoscopic)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Bones and joints <span class="pc-group-doctor">Orthopedic surgeon</span></h2>
+      <ul>
+        
+        <li data-item="knee-arthroscopy"><a href="?p=knee-arthroscopy" data-id="knee-arthroscopy"><span class="pc-item-name">Knee arthroscopy for a torn meniscus</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="carpal-tunnel-release"><a href="?p=carpal-tunnel-release" data-id="carpal-tunnel-release"><span class="pc-item-name">Carpal tunnel release</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="trigger-finger-release"><a href="?p=trigger-finger-release" data-id="trigger-finger-release"><span class="pc-item-name">Trigger finger release</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="rotator-cuff-repair"><a href="?p=rotator-cuff-repair" data-id="rotator-cuff-repair"><span class="pc-item-name">Rotator cuff repair (arthroscopic)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="acl-reconstruction"><a href="?p=acl-reconstruction" data-id="acl-reconstruction"><span class="pc-item-name">ACL reconstruction</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="knee-replacement"><a href="?p=knee-replacement" data-id="knee-replacement"><span class="pc-item-name">Total knee replacement</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hip-replacement"><a href="?p=hip-replacement" data-id="hip-replacement"><span class="pc-item-name">Total hip replacement</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="bunion-surgery"><a href="?p=bunion-surgery" data-id="bunion-surgery"><span class="pc-item-name">Bunion surgery</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="joint-injection"><a href="?p=joint-injection" data-id="joint-injection"><span class="pc-item-name">Cortisone shot in a large joint (knee, shoulder, hip)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Pain and spine <span class="pc-group-doctor">Pain clinic</span></h2>
+      <ul>
+        
+        <li data-item="epidural-steroid-injection"><a href="?p=epidural-steroid-injection" data-id="epidural-steroid-injection"><span class="pc-item-name">Epidural steroid injection (lower back)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="nerve-root-injection"><a href="?p=nerve-root-injection" data-id="nerve-root-injection"><span class="pc-item-name">Nerve root injection (lower back, transforaminal)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Urinary and men&#39;s health <span class="pc-group-doctor">Urologist</span></h2>
+      <ul>
+        
+        <li data-item="cystoscopy"><a href="?p=cystoscopy" data-id="cystoscopy"><span class="pc-item-name">Bladder scope exam (cystoscopy)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="prostate-biopsy"><a href="?p=prostate-biopsy" data-id="prostate-biopsy"><span class="pc-item-name">Prostate biopsy</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="kidney-stone-laser"><a href="?p=kidney-stone-laser" data-id="kidney-stone-laser"><span class="pc-item-name">Kidney stone removal with scope and laser</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="kidney-stone-shock-wave"><a href="?p=kidney-stone-shock-wave" data-id="kidney-stone-shock-wave"><span class="pc-item-name">Kidney stone shock wave treatment (lithotripsy)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Women&#39;s health <span class="pc-group-doctor">Gynecologist</span></h2>
+      <ul>
+        
+        <li data-item="colposcopy"><a href="?p=colposcopy" data-id="colposcopy"><span class="pc-item-name">Colposcopy with biopsy</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="endometrial-biopsy"><a href="?p=endometrial-biopsy" data-id="endometrial-biopsy"><span class="pc-item-name">Endometrial biopsy</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="hysteroscopy"><a href="?p=hysteroscopy" data-id="hysteroscopy"><span class="pc-item-name">Hysteroscopy with biopsy or polyp removal</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="breast-biopsy"><a href="?p=breast-biopsy" data-id="breast-biopsy"><span class="pc-item-name">Breast biopsy (needle, ultrasound-guided)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="lumpectomy"><a href="?p=lumpectomy" data-id="lumpectomy"><span class="pc-item-name">Lumpectomy (partial mastectomy)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Heart and veins <span class="pc-group-doctor">Cardiologist</span></h2>
+      <ul>
+        
+        <li data-item="echocardiogram"><a href="?p=echocardiogram" data-id="echocardiogram"><span class="pc-item-name">Echocardiogram (heart ultrasound)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="stress-test"><a href="?p=stress-test" data-id="stress-test"><span class="pc-item-name">Treadmill stress test</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="varicose-vein-ablation"><a href="?p=varicose-vein-ablation" data-id="varicose-vein-ablation"><span class="pc-item-name">Varicose vein treatment (radiofrequency ablation)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="heart-catheterization"><a href="?p=heart-catheterization" data-id="heart-catheterization"><span class="pc-item-name">Heart catheterization (coronary angiogram)</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <section class="pc-group" data-group>
+      <h2 class="pc-group-title">Scans and tests <span class="pc-group-doctor">Imaging and testing</span></h2>
+      <ul>
+        
+        <li data-item="mri-knee"><a href="?p=mri-knee" data-id="mri-knee"><span class="pc-item-name">MRI of a knee, hip or ankle (no contrast)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="mri-brain"><a href="?p=mri-brain" data-id="mri-brain"><span class="pc-item-name">MRI of the brain (no contrast)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="mri-lower-back"><a href="?p=mri-lower-back" data-id="mri-lower-back"><span class="pc-item-name">MRI of the lower back (no contrast)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="ct-abdomen-pelvis"><a href="?p=ct-abdomen-pelvis" data-id="ct-abdomen-pelvis"><span class="pc-item-name">CT scan of the abdomen and pelvis (with contrast)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="screening-mammogram"><a href="?p=screening-mammogram" data-id="screening-mammogram"><span class="pc-item-name">Screening mammogram (3D not included)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="sleep-study"><a href="?p=sleep-study" data-id="sleep-study"><span class="pc-item-name">Overnight sleep study in a lab</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="nerve-conduction-emg"><a href="?p=nerve-conduction-emg" data-id="nerve-conduction-emg"><span class="pc-item-name">EMG needle test of one arm or leg</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="thyroid-biopsy"><a href="?p=thyroid-biopsy" data-id="thyroid-biopsy"><span class="pc-item-name">Thyroid nodule biopsy (fine needle, ultrasound-guided)</span><span class="pc-item-price" data-price></span></a></li>
+        
+        <li data-item="botox-migraine"><a href="?p=botox-migraine" data-id="botox-migraine"><span class="pc-item-name">Botox injections for chronic migraine</span><span class="pc-item-price" data-price></span></a></li>
+        
+      </ul>
+    </section>
+    
+    <p class="pc-none" id="pc-none" hidden>Nothing here matches. This page covers 64 common procedures so far. For anything else, Medicare's own <a href="https://www.medicare.gov/procedure-price-lookup/" rel="noopener">Procedure Price Lookup</a> lists what Medicare pays, which is a useful floor.</p>
+  </nav>
+
+  <section class="pc-detail" id="pc-detail" aria-live="polite" tabindex="-1">
+    <div class="pc-empty" id="pc-empty">
+      <h2>Pick a procedure to see its estimate</h2>
+      <p>Search above, pick a kind of doctor to see their price menu, or choose from the list. You'll get a best guess for the total price, the range most people fall in, and what each part of the bill is.</p>
+      <noscript><p><strong>This tool needs JavaScript</strong> to calculate estimates. The figures behind it are public: see the sources at the bottom of this page.</p></noscript>
+    </div>
+  </section>
+</div>
+
+<section class="pc-how" aria-labelledby="pc-how-h">
+  <h2 class="box-title" id="pc-how-h">How to read an estimate</h2>
+  <div class="pc-how-grid">
+    <div>
+      <h3>It's the total price, not your share</h3>
+      <p>The estimate is what the doctor and the facility are paid in total. With insurance, what you owe depends on your deductible and coinsurance: if you haven't met your deductible, expect to owe most of it. Paying yourself, a fair cash quote lands inside the range.</p>
+    </div>
+    <div>
+      <h3>Where it's done matters most</h3>
+      <p>The same procedure costs least in a doctor's office, more in a surgery center, and most in a hospital outpatient department, because each adds its own facility fee. You can ask where it will be done.</p>
+    </div>
+    <div>
+      <h3>It is an estimate</h3>
+      <p>Medicare's figures are real payments. The step up to private prices uses national research averages, some of them several years old, and real prices vary by city, insurer and doctor. Use this to know whether a quote is reasonable, not as the quote.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pc-how" aria-labelledby="pc-method-h">
+  <h2 class="box-title" id="pc-method-h">How we come up with these numbers</h2>
+  
+  <ol class="pc-steps">
+    <li><strong>We start with Medicare's price.</strong> Medicare publishes what it paid for every procedure: the doctor's fee, the surgery center's fee and the hospital's fee. These are real payments from 2024 (surgery center and scan prices are October 2026), counting both Medicare's share and the patient's.<sup class="tn-cite"><a href="#pc-src-doctor">1</a></sup><sup class="tn-cite"><a href="#pc-src-center">2</a></sup><sup class="tn-cite"><a href="#pc-src-hospital">3</a></sup></li>
+    <li><strong>We scale it up to private prices.</strong> Private insurers pay more than Medicare, and studies have measured how much more: about 143% of Medicare's price for doctors,<sup class="tn-cite"><a href="#pc-src-kff">4</a></sup> 170% for surgery centers and 279% for hospital outpatient departments.<sup class="tn-cite"><a href="#pc-src-rand">5</a></sup> We multiply each part of the bill by its figure. That is the best guess.</li>
+    <li><strong>The range uses the lowest and highest figures.</strong> For doctors (118% to 179%) and hospitals (150% to 358%), those are the lowest and highest averages the studies found.<sup class="tn-cite"><a href="#pc-src-kff">4</a></sup></li>
+    <li><strong>One range is our own assumption.</strong> No study gives a national range for surgery centers, so we set one ourselves: from Medicare's own price (100%) up to what hospitals average (279%). Some states' surgery centers average no more than Medicare's price, and on average surgery centers are paid well below hospitals for the same services.<sup class="tn-cite"><a href="#pc-src-rand">5</a></sup> Every estimate that includes a surgery center marks that range with a star.</li>
+    <li><strong>We add the parts up and round.</strong> Every estimate shows this arithmetic under “How we got this number”, so you can check it.</li>
+  </ol>
+</section>
+
+<section class="pc-how" aria-labelledby="pc-ask-h">
+  <h2 class="box-title" id="pc-ask-h">Getting a real number</h2>
+  <ul class="pc-ask">
+    <li><strong>Give them the billing code.</strong> Each estimate here shows one. Asking “what is your price for code 15823?” gets further than asking what a procedure costs.</li>
+    <li><strong>Ask for the self-pay or cash price</strong>, and whether it covers the facility and anesthesia or only the doctor.</li>
+    <li><strong>Ask for a Good Faith Estimate.</strong> If you are uninsured or not using insurance, federal law (the No Surprises Act) requires providers to give you a written estimate when you schedule care or ask for one.<sup class="tn-cite"><a href="#pc-src-gfe">7</a></sup></li>
+    <li><strong>Ask whether it can be done in the office or a surgery center</strong> instead of a hospital.</li>
+  </ul>
+</section>
+
+<section class="sources pc-sources" aria-labelledby="pc-sources">
+  <h2 id="pc-sources">Sources</h2>
+  <ol>
+    <li id="pc-src-doctor">Centers for Medicare &amp; Medicaid Services, Medicare Physician &amp; Other Practitioners - by Geography and Service, 2024: the average amount practitioners billed and the average amount Medicare allowed for each billing code, nationally and by state, in offices and in facilities. <a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-geography-and-service">https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-geography-and-service</a></li>
+    <li id="pc-src-center">Centers for Medicare &amp; Medicaid Services, Ambulatory Surgical Center Payment: Addendum AA, ASC Covered Surgical Procedures, October 2026: the national rate Medicare pays a surgery center for each procedure. <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/ambulatory-surgical-center-asc/asc-payment-rates-addenda">https://www.cms.gov/medicare/payment/prospective-payment-systems/ambulatory-surgical-center-asc/asc-payment-rates-addenda</a></li>
+    <li id="pc-src-hospital">Centers for Medicare &amp; Medicaid Services, Medicare Outpatient Hospitals - by Geography and Service, 2024: the average amount Medicare allowed hospital outpatient departments, for the procedures it reports individually. <a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-outpatient-hospitals/medicare-outpatient-hospitals-by-geography-and-service">https://data.cms.gov/provider-summary-by-type-of-service/medicare-outpatient-hospitals/medicare-outpatient-hospitals-by-geography-and-service</a></li>
+    
+    <li id="pc-src-kff">KFF, How Much More Than Medicare Do Private Insurers Pay? A Review of the Literature (2020). Doctors' fees: “For physician services, private insurance paid 143% of Medicare rates, on average, ranging from 118% to 179% of Medicare rates across studies.” Hospital range: The best guess is RAND&#39;s figure; the range is from a different source, the outpatient hospital studies KFF reviewed in 2020, which ranged from 150% to 358% and averaged 264%. The 358% is a single study of Indiana, a state with few competing hospital systems. <a href="https://www.kff.org/medicare/issue-brief/how-much-more-than-medicare-do-private-insurers-pay-a-review-of-the-literature/">https://www.kff.org/medicare/issue-brief/how-much-more-than-medicare-do-private-insurers-pay-a-review-of-the-literature/</a></li>
+    <li id="pc-src-rand">RAND, Prices Paid to Hospitals by Private Health Plans: Findings from Round 5.1 of an Employer-Led Transparency Initiative (RR-A1144-2-v2, December 2024; 2022 prices). Surgery centers (page vii): “In 2022, prices for common outpatient services performed in ASCs averaged 170 percent of Medicare prices but, because of differences in Medicare payment models between ASCs and HOPDs, would have averaged approximately 107 percent of Medicare prices if paid using Medicare payment rates for HOPDs.” We use the 170 percent, because we start from Medicare's surgery center price. Hospital outpatient departments (page vii): “That year, relative prices for inpatient hospital facility services averaged 254 percent of Medicare prices, outpatient hospital facility services averaged 279 percent, and all associated professional services (inpatient plus outpatient) averaged 184 percent of what Medicare would have paid for the same services.” Surgery center range: Our own assumption, not a published range: from Medicare&#39;s own surgery center price up to what hospital outpatient departments average (279%). RAND reports only state averages, which ran from below Medicare&#39;s price in Nevada and Arkansas to nearly 460% in New Jersey (page 20). <a href="https://www.rand.org/pubs/research_reports/RRA1144-2-v2.html">https://www.rand.org/pubs/research_reports/RRA1144-2-v2.html</a></li>
+    <li id="pc-src-anesthesia">Duffy, Ly, Adler and Trish, Commercial and Medicare Advantage Payment for Anesthesiology Services, American Journal of Managed Care 27(6), 2021 (2016 and 2017 claims from three large insurers): “Mean in-network commercial allowed amount CFs for anesthesiology services ($70) are 314% of the traditional Medicare rate ($22)”. <a href="https://www.ajmc.com/view/commercial-and-medicare-advantage-payment-for-anesthesiology-services">https://www.ajmc.com/view/commercial-and-medicare-advantage-payment-for-anesthesiology-services</a> The study gives one average, so it is both the best guess and the low end. The high end (397%) is from the American Society of Anesthesiologists&#39; 2025 survey of commercial fees, which we could not read ourselves; a billing company&#39;s summary of it reports a national average commercial rate of $82.43 a unit against Medicare&#39;s $20.77. Both sources compare rates per unit (&#34;CFs&#34;, conversion factors), not whole bills. Coronis Health, A New Year&#39;s Revelation: Survey Discloses Commercial Payment Patterns (January 2026), summarizing the ASA survey: “In contrast, the 2024 national Medicare CF for anesthesia services was $20.77, or 25.2% of the contemporaneous mean commercial CF reported.” <a href="https://coronishealth.com/blog/a-new-years-revelation-survey-discloses-commercial-payment-patterns">https://coronishealth.com/blog/a-new-years-revelation-survey-discloses-commercial-payment-patterns</a></li>
+    
+    <li id="pc-src-gfe">Centers for Medicare &amp; Medicaid Services, No Surprises: Understand your rights against surprise medical bills (Good Faith Estimates for people who are uninsured or self-pay). <a href="https://www.cms.gov/medical-bill-rights">https://www.cms.gov/medical-bill-rights</a></li>
+    <li id="pc-src-schedule">Centers for Medicare &amp; Medicaid Services, Physician Fee Schedule: National Relative Value File (RVU26D), October 2026: for scans and tests, Medicare's national price for the scan and the doctor's reading together, and the hospital outpatient rate the file carries for comparison (relative value units times the conversion factor, before the adjustment for local costs). <a href="https://www.cms.gov/medicare/payment/fee-schedules/physician/pfs-relative-value-files">https://www.cms.gov/medicare/payment/fee-schedules/physician/pfs-relative-value-files</a></li>
+  </ol>
+  <p class="pc-fine">Medicare data retrieved 2026-11-15. Billing codes are CPT® codes, © American Medical Association; procedure names and descriptions on this page are our own. This page is general information, not medical or financial advice, and not a quote from any provider.</p>
+</section>
+
+</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span class="wordmark small">What Works<span>?</span></span>
+      <p>Storm data: NOAA National Centers for Environmental Information, Storm Events Database (1950–2024).</p>
+      <p><a href="https://www.youtube.com/@BlanketBaron">YouTube</a> · <a href="https://www.twitch.tv/blanketbaron">Twitch</a> · <a href="/tools/">Tools</a> · <a href="/papers/">Papers</a> · <a href="/about/">About</a> · <a href="/feed.xml" type="application/atom+xml">Subscribe (RSS)</a></p>
+    </div>
+  </footer>
+  <script src="/static/data.js"></script>
+  <script src="/static/charts.js"></script>
+  <script src="/static/site.js"></script>
+  
+<script src="/static/prices.js"></script>
+
+</body>
+</html>
