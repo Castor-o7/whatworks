@@ -123,6 +123,13 @@ exists under the new ones, so the entry stays, with a `retired = {ask, note}` ta
 by name (`ask`) and which code will be billed, instead of quoting a dead code. Prostate biopsy (55700,
 replaced in 2026 by 55705 to 55715) is the one such entry.
 
+## Disclaimer
+
+The page carries a Disclaimer section above Sources (`#pc-disclaimer-h`), linked from the line under the
+title and from the fine print, and the tool page (`content/tools/price-check.md`) repeats it. It says the
+page is information only (not medical, financial or legal advice), that nothing is guaranteed, and to
+confirm prices with the provider and coverage with the plan. Keep the two copies in step.
+
 ## Search and the price menu
 
 `WWPrices.search` needs every word of the search to match the entry: the procedure's name, its `aka`, its

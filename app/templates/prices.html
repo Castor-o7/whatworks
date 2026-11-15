@@ -5,7 +5,7 @@
 <header class="page-head">
   <a class="kicker" href="{{ base }}/tools/">Tools</a>
   <h1>Price Check</h1>
-  <p class="dek">What does a medical procedure cost? Most offices won't say until you've paid for a consultation. Here is an honest best guess, built from what Medicare publishes and what research says private insurers pay on top of it.{% if 'price-check' in tool_map %} <a href="{{ base }}/tools/price-check/">How it works →</a>{% endif %}</p>
+  <p class="dek">What does a medical procedure cost? Most offices won't say until you've paid for a consultation. Here is an honest best guess, built from what Medicare publishes and what research says private insurers pay on top of it.{% if 'price-check' in tool_map %} <a href="{{ base }}/tools/price-check/">How it works →</a>{% endif %} These are estimates, not quotes: <a href="#pc-disclaimer-h">read the disclaimer</a>.</p>
 </header>
 
 {% if not prices %}
@@ -95,6 +95,12 @@
   </ul>
 </section>
 
+<section class="pc-how pc-disclaimer" aria-labelledby="pc-disclaimer-h">
+  <h2 class="box-title" id="pc-disclaimer-h">Disclaimer</h2>
+  <p>Everything on this page is for information only. It is not medical, financial or legal advice. {{ site.name }} does not guarantee that these estimates are accurate, complete, or right for your situation: they are best guesses worked out from public data, not prices from any doctor, hospital or insurer.</p>
+  <p>Always confirm a price directly with the doctor, hospital or facility before you schedule. To find out what you will owe with insurance, contact your plan and ask about your deductible, out-of-pocket maximum, copay and coinsurance.</p>
+</section>
+
 <section class="sources pc-sources" aria-labelledby="pc-sources">
   <h2 id="pc-sources">Sources</h2>
   <ol>
@@ -109,7 +115,7 @@
     <li id="pc-src-gfe">Centers for Medicare &amp; Medicaid Services, No Surprises: Understand your rights against surprise medical bills (Good Faith Estimates for people who are uninsured or self-pay). <a href="https://www.cms.gov/medical-bill-rights">https://www.cms.gov/medical-bill-rights</a></li>
     {% if prices.sources.schedule %}<li id="pc-src-schedule">Centers for Medicare &amp; Medicaid Services, {{ prices.sources.schedule.title }}, {{ prices.sources.schedule.period }}: for scans and tests, Medicare's national price for the scan and the doctor's reading together, and the hospital outpatient rate the file carries for comparison (relative value units times the conversion factor, before the adjustment for local costs). <a href="{{ prices.sources.schedule.url }}">{{ prices.sources.schedule.url }}</a></li>{% endif %}
   </ol>
-  <p class="pc-fine">Medicare data retrieved {{ prices.retrieved }}. Billing codes are CPT® codes, © American Medical Association; procedure names and descriptions on this page are our own. This page is general information, not medical or financial advice, and not a quote from any provider.</p>
+  <p class="pc-fine">Medicare data retrieved {{ prices.retrieved }}. Billing codes are CPT® codes, © American Medical Association; procedure names and descriptions on this page are our own. See the <a href="#pc-disclaimer-h">disclaimer</a> above.</p>
 </section>
 {% endif %}
 {% endblock %}
