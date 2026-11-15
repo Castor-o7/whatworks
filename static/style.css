@@ -59,10 +59,9 @@ code { font-size: .9em; background: var(--surface); padding: .1em .35em; border-
 .theme-toggle { background: none; border: 1px solid var(--rule); color: var(--ink-2); border-radius: 999px;
   width: 28px; height: 28px; cursor: pointer; font-size: 14px; }
 .wordmark { display: block; text-align: center; font: 900 clamp(44px, 9vw, 96px)/1 var(--serif);
-  letter-spacing: -.02em; text-decoration: none; margin: 18px 0 4px; font-variation-settings: "opsz" 144; }
+  letter-spacing: -.02em; text-decoration: none; margin: 18px 0 16px; font-variation-settings: "opsz" 144; }
 .wordmark span { color: var(--accent); }
 .wordmark.small { font-size: 28px; margin: 0; text-align: left; }
-.tagline { text-align: center; font-style: italic; color: var(--ink-2); margin: 0 0 14px; font-family: var(--serif); }
 .sections { border-top: 1px solid var(--ink); }
 .sections .wrap { display: flex; gap: 4px 22px; justify-content: center; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; }
 .sections a { text-decoration: none; font-weight: 700; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 0; }
