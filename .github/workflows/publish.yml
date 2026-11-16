@@ -28,13 +28,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Check out the studio repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0               # ci_publish.py diffs content/ against the last deployed commit
           persist-credentials: false   # no token on disk while LaTeX runs (LaTeX can read files)
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: pip
@@ -63,7 +63,7 @@ jobs:
             collection-luatex
 
       - name: Restore compiled papers and share cards
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             .cache/papers
@@ -96,7 +96,7 @@ jobs:
       - name: Upload the draft preview (private to this repo)
         if: ${{ !cancelled() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: draft-preview
           path: ${{ runner.temp }}/draft-preview
